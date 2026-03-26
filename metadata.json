@@ -1,0 +1,9 @@
+{
+  "name": "Golden Minds Africa Fellowship App",
+  "description": "An Intelligent Fellowship Experience Platform with AI-powered attendance, learning, collaboration, and knowledge capture.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
