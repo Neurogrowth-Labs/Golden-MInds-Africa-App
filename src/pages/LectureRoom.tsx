@@ -1,0 +1,699 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Video, Mic, MicOff, VideoOff, MonitorUp, Hand, Smile, PhoneOff, 
+  MessageSquare, Users, FileText, Globe, Settings, Maximize, 
+  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon
+} from 'lucide-react';
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+
+const MOCK_TRANSCRIPT = [
+  { time: '14:00:05', speaker: 'Dr. Amina Mensah', text: 'Welcome everyone to today\'s session on Policy and Tech Ecosystems.' },
+  { time: '14:00:15', speaker: 'Dr. Amina Mensah', text: 'We will be discussing the impact of AI sovereignty in African nations.' },
+  { time: '14:00:30', speaker: 'Dr. Amina Mensah', text: 'As we saw in the recent summit, the reliance on foreign models presents both opportunities and significant risks.' },
+  { time: '14:01:00', speaker: 'Dr. Amina Mensah', text: 'Let me share my screen to show you the latest data from the African Union report.' },
+];
+
+const LANGUAGES = [
+  { code: 'en', name: 'English' },
+  { code: 'sw', name: 'Swahili' },
+  { code: 'yo', name: 'Yoruba' },
+  { code: 'zu', name: 'Zulu' },
+  { code: 'fr', name: 'French' },
+  { code: 'ar', name: 'Arabic' }
+];
+
+const MOCK_PARTICIPANTS = [
+  { id: 'p1', name: 'Dr. Amina Mensah', role: 'Facilitator', isMe: false },
+  { id: 'p2', name: 'You', role: 'Fellow', isMe: true },
+  { id: 'p3', name: 'Kwame Osei', role: 'Fellow', isMe: false, handRaised: true },
+  { id: 'p4', name: 'Fatima Diallo', role: 'Fellow', isMe: false },
+];
+
+export default function LectureRoom() {
+  const { roomId } = useParams();
+  const navigate = useNavigate();
+  
+  const [isMuted, setIsMuted] = useState(false);
+  const [isVideoOff, setIsVideoOff] = useState(false);
+  const [isHandRaised, setIsHandRaised] = useState(false);
+  const [activeTab, setActiveTab] = useState<'chat' | 'participants' | 'transcript' | 'translation' | 'polls'>('transcript');
+  const [layout, setLayout] = useState<'single' | 'split' | 'pip'>('split');
+  const [lowBandwidth, setLowBandwidth] = useState(false);
+  const [showWhiteboard, setShowWhiteboard] = useState(false);
+  const [showParticipantsPopup, setShowParticipantsPopup] = useState(false);
+  const [isBackgroundBlurred, setIsBackgroundBlurred] = useState(false);
+  
+  // Translation State
+  const [translationMode, setTranslationMode] = useState<'text' | 'voice'>('text');
+  const [targetLanguage, setTargetLanguage] = useState('sw');
+  const [isTranslating, setIsTranslating] = useState(false);
+  
+  const [transcript, setTranscript] = useState<any[]>([]);
+  const transcriptRef = useRef<HTMLDivElement>(null);
+
+  // Chat State
+  const [messages, setMessages] = useState([
+    { id: 1, sender: 'Dr. Amina Mensah', text: 'Welcome to the chat!', recipient: 'Everyone', time: '14:00' }
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [chatRecipient, setChatRecipient] = useState('Everyone');
+
+  // Polls State
+  const [polls, setPolls] = useState([
+    {
+      id: 1,
+      question: 'Which AI model approach is most viable for African startups?',
+      options: [
+        { text: 'Open Source (Llama, Mistral)', votes: 12 },
+        { text: 'Proprietary (Gemini, GPT)', votes: 8 },
+        { text: 'Custom Local Models', votes: 4 }
+      ],
+      totalVotes: 24,
+      isActive: true
+    }
+  ]);
+  const [isCreatingPoll, setIsCreatingPoll] = useState(false);
+  const [newPollQuestion, setNewPollQuestion] = useState('');
+  const [newPollOptions, setNewPollOptions] = useState(['', '']);
+
+  useEffect(() => {
+    // Simulate live transcription
+    let currentIndex = 0;
+    const interval = setInterval(() => {
+      if (currentIndex < MOCK_TRANSCRIPT.length) {
+        const item = MOCK_TRANSCRIPT[currentIndex];
+        setTranscript(prev => [...prev, item]);
+        currentIndex++;
+        if (transcriptRef.current) {
+          transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
+        }
+      } else {
+        clearInterval(interval);
+      }
+    }, 5000); // Add a new line every 5 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleLeave = () => {
+    navigate('/rooms');
+  };
+
+  return (
+    <div className="h-[calc(100vh-8rem)] flex flex-col bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xl border border-gray-800">
+      {/* Top Header */}
+      <div className="h-14 bg-[#141414] border-b border-gray-800 flex items-center justify-between px-6 shrink-0">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-none">LIVE</Badge>
+            <span className="text-white font-bold text-sm tracking-wide ml-2">Room {roomId?.toUpperCase()}</span>
+          </div>
+          <div className="h-4 w-px bg-gray-700" />
+          <span className="text-gray-400 text-sm">Policy & Tech Ecosystems</span>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <button 
+            onClick={() => setLowBandwidth(!lowBandwidth)}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+              lowBandwidth ? 'bg-yellow-500/20 text-yellow-500' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
+            }`}
+          >
+            {lowBandwidth ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
+            {lowBandwidth ? 'Low Bandwidth Mode' : 'HD Quality'}
+          </button>
+          <div className="flex bg-gray-800 rounded-lg p-1">
+            <button onClick={() => setLayout('single')} className={`p-1.5 rounded-md transition-colors ${layout === 'single' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><Maximize className="w-4 h-4" /></button>
+            <button onClick={() => setLayout('split')} className={`p-1.5 rounded-md transition-colors ${layout === 'split' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><LayoutGrid className="w-4 h-4" /></button>
+            <button onClick={() => setLayout('pip')} className={`p-1.5 rounded-md transition-colors ${layout === 'pip' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><LayoutTemplate className="w-4 h-4" /></button>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Video Area */}
+        <div className="flex-1 p-4 flex flex-col gap-4 relative">
+          
+          {lowBandwidth ? (
+            <div className="flex-1 bg-[#141414] rounded-2xl border border-gray-800 flex flex-col items-center justify-center">
+              <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                <Mic className="w-10 h-10 text-gray-400" />
+              </div>
+              <h2 className="text-white text-xl font-bold mb-2">Audio-Only Mode Active</h2>
+              <p className="text-gray-500 text-sm">Conserving data. Video is disabled.</p>
+            </div>
+          ) : (
+            <div className={`flex-1 flex gap-4 ${layout === 'split' ? 'flex-row' : 'flex-col'}`}>
+              {/* Primary Screen (Presentation or Whiteboard) */}
+              <div className={`relative bg-[#141414] rounded-2xl border border-gray-800 overflow-hidden ${layout === 'split' ? 'flex-1' : 'h-full'}`}>
+                {showWhiteboard ? (
+                  <div className="w-full h-full bg-[#f5f5f0] flex flex-col items-center justify-center relative">
+                    <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex gap-2">
+                      <div className="w-6 h-6 rounded-full bg-black cursor-pointer" />
+                      <div className="w-6 h-6 rounded-full bg-red-500 cursor-pointer" />
+                      <div className="w-6 h-6 rounded-full bg-blue-500 cursor-pointer" />
+                      <div className="w-6 h-6 rounded-full bg-green-500 cursor-pointer" />
+                    </div>
+                    <PenTool className="w-16 h-16 text-gray-300 mb-4" />
+                    <p className="text-gray-500 font-medium">Collaborative Whiteboard Active</p>
+                    <p className="text-sm text-gray-400">Drawings will appear here in real-time.</p>
+                  </div>
+                ) : (
+                  <img 
+                    src="https://picsum.photos/seed/presentation/1280/720" 
+                    alt="Presentation" 
+                    className="w-full h-full object-cover opacity-80"
+                    referrerPolicy="no-referrer"
+                  />
+                )}
+                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium flex items-center gap-2">
+                  <MonitorUp className="w-4 h-4" />
+                  {showWhiteboard ? 'Collaborative Whiteboard' : "Dr. Amina's Screen"}
+                </div>
+                
+                {/* Subtitles Overlay */}
+                {isTranslating && translationMode === 'text' && transcript.length > 0 && (
+                  <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-3/4 text-center">
+                    <div className="bg-black/80 backdrop-blur-md px-6 py-3 rounded-2xl inline-block border border-gray-700 shadow-2xl">
+                      <p className="text-yellow-400 text-lg font-medium leading-relaxed">
+                        {/* Mock translation based on language */}
+                        {targetLanguage === 'sw' ? "Karibuni nyote kwenye kikao cha leo kuhusu Sera na Mifumo ya Teknolojia." :
+                         targetLanguage === 'fr' ? "Bienvenue à tous à la session d'aujourd'hui sur les politiques et les écosystèmes technologiques." :
+                         transcript[transcript.length - 1].text}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Secondary Screen (Speaker/Gallery) */}
+              {(layout === 'split' || layout === 'pip') && (
+                <div className={`flex flex-col gap-4 ${layout === 'pip' ? 'absolute top-4 right-4 w-64 shadow-2xl z-20' : 'w-1/3'}`}>
+                  {/* Speaker */}
+                  <div className={`relative bg-[#141414] rounded-2xl border border-gray-800 overflow-hidden ${layout === 'pip' ? 'h-48' : 'flex-1'}`}>
+                    <img 
+                      src="https://picsum.photos/seed/speaker/640/480" 
+                      alt="Speaker" 
+                      className="w-full h-full object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-white text-xs font-medium flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      Dr. Amina Mensah
+                    </div>
+                  </div>
+                  
+                  {/* You */}
+                  <div className={`relative bg-[#141414] rounded-2xl border border-gray-800 overflow-hidden ${layout === 'pip' ? 'hidden' : 'h-48 shrink-0'}`}>
+                    {isVideoOff ? (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-900 relative overflow-hidden">
+                        {/* Blurred background placeholder */}
+                        <div className="absolute inset-0 opacity-30 blur-2xl bg-gradient-to-br from-[#ff4e00] to-purple-600" />
+                        <div className="relative z-10 w-24 h-24 rounded-full border-4 border-gray-800 bg-gradient-to-br from-[#ff4e00] to-[#ff6a00] flex items-center justify-center text-3xl font-bold text-white shadow-2xl">
+                          YO
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="relative w-full h-full">
+                        <img 
+                          src="https://picsum.photos/seed/user/640/480" 
+                          alt="You" 
+                          className={`w-full h-full object-cover transition-all duration-500 ${isBackgroundBlurred ? 'blur-md scale-110 opacity-60' : ''}`}
+                          referrerPolicy="no-referrer"
+                        />
+                        {isBackgroundBlurred && (
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <div className="w-24 h-24 rounded-full border-4 border-gray-800 bg-gradient-to-br from-[#ff4e00] to-[#ff6a00] flex items-center justify-center text-3xl font-bold text-white shadow-2xl">
+                              YO
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                    <div className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md px-2 py-1 rounded text-white text-xs font-medium flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-green-500" />
+                      You
+                    </div>
+                    <div className="absolute top-3 right-3 flex gap-2">
+                      {!isVideoOff && (
+                        <button 
+                          onClick={() => setIsBackgroundBlurred(!isBackgroundBlurred)}
+                          className={`p-1.5 rounded-lg backdrop-blur-md transition-colors ${isBackgroundBlurred ? 'bg-[#ff4e00]/80 text-white' : 'bg-black/60 text-gray-300 hover:text-white'}`}
+                          title="Toggle Background Blur"
+                        >
+                          <ImageIcon className="w-4 h-4" />
+                        </button>
+                      )}
+                      {isMuted && (
+                        <div className="bg-red-500/80 backdrop-blur-md p-1.5 rounded-lg text-white">
+                          <MicOff className="w-4 h-4" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right Sidebar */}
+        <div className="w-80 bg-[#141414] border-l border-gray-800 flex flex-col shrink-0">
+          <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="flex flex-col h-full">
+            <TabsList className="bg-transparent border-b border-gray-800 rounded-none h-auto p-0 flex w-full">
+              <TabsTrigger value="chat" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><MessageSquare className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="participants" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Users className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="transcript" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><FileText className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="translation" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Globe className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="polls" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><BarChart2 className="w-5 h-5" /></TabsTrigger>
+            </TabsList>
+
+            {/* Sidebar Content */}
+            <div className="flex-1 overflow-y-auto p-4 text-gray-300">
+              <TabsContent value="transcript" className="m-0 h-full">
+              <div className="space-y-4" ref={transcriptRef}>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-white font-bold text-sm uppercase tracking-wider">Live Transcript</h3>
+                  <span className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">
+                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live
+                  </span>
+                </div>
+                {transcript.map((item, i) => (
+                  <div key={i} className="text-sm">
+                    <div className="flex items-baseline gap-2 mb-1">
+                      <span className="text-gray-500 text-xs">{item.time}</span>
+                      <span className="text-[#ff4e00] font-bold">{item.speaker}</span>
+                    </div>
+                    <p className="text-gray-300 leading-relaxed">{item.text}</p>
+                  </div>
+                ))}
+              </div>
+              </TabsContent>
+
+              <TabsContent value="translation" className="m-0 h-full">
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-white font-bold text-sm uppercase tracking-wider mb-2">AI Translation Agent</h3>
+                  <p className="text-gray-500 text-xs mb-4">Real-time multilingual translation powered by Gemini.</p>
+                </div>
+
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center bg-gray-800/50 p-3 rounded-xl border border-gray-700">
+                    <span className="text-sm font-medium text-white">Enable AI Translation</span>
+                    <Switch 
+                      checked={isTranslating} 
+                      onCheckedChange={setIsTranslating} 
+                    />
+                  </div>
+
+                  {isTranslating && (
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Target Language</label>
+                        <select 
+                          value={targetLanguage}
+                          onChange={(e) => setTargetLanguage(e.target.value)}
+                          className="w-full bg-gray-800 border border-gray-700 text-white rounded-xl px-3 py-2 text-sm focus:outline-none focus:border-[#ff4e00]"
+                        >
+                          {LANGUAGES.map(lang => (
+                            <option key={lang.code} value={lang.code}>{lang.name}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-gray-400 mb-2 uppercase tracking-wider">Translation Mode</label>
+                        <div className="grid grid-cols-2 gap-2">
+                          <button 
+                            onClick={() => setTranslationMode('text')}
+                            className={`py-2 px-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                              translationMode === 'text' ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            }`}
+                          >
+                            <Type className="w-4 h-4" /> Text
+                          </button>
+                          <button 
+                            onClick={() => setTranslationMode('voice')}
+                            className={`py-2 px-3 rounded-xl text-sm font-medium flex items-center justify-center gap-2 transition-colors ${
+                              translationMode === 'voice' ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
+                            }`}
+                          >
+                            <Volume2 className="w-4 h-4" /> Voice
+                          </button>
+                        </div>
+                      </div>
+
+                      {translationMode === 'voice' && (
+                        <div className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4 flex flex-col gap-3">
+                          <div className="flex gap-3">
+                            <Volume2 className="w-5 h-5 text-blue-400 shrink-0" />
+                            <p className="text-xs text-blue-300 leading-relaxed">
+                              Listening to translated voice (original muted). You are hearing the AI-generated {LANGUAGES.find(l => l.code === targetLanguage)?.name} voice.
+                            </p>
+                          </div>
+                          
+                          {/* Waveform Visualizer */}
+                          <div className="flex gap-1 items-end h-12 justify-center mt-2">
+                            {[...Array(20)].map((_, i) => (
+                              <motion.div
+                                key={i}
+                                animate={{ height: [10, 30, 15] }}
+                                transition={{ repeat: Infinity, duration: 1, delay: i * 0.05 }}
+                                className="w-1 bg-blue-400 rounded"
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="chat" className="m-0 h-full">
+                <div className="flex flex-col h-full">
+                  <div className="flex-1 overflow-y-auto space-y-4 p-2">
+                    {messages.map(msg => (
+                      <div key={msg.id} className={`flex flex-col ${msg.sender === 'You' ? 'items-end' : 'items-start'}`}>
+                        <span className="text-xs text-gray-500 mb-1">
+                          {msg.sender} {msg.recipient !== 'Everyone' ? `(Private to ${msg.recipient})` : ''} • {msg.time}
+                        </span>
+                        <div className={`px-3 py-2 rounded-lg max-w-[80%] text-sm ${msg.sender === 'You' ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-gray-200'}`}>
+                          {msg.text}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-4 flex flex-col gap-2">
+                    <select 
+                      value={chatRecipient}
+                      onChange={(e) => setChatRecipient(e.target.value)}
+                      className="bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#ff4e00]"
+                    >
+                      <option value="Everyone">Everyone</option>
+                      {MOCK_PARTICIPANTS.filter(p => !p.isMe).map(p => (
+                        <option key={p.id} value={p.name}>{p.name} ({p.role})</option>
+                      ))}
+                    </select>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={newMessage}
+                        onChange={(e) => setNewMessage(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' && newMessage.trim()) {
+                            setMessages([...messages, { id: Date.now(), sender: 'You', text: newMessage.trim(), recipient: chatRecipient, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                            setNewMessage('');
+                          }
+                        }}
+                        placeholder="Type a message..." 
+                        className="flex-1 bg-gray-800 border-none rounded-lg px-3 py-2 text-sm text-white focus:ring-1 focus:ring-[#ff4e00]" 
+                      />
+                      <button 
+                        onClick={() => {
+                          if (newMessage.trim()) {
+                            setMessages([...messages, { id: Date.now(), sender: 'You', text: newMessage.trim(), recipient: chatRecipient, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                            setNewMessage('');
+                          }
+                        }}
+                        className="bg-[#ff4e00] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#ff6a00]"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="polls" className="m-0 h-full overflow-y-auto">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-white font-bold text-sm uppercase tracking-wider">Polls & Quizzes</h3>
+                    <button 
+                      onClick={() => setIsCreatingPoll(!isCreatingPoll)}
+                      className="text-xs bg-gray-800 hover:bg-gray-700 text-white px-2 py-1 rounded"
+                    >
+                      {isCreatingPoll ? 'Cancel' : '+ Create Poll'}
+                    </button>
+                  </div>
+
+                  {isCreatingPoll && (
+                    <div className="bg-gray-800 rounded-xl p-4 border border-[#ff4e00]">
+                      <input 
+                        type="text" 
+                        placeholder="Poll Question" 
+                        value={newPollQuestion}
+                        onChange={(e) => setNewPollQuestion(e.target.value)}
+                        className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white mb-3"
+                      />
+                      <div className="space-y-2 mb-3">
+                        {newPollOptions.map((opt, idx) => (
+                          <input 
+                            key={idx}
+                            type="text" 
+                            placeholder={`Option ${idx + 1}`} 
+                            value={opt}
+                            onChange={(e) => {
+                              const newOpts = [...newPollOptions];
+                              newOpts[idx] = e.target.value;
+                              setNewPollOptions(newOpts);
+                            }}
+                            className="w-full bg-gray-900 border border-gray-700 rounded-lg px-3 py-2 text-sm text-white"
+                          />
+                        ))}
+                      </div>
+                      <div className="flex justify-between">
+                        <button 
+                          onClick={() => setNewPollOptions([...newPollOptions, ''])}
+                          className="text-xs text-gray-400 hover:text-white"
+                        >
+                          + Add Option
+                        </button>
+                        <button 
+                          onClick={() => {
+                            if (newPollQuestion && newPollOptions.filter(o => o).length >= 2) {
+                              setPolls([{
+                                id: Date.now(),
+                                question: newPollQuestion,
+                                options: newPollOptions.filter(o => o).map(text => ({ text, votes: 0 })),
+                                totalVotes: 0,
+                                isActive: true
+                              }, ...polls]);
+                              setIsCreatingPoll(false);
+                              setNewPollQuestion('');
+                              setNewPollOptions(['', '']);
+                            }
+                          }}
+                          className="text-xs bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-3 py-1 rounded"
+                        >
+                          Launch Poll
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {polls.map(poll => (
+                    <div key={poll.id} className="bg-gray-800 rounded-xl p-4 border border-gray-700">
+                      <div className="flex justify-between items-start mb-3">
+                        <h4 className="text-white font-medium text-sm">{poll.question}</h4>
+                        {poll.isActive && <Badge className="bg-green-500/20 text-green-400 text-[10px] px-1.5 py-0 border-none">ACTIVE</Badge>}
+                      </div>
+                      <div className="space-y-2">
+                        {poll.options.map((opt, idx) => (
+                          <button 
+                            key={idx}
+                            onClick={() => {
+                              const newPolls = [...polls];
+                              const pollIndex = newPolls.findIndex(p => p.id === poll.id);
+                              newPolls[pollIndex].options[idx].votes++;
+                              newPolls[pollIndex].totalVotes++;
+                              setPolls(newPolls);
+                            }}
+                            className="w-full text-left px-3 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm transition-colors flex justify-between items-center relative overflow-hidden"
+                          >
+                            <div 
+                              className="absolute left-0 top-0 bottom-0 bg-[#ff4e00]/20" 
+                              style={{ width: `${poll.totalVotes > 0 ? (opt.votes / poll.totalVotes) * 100 : 0}%` }}
+                            />
+                            <span className="relative z-10 text-gray-200">{opt.text}</span>
+                            <span className="relative z-10 font-bold text-white text-xs">
+                              {poll.totalVotes > 0 ? Math.round((opt.votes / poll.totalVotes) * 100) : 0}%
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-3 text-right">{poll.totalVotes} votes cast</p>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="participants" className="m-0 h-full overflow-y-auto">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between text-sm text-gray-400 mb-4">
+                    <span>In Room ({MOCK_PARTICIPANTS.length})</span>
+                    <button className="text-[#ff4e00] hover:text-[#ff6a00]">Mute All</button>
+                  </div>
+                  
+                  {MOCK_PARTICIPANTS.map(p => (
+                    <div key={p.id} className="flex items-center justify-between py-2">
+                      <div className="flex items-center gap-3">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white ${p.isMe ? 'bg-[#ff4e00]' : 'bg-gray-700'}`}>
+                          {p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm text-white font-medium flex items-center gap-2">
+                            {p.name}
+                            {(p.handRaised || (p.isMe && isHandRaised)) && (
+                              <Hand className="w-3 h-3 text-yellow-500" />
+                            )}
+                          </p>
+                          <p className="text-xs text-gray-500">{p.role}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 text-gray-500">
+                        {p.isMe ? (
+                          <>
+                            {isMuted ? <MicOff className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4" />}
+                            {isVideoOff ? <VideoOff className="w-4 h-4 text-red-500" /> : <Video className="w-4 h-4" />}
+                          </>
+                        ) : (
+                          <>
+                            <Mic className="w-4 h-4" />
+                            <Video className="w-4 h-4" />
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+            </div>
+          </Tabs>
+        </div>
+      </div>
+
+      {/* Participants Popup */}
+      <AnimatePresence>
+        {showParticipantsPopup && (
+          <motion.div 
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            className="absolute bottom-24 left-1/2 -translate-x-1/2 w-96 bg-[#1a1a1a] border border-gray-800 rounded-2xl shadow-2xl z-50 overflow-hidden"
+          >
+            <div className="p-4 border-b border-gray-800 flex justify-between items-center bg-[#141414]">
+              <h3 className="text-white font-bold flex items-center gap-2">
+                <Users className="w-5 h-5 text-[#ff4e00]" />
+                Participants ({MOCK_PARTICIPANTS.length})
+              </h3>
+              <button onClick={() => setShowParticipantsPopup(false)} className="text-gray-400 hover:text-white">
+                &times;
+              </button>
+            </div>
+            <div className="p-2 max-h-96 overflow-y-auto">
+              {MOCK_PARTICIPANTS.map(p => (
+                <div key={p.id} className="flex items-center justify-between p-3 hover:bg-gray-800/50 rounded-xl transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white shadow-inner ${p.isMe ? 'bg-gradient-to-br from-[#ff4e00] to-[#ff6a00]' : 'bg-gradient-to-br from-gray-700 to-gray-800'}`}>
+                      {p.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm text-white font-medium flex items-center gap-2">
+                        {p.name} {p.isMe && <span className="text-xs text-gray-500 font-normal">(You)</span>}
+                        {(p.handRaised || (p.isMe && isHandRaised)) && (
+                          <Hand className="w-3.5 h-3.5 text-yellow-500" />
+                        )}
+                      </p>
+                      <p className="text-xs text-gray-500">{p.role}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 text-gray-400 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-800">
+                    {p.isMe ? (
+                      <>
+                        {isMuted ? <MicOff className="w-4 h-4 text-red-500" /> : <Mic className="w-4 h-4 text-green-500" />}
+                        {isVideoOff ? <VideoOff className="w-4 h-4 text-red-500" /> : <Video className="w-4 h-4 text-green-500" />}
+                      </>
+                    ) : (
+                      <>
+                        <Mic className="w-4 h-4 text-green-500" />
+                        <Video className="w-4 h-4 text-green-500" />
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="p-3 border-t border-gray-800 bg-[#141414] flex justify-end">
+              <button className="text-xs font-medium text-[#ff4e00] hover:text-[#ff6a00] px-4 py-2 rounded-lg hover:bg-[#ff4e00]/10 transition-colors">
+                Mute All Participants
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Bottom Controls */}
+      <div className="h-20 bg-[#141414] border-t border-gray-800 flex items-center justify-between px-6 shrink-0">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setIsMuted(!isMuted)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+          >
+            {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+          </button>
+          <button 
+            onClick={() => setIsVideoOff(!isVideoOff)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isVideoOff ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+          >
+            {isVideoOff ? <VideoOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => setShowWhiteboard(!showWhiteboard)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${showWhiteboard ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+          >
+            <PenTool className="w-5 h-5" />
+          </button>
+          <button className="w-12 h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center transition-colors">
+            <MonitorUp className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setIsHandRaised(!isHandRaised)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isHandRaised ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+          >
+            <Hand className="w-5 h-5" />
+          </button>
+          <button className="w-12 h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center transition-colors">
+            <Smile className="w-5 h-5" />
+          </button>
+          <button 
+            onClick={() => setShowParticipantsPopup(!showParticipantsPopup)}
+            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors relative ${showParticipantsPopup ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+          >
+            <Users className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+              {MOCK_PARTICIPANTS.length}
+            </span>
+          </button>
+        </div>
+
+        <button 
+          onClick={handleLeave}
+          className="px-6 py-3 rounded-full bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center gap-2"
+        >
+          <PhoneOff className="w-5 h-5" />
+          Leave
+        </button>
+      </div>
+    </div>
+  );
+}

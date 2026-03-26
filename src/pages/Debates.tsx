@@ -60,7 +60,12 @@ export default function Debates() {
         
         Team ${team} just argued: "${userMessage.content}"
         
-        Evaluate this argument. Provide 2-3 specific points of critique focusing on logic, evidence, and relevance. Then, assign a score out of 10 for this specific argument. Format your response exactly like this:
+        Evaluate this argument based on three criteria:
+        1. Argument Strength (logic, evidence, reasoning)
+        2. Clarity of Presentation (structure, articulation)
+        3. Adherence to Topic (relevance to the core debate)
+
+        Provide 2-3 specific points of critique covering these areas. Then, assign a nuanced score out of 10 for this specific argument, considering all three criteria. Format your response exactly like this:
         Critique:
         • [Point 1]
         • [Point 2]

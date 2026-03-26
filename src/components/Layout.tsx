@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { loginWithGoogle, logout } from '../firebase';
-import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft } from 'lucide-react';
+import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video } from 'lucide-react';
 import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
@@ -47,6 +47,8 @@ export default function Layout() {
             navigate('/admin', { replace: true });
           }
         }
+      } else if (profile.role !== 'admin' && !localStorage.getItem('onboardingComplete') && location.pathname !== '/onboarding') {
+        navigate('/onboarding', { replace: true });
       }
     }
   }, [user, profile, navigate, location]);
@@ -139,7 +141,10 @@ export default function Layout() {
 
   const fellowNavItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/schedule', icon: Calendar, label: 'Schedule' },
+    { to: '/assignments', icon: FileText, label: 'Assignments' },
     { to: '/attendance', icon: CalendarCheck, label: 'Attendance' },
+    { to: '/rooms', icon: Video, label: 'Virtual Rooms' },
     { to: '/learning', icon: BookOpen, label: 'Learning Hub' },
     { to: '/forum', icon: MessageSquare, label: 'Forum' },
     { to: '/debates', icon: Users, label: 'Debates' },

@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'motion/react';
-import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen } from 'lucide-react';
+import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle } from 'lucide-react';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase';
 import { GoogleGenAI } from '@google/genai';
@@ -10,6 +13,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function Dashboard() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [nextSession, setNextSession] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [nearbyHubs, setNearbyHubs] = useState('');
@@ -107,6 +111,33 @@ export default function Dashboard() {
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-sm font-medium">Fellowship Active</span>
         </div>
+      </div>
+
+      {/* Quick Actions (shadcn/ui) */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card className="rounded-2xl shadow-lg border-gray-100">
+          <CardContent className="p-6 flex flex-col items-center gap-3">
+            <Calendar size={32} className="text-[#ff4e00]" />
+            <h2 className="text-xl font-semibold">View Schedule</h2>
+            <Button onClick={() => navigate('/schedule')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Open</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-lg border-gray-100">
+          <CardContent className="p-6 flex flex-col items-center gap-3">
+            <Upload size={32} className="text-[#5A5A40]" />
+            <h2 className="text-xl font-semibold">Submit Assignment</h2>
+            <Button onClick={() => navigate('/assignments')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Upload</Button>
+          </CardContent>
+        </Card>
+
+        <Card className="rounded-2xl shadow-lg border-gray-100">
+          <CardContent className="p-6 flex flex-col items-center gap-3">
+            <CheckCircle size={32} className="text-green-600" />
+            <h2 className="text-xl font-semibold">Mark Attendance</h2>
+            <Button onClick={() => navigate('/attendance')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Check In</Button>
+          </CardContent>
+        </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -309,29 +340,36 @@ export default function Dashboard() {
             </div>
           </motion.div>
 
-          {/* Quick Actions */}
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
-          >
-            <h3 className="font-bold mb-4">Quick Actions</h3>
-            <div className="space-y-3">
-              <button className="w-full py-3 px-4 bg-[#f5f5f0] hover:bg-[#e5e5e0] text-left rounded-xl font-medium transition-colors flex justify-between items-center">
-                <span>View Schedule</span>
-                <span className="text-gray-400">→</span>
-              </button>
-              <button className="w-full py-3 px-4 bg-[#f5f5f0] hover:bg-[#e5e5e0] text-left rounded-xl font-medium transition-colors flex justify-between items-center">
-                <span>Submit Assignment</span>
-                <span className="text-gray-400">→</span>
-              </button>
-              <button className="w-full py-3 px-4 bg-[#1a1a1a] text-white hover:bg-black text-left rounded-xl font-medium transition-colors flex justify-between items-center">
-                <span>Mark Attendance</span>
-                <span className="text-gray-400">→</span>
-              </button>
-            </div>
-          </motion.div>
+          {/* Previews based on user request */}
+          <Card className="rounded-2xl shadow-sm border-gray-100">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-bold mb-4">Your Schedule</h2>
+              <div className="space-y-3">
+                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">Leadership Masterclass - 10:00 AM</div>
+                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">Policy Workshop - 2:00 PM</div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl shadow-sm border-gray-100">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-bold mb-4">Submit Assignment</h2>
+              <div className="flex flex-col gap-3">
+                <input type="file" className="border border-gray-200 bg-gray-50 p-2 text-sm rounded-lg w-full" />
+                <Button className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Submit</Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl shadow-sm border-gray-100">
+            <CardContent className="p-6">
+              <h2 className="text-lg font-bold mb-4">Attendance</h2>
+              <div className="flex flex-col gap-3">
+                <Button className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Check In Now</Button>
+                <p className="text-sm text-gray-500 font-medium text-center">Attendance Rate: 85%</p>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

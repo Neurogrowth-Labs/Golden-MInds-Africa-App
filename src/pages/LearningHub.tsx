@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2 } from 'lucide-react';
+import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });

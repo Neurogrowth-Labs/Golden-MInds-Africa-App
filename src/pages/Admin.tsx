@@ -4,7 +4,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   ShieldAlert, Users, Calendar, Image as ImageIcon, Loader2, Download, 
   BarChart3, BookOpen, MessageSquare, Settings, BrainCircuit, 
-  TrendingUp, AlertTriangle, FileText, Plus, Search, MoreVertical
+  TrendingUp, AlertTriangle, FileText, Plus, Search, MoreVertical, Video,
+  CheckCircle2, Clock
 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -99,8 +100,10 @@ export default function Admin() {
   const tabs = [
     { id: 'overview', label: 'AI Insights', icon: BrainCircuit },
     { id: 'users', label: 'Fellows', icon: Users },
+    { id: 'onboarding', label: 'Onboarding Analytics', icon: TrendingUp },
     { id: 'content', label: 'CMS', icon: BookOpen },
     { id: 'debates', label: 'Debates', icon: MessageSquare },
+    { id: 'rooms', label: 'Virtual Rooms', icon: Video },
     { id: 'generator', label: 'Assets', icon: ImageIcon },
   ];
 
@@ -303,7 +306,201 @@ export default function Admin() {
               </div>
             )}
 
+            {/* VIRTUAL ROOMS TAB */}
+            {activeTab === 'rooms' && (
+              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50">
+                <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+                      <Video className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold font-serif">Virtual Rooms Analytics</h2>
+                      <p className="text-sm text-gray-500">Monitor active sessions and engagement metrics.</p>
+                    </div>
+                  </div>
+                  <button className="px-4 py-2 bg-[#1a1a1a] text-white rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center gap-2">
+                    <Plus className="w-4 h-4" /> New Room
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Active Rooms</span>
+                      <Video className="w-5 h-5 text-purple-500" />
+                    </div>
+                    <span className="text-4xl font-bold font-serif">2</span>
+                    <p className="text-sm text-green-600 font-medium mt-2 flex items-center gap-1">
+                      <TrendingUp className="w-4 h-4" /> +1 from yesterday
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Participants</span>
+                      <Users className="w-5 h-5 text-blue-500" />
+                    </div>
+                    <span className="text-4xl font-bold font-serif">70</span>
+                    <p className="text-sm text-gray-500 font-medium mt-2">Across all live sessions</p>
+                  </div>
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Avg. Engagement</span>
+                      <BarChart3 className="w-5 h-5 text-green-500" />
+                    </div>
+                    <span className="text-4xl font-bold font-serif">85%</span>
+                    <p className="text-sm text-green-600 font-medium mt-2 flex items-center gap-1">
+                      <TrendingUp className="w-4 h-4" /> High participation
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-100">
+                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Room Name</th>
+                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Facilitator</th>
+                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Participants</th>
+                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {[
+                        { name: 'Room Alpha', facilitator: 'Dr. Amina Mensah', status: 'Live', participants: 42, color: 'text-red-500', bg: 'bg-red-50' },
+                        { name: 'Room Beta', facilitator: 'Prof. David Osei', status: 'Live', participants: 28, color: 'text-red-500', bg: 'bg-red-50' },
+                        { name: 'Room Gamma', facilitator: 'Sarah Kiptoo', status: 'Waiting', participants: 15, color: 'text-blue-500', bg: 'bg-blue-50' },
+                      ].map((room, i) => (
+                        <tr key={i} className="hover:bg-gray-50 transition-colors">
+                          <td className="p-4">
+                            <div className="font-bold text-gray-900">{room.name}</div>
+                          </td>
+                          <td className="p-4 text-gray-600">{room.facilitator}</td>
+                          <td className="p-4">
+                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${room.bg} ${room.color}`}>
+                              {room.status}
+                            </span>
+                          </td>
+                          <td className="p-4 text-gray-600">{room.participants} / 50</td>
+                          <td className="p-4">
+                            <button className="text-[#ff4e00] hover:text-[#e64600] font-medium text-sm">View Insights</button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             {/* GENERATOR TAB */}
+            {activeTab === 'onboarding' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Completion Rate</h3>
+                      <div className="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
+                        <CheckCircle2 className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-4xl font-bold text-gray-900 font-serif">92%</div>
+                      <p className="text-sm text-green-600 font-medium mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> +4% this cohort</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Avg. Time</h3>
+                      <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
+                        <Clock className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-4xl font-bold text-gray-900 font-serif">8m 45s</div>
+                      <p className="text-sm text-blue-600 font-medium mt-1 flex items-center gap-1">Optimal duration</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Drop-offs</h3>
+                      <div className="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
+                        <AlertTriangle className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-4xl font-bold text-gray-900 font-serif">14</div>
+                      <p className="text-sm text-red-600 font-medium mt-1 flex items-center gap-1">Needs attention</p>
+                    </div>
+                  </div>
+                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Day 1 Engagement</h3>
+                      <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+                        <MessageSquare className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-4xl font-bold text-gray-900 font-serif">88%</div>
+                      <p className="text-sm text-purple-600 font-medium mt-1 flex items-center gap-1">Highly active</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-3xl border border-gray-200 p-8">
+                  <div className="flex items-center justify-between mb-8">
+                    <div>
+                      <h2 className="text-2xl font-bold font-serif text-gray-900">Drop-off Analysis</h2>
+                      <p className="text-gray-500">Where users are abandoning the onboarding flow.</p>
+                    </div>
+                    <button className="px-4 py-2 bg-[#ff4e00] text-white rounded-xl font-bold text-sm hover:bg-[#e64600] transition-colors">
+                      Send Nudges
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-6">
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-bold text-gray-700">Phase 1: Welcome & Identity</span>
+                        <span className="text-gray-500">100% completion</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 w-full"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-bold text-gray-700">Phase 2: Personal Goals</span>
+                        <span className="text-gray-500">98% completion</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-green-500 w-[98%]"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-bold text-gray-700">Phase 3: Program Orientation</span>
+                        <span className="text-gray-500">95% completion</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-yellow-500 w-[95%]"></div>
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-2">
+                        <span className="font-bold text-gray-700">Phase 4: Platform Mastery</span>
+                        <span className="text-red-500 font-bold">82% completion (High Drop-off)</span>
+                      </div>
+                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-full bg-red-500 w-[82%]"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {activeTab === 'generator' && (
               <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50">
                 <div className="flex items-center gap-3 mb-6">
