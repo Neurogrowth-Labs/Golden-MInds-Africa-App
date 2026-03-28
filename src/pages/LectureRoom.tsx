@@ -4,11 +4,14 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Video, Mic, MicOff, VideoOff, MonitorUp, Hand, Smile, PhoneOff, 
   MessageSquare, Users, FileText, Globe, Settings, Maximize, 
-  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon
+  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const MOCK_TRANSCRIPT = [
   { time: '14:00:05', speaker: 'Dr. Amina Mensah', text: 'Welcome everyone to today\'s session on Policy and Tech Ecosystems.' },
@@ -275,24 +278,43 @@ export default function LectureRoom() {
 
             {/* Sidebar Content */}
             <div className="flex-1 overflow-y-auto p-4 text-gray-300">
-              <TabsContent value="transcript" className="m-0 h-full">
-              <div className="space-y-4" ref={transcriptRef}>
-                <div className="flex items-center justify-between mb-4">
+              <TabsContent value="transcript" className="m-0 h-full flex flex-col">
+                <div className="flex items-center justify-between mb-4 shrink-0">
                   <h3 className="text-white font-bold text-sm uppercase tracking-wider">Live Transcript</h3>
-                  <span className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live
-                  </span>
-                </div>
-                {transcript.map((item, i) => (
-                  <div key={i} className="text-sm">
-                    <div className="flex items-baseline gap-2 mb-1">
-                      <span className="text-gray-500 text-xs">{item.time}</span>
-                      <span className="text-[#ff4e00] font-bold">{item.speaker}</span>
-                    </div>
-                    <p className="text-gray-300 leading-relaxed">{item.text}</p>
+                  <div className="flex items-center gap-2">
+                    <button 
+                      onClick={async () => {
+                        try {
+                          const text = transcript.map(t => `${t.speaker}: ${t.text}`).join('\n');
+                          const response = await ai.models.generateContent({
+                            model: 'gemini-3-flash-preview',
+                            contents: `Summarize the following lecture transcript and extract key insights:\n\n${text}`
+                          });
+                          alert(response.text);
+                        } catch (e) {
+                          alert('Failed to generate summary');
+                        }
+                      }}
+                      className="text-xs bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-2 py-1 rounded flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3" /> Summary
+                    </button>
+                    <span className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live
+                    </span>
                   </div>
-                ))}
-              </div>
+                </div>
+                <div className="space-y-4 overflow-y-auto flex-1" ref={transcriptRef}>
+                  {transcript.map((item, i) => (
+                    <div key={i} className="text-sm">
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-gray-500 text-xs">{item.time}</span>
+                        <span className="text-[#ff4e00] font-bold">{item.speaker}</span>
+                      </div>
+                      <p className="text-gray-300 leading-relaxed">{item.text}</p>
+                    </div>
+                  ))}
+                </div>
               </TabsContent>
 
               <TabsContent value="translation" className="m-0 h-full">

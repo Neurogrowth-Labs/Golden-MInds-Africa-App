@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { Calendar as CalendarIcon, Clock, MapPin, Users, Video, Sparkles, ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import { Badge } from '@/components/ui/badge';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -12,7 +13,7 @@ const MOCK_EVENTS = [
   { id: 4, title: 'Project Builder Workshop', type: 'Workshop', date: '2026-03-30', time: '13:00 - 15:00 GMT', location: 'Virtual Room B', attendees: 30 },
 ];
 
-export default function Schedule() {
+export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 26)); // March 26, 2026
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);

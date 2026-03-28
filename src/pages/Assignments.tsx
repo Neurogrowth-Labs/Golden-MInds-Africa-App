@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { FileText, Upload, CheckCircle2, Clock, Award, PlayCircle, Mic, Link as LinkIcon, Sparkles, AlertCircle, Save, ChevronRight, MessageSquare, BrainCircuit, X, Check } from 'lucide-react';
+import { FileText, Upload, CheckCircle2, Clock, Award, PlayCircle, Mic, Link as LinkIcon, Sparkles, AlertCircle, Save, ChevronRight, MessageSquare, BrainCircuit, X, Check, ArrowUp, ArrowDown } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -8,6 +8,8 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 export default function Assignments() {
   const [activeTab, setActiveTab] = useState<'pending' | 'submitted' | 'reviewed'>('pending');
   const [selectedAssignment, setSelectedAssignment] = useState<any>(null);
+  const [sortBy, setSortBy] = useState<'dueDate' | 'points'>('dueDate');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [content, setContent] = useState('');
   const [aiFeedback, setAiFeedback] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -94,23 +96,49 @@ export default function Assignments() {
   };
 
   const assignments = [
-    { id: 1, title: 'Policy Brief: Digital Infrastructure', status: 'pending', due: 'Tonight, 23:59 GMT', type: 'Document', points: 100 },
-    { id: 2, title: 'Leadership Reflection Video', status: 'submitted', due: 'Submitted 2 days ago', type: 'Video', points: 50 },
-    { id: 3, title: 'Pan-African Trade Analysis', status: 'reviewed', due: 'Graded', type: 'Document', points: 100, score: 92 },
+    { id: 1, title: 'Policy Brief: Digital Infrastructure', status: 'pending', due: 'Tonight, 23:59 GMT', dueDate: new Date(Date.now() + 8 * 3600000).toISOString(), type: 'Document', points: 100 },
+    { id: 2, title: 'Leadership Reflection Video', status: 'submitted', due: 'Submitted 2 days ago', dueDate: new Date(Date.now() - 48 * 3600000).toISOString(), type: 'Video', points: 50 },
+    { id: 3, title: 'Pan-African Trade Analysis', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 100 * 3600000).toISOString(), type: 'Document', points: 100, score: 92 },
+    { id: 4, title: 'Startup Pitch Deck', status: 'pending', due: 'Tomorrow, 12:00 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Presentation', points: 150 },
   ];
+
+  const sortedAssignments = [...assignments]
+    .filter(a => a.status === activeTab)
+    .sort((a, b) => {
+      if (sortBy === 'points') {
+        return sortOrder === 'asc' ? a.points - b.points : b.points - a.points;
+      } else {
+        const dateA = new Date(a.dueDate).getTime();
+        const dateB = new Date(b.dueDate).getTime();
+        return sortOrder === 'asc' ? dateA - dateB : dateB - dateA;
+      }
+    });
 
   const handleAIFeedback = async () => {
     if (!content.trim()) return;
     setIsAnalyzing(true);
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Act as a strict but encouraging mentor for an African leadership fellowship. 
+      const selectedAssignmentData = selectedAssignment;
+      
+      let prompt = `Act as a strict but encouraging mentor for an African leadership fellowship. 
         Review the following assignment draft. Provide instant feedback on 3 areas: 
         1. Clarity 2. Argument Strength 3. African Context Relevance. 
         Keep it concise, bulleted, and actionable.
         
-        Draft: "${content}"`
+        Draft: "${content}"`;
+
+      if (selectedAssignmentData?.type === 'Presentation') {
+        prompt = `Act as a professional pitch coach for an African leadership fellowship.
+        Review the following presentation draft. Provide "Presentation Intelligence" feedback on: 
+        1. Slide Clarity 2. Storytelling 3. Argument Strength 4. Visual Design. 
+        Keep it concise, bulleted, and actionable.
+        
+        Draft: "${content}"`;
+      }
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
       });
       setAiFeedback(response.text || 'Feedback generation failed.');
     } catch (error) {
@@ -153,9 +181,32 @@ export default function Assignments() {
             ))}
           </div>
 
+          {/* List Controls */}
+          <div className="flex justify-between items-center px-2">
+            <span className="text-sm font-bold text-gray-500">{sortedAssignments.length} Assignments</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sort by:</span>
+              <select 
+                value={sortBy} 
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="text-sm bg-transparent border-none text-gray-700 font-bold focus:ring-0 cursor-pointer p-0"
+              >
+                <option value="dueDate">Due Date</option>
+                <option value="points">Points</option>
+              </select>
+              <button 
+                onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
+                className="p-1 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors"
+                title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
+              >
+                {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+
           {/* List */}
           <div className="space-y-4">
-            {assignments.filter(a => a.status === activeTab).map((assignment, i) => (
+            {sortedAssignments.map((assignment, i) => (
               <motion.div
                 key={assignment.id}
                 initial={{ opacity: 0, x: -20 }}
@@ -188,7 +239,7 @@ export default function Assignments() {
                 </div>
               </motion.div>
             ))}
-            {assignments.filter(a => a.status === activeTab).length === 0 && (
+            {sortedAssignments.length === 0 && (
               <div className="text-center p-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-3xl">
                 <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
                 <p className="font-medium">No {activeTab} assignments.</p>

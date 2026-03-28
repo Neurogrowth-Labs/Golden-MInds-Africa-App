@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit } from 'lucide-react';
+import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -24,11 +24,18 @@ const MOCK_MODULES = [
   }
 ];
 
+const SMART_FEED = [
+  { id: 'f1', title: "How Kenya is Regulating AI", type: "Article", time: "5 min read", match: "98% Match" },
+  { id: 'f2', title: "The Future of African Fintech", type: "Case Study", time: "15 min read", match: "92% Match" },
+  { id: 'f3', title: "Negotiating Tech Policy", type: "Video", time: "12 mins", match: "85% Match" },
+];
+
 export default function LearningHub() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [aiSummary, setAiSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState('modules');
 
   const handleGenerateSummary = async (materialTitle: string) => {
     setIsGenerating(true);
@@ -60,51 +67,115 @@ export default function LearningHub() {
           <p className="text-gray-600">Access your course materials and AI-augmented insights.</p>
         </div>
 
-        <div className="relative mb-6">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-          <input 
-            type="text"
-            placeholder="Search modules, topics, or materials..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ff4e00] transition-shadow shadow-sm"
-          />
+        <div className="flex gap-4 border-b border-gray-200 mb-6">
+          <button
+            onClick={() => setActiveTab('modules')}
+            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
+              activeTab === 'modules' ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            <BookOpen className="w-5 h-5" /> Course Modules
+            {activeTab === 'modules' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff4e00]" />
+            )}
+          </button>
+          <button
+            onClick={() => setActiveTab('feed')}
+            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
+              activeTab === 'feed' ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
+            }`}
+          >
+            <Sparkles className="w-5 h-5" /> Smart Learning Feed
+            {activeTab === 'feed' && (
+              <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#ff4e00]" />
+            )}
+          </button>
         </div>
 
-        <div className="space-y-6">
-          {MOCK_MODULES.map((mod) => (
-            <motion.div 
-              key={mod.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
-            >
-              <h2 className="text-xl font-bold font-serif mb-4">{mod.title}</h2>
-              <div className="space-y-3">
-                {mod.materials.map((mat) => (
-                  <button
-                    key={mat.id}
-                    onClick={() => {
-                      setSelectedMaterial(mat);
-                      setAiSummary('');
-                    }}
-                    className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
-                      selectedMaterial?.id === mat.id 
-                        ? 'bg-[#5A5A40] text-white' 
-                        : 'bg-[#f5f5f0] hover:bg-[#e5e5e0] text-gray-900'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      {mat.type === 'video' ? <PlayCircle className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
-                      <span className="font-medium">{mat.title}</span>
-                    </div>
-                    <span className="text-sm uppercase tracking-wider opacity-70 font-bold">{mat.type}</span>
-                  </button>
-                ))}
+        {activeTab === 'modules' && (
+          <>
+            <div className="relative mb-6">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input 
+                type="text"
+                placeholder="Search modules, topics, or materials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-12 pr-4 py-4 bg-white border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-[#ff4e00] transition-shadow shadow-sm"
+              />
+            </div>
+
+            <div className="space-y-6">
+              {MOCK_MODULES.map((mod) => (
+                <motion.div 
+                  key={mod.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
+                >
+                  <h2 className="text-xl font-bold font-serif mb-4">{mod.title}</h2>
+                  <div className="space-y-3">
+                    {mod.materials.map((mat) => (
+                      <button
+                        key={mat.id}
+                        onClick={() => {
+                          setSelectedMaterial(mat);
+                          setAiSummary('');
+                        }}
+                        className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
+                          selectedMaterial?.id === mat.id 
+                            ? 'bg-[#5A5A40] text-white' 
+                            : 'bg-[#f5f5f0] hover:bg-[#e5e5e0] text-gray-900'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {mat.type === 'video' ? <PlayCircle className="w-5 h-5" /> : <FileText className="w-5 h-5" />}
+                          <span className="font-medium">{mat.title}</span>
+                        </div>
+                        <span className="text-xs uppercase tracking-wider font-bold opacity-70">{mat.type}</span>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </>
+        )}
+
+        {activeTab === 'feed' && (
+          <div className="space-y-6">
+            <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] text-white p-8 rounded-3xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#ff4e00] opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+              <div className="relative z-10 max-w-2xl">
+                <h2 className="text-3xl font-bold font-serif mb-4">Smart Learning Feed</h2>
+                <p className="text-gray-300 mb-6">A dynamic stream of articles, videos, and case studies personalized by AI based on your interests, engagement patterns, and skill gaps.</p>
               </div>
-            </motion.div>
-          ))}
-        </div>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              {SMART_FEED.map((item) => (
+                <div key={item.id} className="bg-white p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex items-center justify-between cursor-pointer">
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center">
+                      {item.type === 'Video' ? <PlayCircle className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-gray-900 text-lg">{item.title}</h3>
+                      <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                        <span className="uppercase tracking-wider font-bold">{item.type}</span>
+                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {item.time}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" /> {item.match}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Right Column - AI Assistant & Details */}

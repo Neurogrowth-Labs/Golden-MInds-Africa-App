@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { loginWithGoogle, logout } from '../firebase';
-import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video } from 'lucide-react';
+import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus } from 'lucide-react';
 import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
@@ -149,6 +149,16 @@ export default function Layout() {
     { to: '/forum', icon: MessageSquare, label: 'Forum' },
     { to: '/debates', icon: Users, label: 'Debates' },
     { to: '/notes', icon: Mic, label: 'AI Notes' },
+    { to: '/network', icon: Globe, label: 'Network' },
+    { to: '/mentors', icon: UserPlus, label: 'Mentors' },
+    { to: '/projects', icon: Briefcase, label: 'Projects' },
+    { to: '/simulations', icon: Cpu, label: 'Simulations' },
+    { to: '/achievements', icon: Award, label: 'Achievements' },
+    { to: '/collaboration', icon: MessageSquare, label: 'Collaboration' },
+    { to: '/certifications', icon: ShieldCheck, label: 'Certifications' },
+    { to: '/vault', icon: Database, label: 'Knowledge Vault' },
+    { to: '/opportunities', icon: Compass, label: 'Opportunities' },
+    { to: '/portfolio', icon: FolderOpen, label: 'Portfolio' },
   ];
 
   if (profile?.role === 'admin') {
@@ -176,7 +186,7 @@ export default function Layout() {
           <span className="font-bold text-xl tracking-tight">Golden Minds</span>
         </div>
         
-        <nav className="flex-1 px-4 space-y-1 mt-4">
+        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto hide-scrollbar">
           {currentNavItems.map((item) => {
             // Custom active logic for query params
             const isActive = isAdminRoute 

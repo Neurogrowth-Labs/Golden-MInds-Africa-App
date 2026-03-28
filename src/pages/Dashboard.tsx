@@ -184,12 +184,18 @@ export default function Dashboard() {
             >
               <div className="flex items-center gap-2 mb-6">
                 <Sparkles className="w-5 h-5 text-[#ff4e00]" />
-                <h3 className="text-xl font-bold font-serif">AI Insights</h3>
+                <h3 className="text-xl font-bold font-serif">AI Leadership Copilot</h3>
               </div>
               <div className="bg-[#f5f5f0] rounded-2xl p-6 border border-gray-200">
-                <p className="text-gray-700 leading-relaxed text-sm">
+                <p className="text-gray-700 leading-relaxed text-sm mb-4">
                   Based on your recent participation in the "Policy & Tech" debate, you showed strong analytical skills. Consider reviewing the upcoming material on "Digital Infrastructure" to prepare for tomorrow's session.
                 </p>
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">AI Future Pathway Predictor</p>
+                  <p className="text-sm font-medium text-[#5A5A40]">
+                    "Based on your engagement in policy debates and research contributions, you are well suited for governance and public leadership roles."
+                  </p>
+                </div>
               </div>
             </motion.div>
 
@@ -228,6 +234,49 @@ export default function Dashboard() {
               </div>
             </motion.div>
           </div>
+
+          {/* Personal Impact Dashboard */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
+          >
+            <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-[#ff4e00]" />
+                <h3 className="text-xl font-bold font-serif">Personal Impact Dashboard</h3>
+              </div>
+              <button className="text-sm text-[#ff4e00] font-bold hover:underline">View Full Report</button>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Attendance</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">95%</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Debate Score</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">88</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Collab Score</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">92</p>
+              </div>
+              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Leadership</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">Top 10%</p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-blue-900 mb-1">AI Performance Insight</p>
+                <p className="text-sm text-blue-800">"Your debate engagement increased 40% this month. You collaborate most effectively with fellows in policy discussions."</p>
+              </div>
+            </div>
+          </motion.div>
 
           {/* Leaderboard Section */}
           <motion.div 

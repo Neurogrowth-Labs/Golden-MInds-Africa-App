@@ -1,0 +1,180 @@
+import React, { useState } from 'react';
+import { motion } from 'motion/react';
+import { Search, Book, FileText, Video, Network, Sparkles, Filter, ChevronRight, Hash } from 'lucide-react';
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
+const MOCK_RESOURCES = [
+  { id: 1, title: 'Digital Infrastructure Policy Brief', type: 'Document', author: 'Cohort 2025', tags: ['Policy', 'Tech', 'Infrastructure'], date: '2025-11-10' },
+  { id: 2, title: 'AI in African Healthcare', type: 'Video', author: 'Dr. Amina Mensah', tags: ['AI', 'Healthcare', 'Innovation'], date: '2026-01-15' },
+  { id: 3, title: 'Youth Entrepreneurship Funding Guide', type: 'Guide', author: 'Startup Team Alpha', tags: ['Entrepreneurship', 'Funding', 'Youth'], date: '2026-02-05' },
+  { id: 4, title: 'Debate Archive: Data Sovereignty', type: 'Transcript', author: 'Golden Minds Fellows', tags: ['Debate', 'Data', 'Sovereignty'], date: '2026-03-10' },
+];
+
+export default function KnowledgeVault() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [aiSummary, setAiSummary] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+
+  const handleAISearch = async () => {
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: `Based on the following resources: ${JSON.stringify(MOCK_RESOURCES)}. Answer the user's query: "${searchQuery}". Provide a concise summary and recommend which resources to look at.`
+      });
+      setAiSummary(response.text);
+    } catch (error) {
+      console.error('AI Error:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Knowledge Vault</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-2">Collective intelligence library of all cohorts, powered by AI.</p>
+        </div>
+      </div>
+
+      {/* Search & AI Section */}
+      <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-8 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/10 rounded-full blur-3xl" />
+        
+        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
+          <div className="flex items-center gap-3 text-[#d4af37] mb-2">
+            <Sparkles className="w-6 h-6" />
+            <h2 className="text-xl font-bold">Ask the Vault</h2>
+          </div>
+          
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
+                placeholder="E.g., What are the key policies for digital infrastructure?"
+                className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-[#d4af37] transition-colors"
+              />
+            </div>
+            <button 
+              onClick={handleAISearch}
+              disabled={isSearching}
+              className="bg-[#d4af37] hover:bg-white text-[#022c22] px-8 py-4 rounded-xl font-bold transition-colors disabled:opacity-50 whitespace-nowrap"
+            >
+              {isSearching ? 'Searching...' : 'Search'}
+            </button>
+          </div>
+
+          {aiSummary && (
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10 text-gray-200"
+            >
+              <div className="flex items-center gap-2 mb-3 text-[#d4af37]">
+                <Sparkles className="w-4 h-4" />
+                <span className="font-bold text-sm uppercase tracking-wider">AI Synthesis</span>
+              </div>
+              <div className="prose prose-invert max-w-none text-sm leading-relaxed">
+                {aiSummary}
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* Resources Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+        {/* Filters */}
+        <div className="space-y-6">
+          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+            <div className="flex items-center gap-2 mb-4 font-bold text-gray-900 dark:text-white">
+              <Filter className="w-5 h-5" /> Filters
+            </div>
+            <div className="space-y-4">
+              <div>
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Resource Type</h4>
+                <div className="space-y-2">
+                  {['All', 'Document', 'Video', 'Guide', 'Transcript'].map(type => (
+                    <label key={type} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                      <input type="checkbox" className="rounded border-gray-300 text-[#ff4e00] focus:ring-[#ff4e00]" defaultChecked={type === 'All'} />
+                      {type}
+                    </label>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Topics</h4>
+                <div className="flex flex-wrap gap-2">
+                  {['Policy', 'Tech', 'AI', 'Healthcare', 'Funding'].map(topic => (
+                    <span key={topic} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md text-xs cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                      {topic}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-500/20 p-6">
+            <div className="flex items-center gap-2 mb-2 text-purple-600 dark:text-purple-400 font-bold">
+              <Network className="w-5 h-5" /> Knowledge Graph
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Explore connections between topics and resources visually.</p>
+            <button className="w-full py-2 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition-colors">
+              Open Graph Explorer
+            </button>
+          </div>
+        </div>
+
+        {/* Results */}
+        <div className="lg:col-span-3 space-y-4">
+          <div className="flex items-center justify-between text-sm text-gray-500">
+            <span>Showing {MOCK_RESOURCES.length} resources</span>
+            <select className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium text-gray-700 dark:text-gray-300">
+              <option>Most Relevant</option>
+              <option>Newest First</option>
+              <option>Most Viewed</option>
+            </select>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {MOCK_RESOURCES.map(resource => (
+              <div key={resource.id} className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-[#ff4e00]/50 transition-colors group cursor-pointer">
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400 group-hover:bg-[#ff4e00]/10 group-hover:text-[#ff4e00] transition-colors">
+                    {resource.type === 'Document' && <FileText className="w-5 h-5" />}
+                    {resource.type === 'Video' && <Video className="w-5 h-5" />}
+                    {resource.type === 'Guide' && <Book className="w-5 h-5" />}
+                    {resource.type === 'Transcript' && <FileText className="w-5 h-5" />}
+                  </div>
+                  <span className="text-xs text-gray-500">{new Date(resource.date).toLocaleDateString()}</span>
+                </div>
+                <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-[#ff4e00] transition-colors">{resource.title}</h3>
+                <p className="text-sm text-gray-500 mb-4">By {resource.author}</p>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {resource.tags.map(tag => (
+                    <span key={tag} className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
+                      <Hash className="w-3 h-3" /> {tag}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex items-center text-sm font-medium text-[#ff4e00] opacity-0 group-hover:opacity-100 transition-opacity">
+                  View Resource <ChevronRight className="w-4 h-4 ml-1" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

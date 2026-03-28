@@ -119,6 +119,33 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "content", "createdAt"]
+    },
+    "AssignmentSubmission": {
+      "title": "AssignmentSubmission",
+      "description": "A user's submission for an assignment.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "assignmentId": { "type": "string" },
+        "content": { "type": "string" },
+        "fileUrl": { "type": "string" },
+        "audioUrl": { "type": "string" },
+        "links": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" },
+              "url": { "type": "string" }
+            }
+          }
+        },
+        "status": { "type": "string", "enum": ["pending", "submitted", "reviewed"] },
+        "score": { "type": "number" },
+        "feedback": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "assignmentId", "status", "createdAt"]
     }
   },
   "firestore": {
@@ -149,6 +176,10 @@
     "ai_notes/{noteId}": {
       "schema": "AINote",
       "description": "AI-generated notes."
+    },
+    "assignments/{assignmentId}": {
+      "schema": "AssignmentSubmission",
+      "description": "User assignment submissions."
     }
   }
 }
