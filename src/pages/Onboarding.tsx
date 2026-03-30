@@ -127,7 +127,83 @@ export default function Onboarding() {
           </motion.div>
         );
 
-      case 1: // Identity Setup
+      case 1: // Curriculum Overview
+        const phases = [
+          { 
+            title: 'Phase 1: Foundations', 
+            weeks: 'Weeks 1-4', 
+            topics: [
+              'Leadership in the Modern World',
+              'Intro to Governance Systems',
+              'Political Ideologies & Public Power',
+              'Public Service & Civic Leadership'
+            ],
+            icon: <BookOpen className="w-6 h-6 text-[#d4af37]" />
+          },
+          { 
+            title: 'Phase 2: Systems & Strategy', 
+            weeks: 'Weeks 5-8', 
+            topics: [
+              'Fundamentals of Geopolitics',
+              'Global Institutions & Diplomacy',
+              'Policy Formulation & Analysis',
+              'Economics for Public Leaders'
+            ],
+            icon: <Globe className="w-6 h-6 text-[#d4af37]" />
+          },
+          { 
+            title: 'Phase 3: Application & Public Leadership', 
+            weeks: 'Weeks 9-12', 
+            topics: [
+              'Crisis Leadership & Decision Making',
+              'Governance & Technology',
+              'Public Speaking & Influence',
+              'Capstone Policy Lab & Summit'
+            ],
+            icon: <Target className="w-6 h-6 text-[#d4af37]" />
+          }
+        ];
+        return (
+          <div className="max-w-4xl mx-auto w-full space-y-8">
+            <div className="text-center space-y-2">
+              <h2 className="text-3xl font-serif font-bold text-white">12-Week Fellowship Curriculum</h2>
+              <p className="text-gray-400">Review your comprehensive program roadmap before proceeding.</p>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-3">
+              {phases.map((phase, idx) => (
+                <div key={idx} className="bg-gray-900 border border-gray-800 p-6 rounded-2xl flex flex-col gap-4 hover:border-[#d4af37] transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-[#d4af37]/10 flex items-center justify-center shrink-0">
+                    {phase.icon}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xs font-bold px-2 py-1 bg-gray-800 text-[#d4af37] rounded-full">{phase.weeks}</span>
+                    </div>
+                    <h3 className="font-bold text-lg text-white mb-3">{phase.title}</h3>
+                    <ul className="space-y-2">
+                      {phase.topics.map((topic, i) => (
+                        <li key={i} className="text-sm text-gray-400 flex items-start gap-2">
+                          <div className="w-1.5 h-1.5 rounded-full bg-[#d4af37] mt-1.5 shrink-0" />
+                          <span>{topic}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button 
+              onClick={nextStep}
+              className="w-full py-4 bg-[#d4af37] text-[#022c22] rounded-xl font-bold transition-all hover:bg-yellow-500"
+            >
+              Acknowledge Curriculum & Continue
+            </button>
+          </div>
+        );
+
+      case 2: // Identity Setup
         return (
           <div className="max-w-md mx-auto w-full space-y-8">
             <div className="text-center space-y-2">
@@ -177,7 +253,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 2: // Personal Goals Mapping
+      case 3: // Personal Goals Mapping
         const interestOptions = ['Leadership', 'AI & Technology', 'Entrepreneurship', 'Policy & Governance', 'Climate Action', 'Education'];
         return (
           <div className="max-w-xl mx-auto w-full space-y-8">
@@ -221,7 +297,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 3: // Skill Level
+      case 4: // Skill Level
         const levels = [
           { id: 'beginner', title: 'Emerging Leader', desc: 'Building foundational skills' },
           { id: 'intermediate', title: 'Practitioner', desc: 'Applying skills in real-world contexts' },
@@ -269,7 +345,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 4: // Program Orientation
+      case 5: // Program Orientation
         return (
           <div className="max-w-2xl mx-auto w-full space-y-8">
             <div className="text-center space-y-2">
@@ -321,7 +397,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 5: // Platform Mastery
+      case 6: // Platform Mastery
         const masteryFeatures = [
           { id: 'attendance', title: 'Mark Attendance', icon: <CheckCircle2 className="w-6 h-6 text-blue-400" />, action: 'Tap to mark present', success: 'Attendance logged successfully!' },
           { id: 'learning', title: 'Learning Hub', icon: <BookOpen className="w-6 h-6 text-emerald-400" />, action: 'Download material', success: 'Material downloaded. AI summary generated.' },
@@ -375,7 +451,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 6: // AI Activation
+      case 7: // AI Activation
         return (
           <div className="max-w-xl mx-auto w-full space-y-8">
             <div className="text-center space-y-2">
@@ -444,7 +520,7 @@ export default function Onboarding() {
           </div>
         );
 
-      case 7: // Commitment Trigger
+      case 8: // Commitment Trigger
         const allCompleted = commitments.attendance && commitments.download && commitments.forum;
         return (
           <div className="max-w-xl mx-auto w-full space-y-8">
@@ -543,7 +619,7 @@ export default function Onboarding() {
           <motion.div 
             className="h-full bg-[#d4af37]"
             initial={{ width: 0 }}
-            animate={{ width: `${(step / 7) * 100}%` }}
+            animate={{ width: `${(step / 8) * 100}%` }}
             transition={{ duration: 0.5 }}
           />
         </div>
@@ -568,7 +644,7 @@ export default function Onboarding() {
       </div>
 
       {/* Bottom Navigation (Optional, for debugging or manual back) */}
-      {step > 0 && step < 7 && (
+      {step > 0 && step < 8 && (
         <div className="absolute bottom-8 left-8 z-50">
           <button 
             onClick={prevStep}

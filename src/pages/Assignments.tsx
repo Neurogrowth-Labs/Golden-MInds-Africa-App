@@ -96,7 +96,7 @@ export default function Assignments() {
   };
 
   const assignments = [
-    { id: 1, title: 'Policy Brief: Digital Infrastructure', status: 'pending', due: 'Tonight, 23:59 GMT', dueDate: new Date(Date.now() + 8 * 3600000).toISOString(), type: 'Document', points: 100 },
+    { id: 1, title: 'Policy Brief: Governance vs. HDI', status: 'pending', due: 'Tonight, 23:59 GMT', dueDate: new Date(Date.now() + 8 * 3600000).toISOString(), type: 'Document', points: 100 },
     { id: 2, title: 'Leadership Reflection Video', status: 'submitted', due: 'Submitted 2 days ago', dueDate: new Date(Date.now() - 48 * 3600000).toISOString(), type: 'Video', points: 50 },
     { id: 3, title: 'Pan-African Trade Analysis', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 100 * 3600000).toISOString(), type: 'Document', points: 100, score: 92 },
     { id: 4, title: 'Startup Pitch Deck', status: 'pending', due: 'Tomorrow, 12:00 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Presentation', points: 150 },

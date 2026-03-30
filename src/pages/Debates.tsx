@@ -18,7 +18,7 @@ export default function Debates() {
     {
       id: '1',
       role: 'moderator',
-      content: "Welcome to the Debate Engine. Today's topic: 'Should African nations prioritize AI sovereignty over rapid adoption of foreign models?' Team A (Pro-Sovereignty) vs Team B (Pro-Adoption). Please submit your opening arguments."
+      content: "Welcome to the Debate Engine. Today's topic: 'Strongman vs. Democracy: Does economic growth justify limited political freedoms? (Rwanda vs. Nigeria/Ghana)'. Team A (Pro-Strongman/Growth) vs Team B (Pro-Democracy/Freedoms). Please submit your opening arguments."
     }
   ]);
   const [input, setInput] = useState('');
@@ -53,7 +53,7 @@ export default function Debates() {
       
       const response = await ai.models.generateContent({
         model: 'gemini-3.1-pro-preview',
-        contents: `You are the AI Moderator of a debate. The topic is: 'Should African nations prioritize AI sovereignty over rapid adoption of foreign models?'
+        contents: `You are the AI Moderator of a debate. The topic is: 'Strongman vs. Democracy: Does economic growth justify limited political freedoms? (Rwanda vs. Nigeria/Ghana)'
         
         Here is the debate history:
         ${history}

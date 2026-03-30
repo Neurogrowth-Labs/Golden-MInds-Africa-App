@@ -31,7 +31,7 @@ export default function Dashboard() {
           setNextSession({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
         } else {
           setNextSession({
-            title: "AI in African Governance",
+            title: "W1A: Leadership in the Modern World (Theory)",
             date: new Date().toISOString(),
             startTime: "14:00",
             endTime: "16:00",
@@ -394,8 +394,8 @@ export default function Dashboard() {
             <CardContent className="p-6">
               <h2 className="text-lg font-bold mb-4">Your Schedule</h2>
               <div className="space-y-3">
-                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">Leadership Masterclass - 10:00 AM</div>
-                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">Policy Workshop - 2:00 PM</div>
+                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">W1A: Leadership in the Modern World - 14:00 GMT</div>
+                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">W1B: Leadership Practice - 14:00 GMT</div>
               </div>
             </CardContent>
           </Card>

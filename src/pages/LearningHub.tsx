@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock } from 'lucide-react';
+import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock, Download } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -8,9 +8,9 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const MOCK_MODULES = [
   {
     id: 1,
-    title: "Module 1: AI in African Governance",
+    title: "Foundation: African Leadership, Governance & Global Systems",
     materials: [
-      { id: 'm1', title: "Policy Frameworks 2026", type: "pdf", url: "#" },
+      { id: 'm1', title: "African Leadership & Governance Lesson", type: "pdf", url: "/African_Leadership_Governance.pdf", description: "A comprehensive lesson exploring definitions, colonial legacies, governance models, regional bodies, and contemporary challenges shaping leadership across the African continent." },
       { id: 'm2', title: "Keynote: Digital Infrastructure", type: "video", url: "#" }
     ]
   },
@@ -25,9 +25,10 @@ const MOCK_MODULES = [
 ];
 
 const SMART_FEED = [
-  { id: 'f1', title: "How Kenya is Regulating AI", type: "Article", time: "5 min read", match: "98% Match" },
-  { id: 'f2', title: "The Future of African Fintech", type: "Case Study", time: "15 min read", match: "92% Match" },
-  { id: 'f3', title: "Negotiating Tech Policy", type: "Video", time: "12 mins", match: "85% Match" },
+  { id: 'f1', title: "From 'Heroic' to Ubuntu Leadership", type: "Article", time: "5 min read", match: "98% Match" },
+  { id: 'f2', title: "Case Study: Botswana's Stable Democracy", type: "Case Study", time: "15 min read", match: "95% Match" },
+  { id: 'f3', title: "The Role of the African Union & RECs", type: "Video", time: "12 mins", match: "88% Match" },
+  { id: 'f4', title: "Navigating Chinese Investment in Africa", type: "Article", time: "8 min read", match: "85% Match" },
 ];
 
 export default function LearningHub() {
@@ -196,6 +197,18 @@ export default function LearningHub() {
               <button className="flex-1 py-3 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-black transition-colors">
                 Open Material
               </button>
+              {selectedMaterial.type === 'pdf' && (
+                <button 
+                  onClick={() => {
+                    // In a real app, this would trigger a download
+                    alert('Downloading ' + selectedMaterial.title);
+                  }}
+                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                  title="Download PDF"
+                >
+                  <Download className="w-5 h-5" />
+                </button>
+              )}
             </div>
 
             <div className="border-t border-gray-100 pt-6">

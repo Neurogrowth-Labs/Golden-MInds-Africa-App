@@ -7,14 +7,39 @@ import { Badge } from '@/components/ui/badge';
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const MOCK_EVENTS = [
-  { id: 1, title: 'Policy & Tech Ecosystems Lecture', type: 'Lecture', date: '2026-03-27', time: '14:00 - 15:30 GMT', location: 'Virtual Room A', attendees: 45 },
-  { id: 2, title: 'Mentor 1:1 with Dr. Amina Mensah', type: 'Mentorship', date: '2026-03-28', time: '10:00 - 10:45 GMT', location: 'Google Meet', attendees: 2 },
-  { id: 3, title: 'Regional Debate: AI Sovereignty', type: 'Debate', date: '2026-03-29', time: '16:00 - 18:00 GMT', location: 'Virtual Arena', attendees: 120 },
-  { id: 4, title: 'Project Builder Workshop', type: 'Workshop', date: '2026-03-30', time: '13:00 - 15:00 GMT', location: 'Virtual Room B', attendees: 30 },
+  // Phase 1: Foundations (Weeks 1-4)
+  { id: 1, title: 'W1A: Leadership in the Modern World (Theory)', type: 'Lecture', date: '2026-03-31', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 2, title: 'W1B: Leadership in the Modern World (Practice)', type: 'Lab', date: '2026-04-02', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 3, title: 'W2A: Intro to Governance Systems (Theory)', type: 'Lecture', date: '2026-04-07', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 4, title: 'W2B: Intro to Governance Systems (Practice)', type: 'Simulation', date: '2026-04-09', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 5, title: 'W3A: Political Ideologies & Public Power (Theory)', type: 'Lecture', date: '2026-04-14', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 6, title: 'W3B: Political Ideologies & Public Power (Practice)', type: 'Debate', date: '2026-04-16', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 7, title: 'W4A: Public Service & Civic Leadership (Theory)', type: 'Lecture', date: '2026-04-21', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 8, title: 'W4B: Public Service & Civic Leadership (Practice)', type: 'Simulation', date: '2026-04-23', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  
+  // Phase 2: Systems & Strategy (Weeks 5-8)
+  { id: 9, title: 'W5A: Fundamentals of Geopolitics (Theory)', type: 'Lecture', date: '2026-04-28', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 10, title: 'W5B: Fundamentals of Geopolitics (Practice)', type: 'Simulation', date: '2026-04-30', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 11, title: 'W6A: Global Institutions & Diplomacy (Theory)', type: 'Lecture', date: '2026-05-05', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 12, title: 'W6B: Global Institutions & Diplomacy (Practice)', type: 'Role-play', date: '2026-05-07', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 13, title: 'W7A: Policy Formulation & Analysis (Theory)', type: 'Lecture', date: '2026-05-12', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 14, title: 'W7B: Policy Formulation & Analysis (Practice)', type: 'Lab', date: '2026-05-14', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 15, title: 'W8A: Economics for Public Leaders (Theory)', type: 'Lecture', date: '2026-05-19', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 16, title: 'W8B: Economics for Public Leaders (Practice)', type: 'Simulation', date: '2026-05-21', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  
+  // Phase 3: Application & Public Leadership (Weeks 9-12)
+  { id: 17, title: 'W9A: Crisis Leadership & Decision Making (Theory)', type: 'Lecture', date: '2026-05-26', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 18, title: 'W9B: Crisis Leadership & Decision Making (Practice)', type: 'Simulation', date: '2026-05-28', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 19, title: 'W10A: Governance & Technology (Theory)', type: 'Lecture', date: '2026-06-02', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 20, title: 'W10B: Governance & Technology (Practice)', type: 'Lab', date: '2026-06-04', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 21, title: 'W11A: Public Speaking & Influence (Theory)', type: 'Lecture', date: '2026-06-09', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 22, title: 'W11B: Public Speaking & Influence (Practice)', type: 'Simulation', date: '2026-06-11', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 23, title: 'W12A: Capstone Policy Lab & Summit (Theory)', type: 'Lecture', date: '2026-06-16', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
+  { id: 24, title: 'W12B: Capstone Policy Lab & Summit (Practice)', type: 'Capstone', date: '2026-06-18', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
 ];
 
 export default function Calendar() {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 26)); // March 26, 2026
+  const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 30)); // March 30, 2026
   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -87,7 +112,7 @@ export default function Calendar() {
               const day = i + 1;
               const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
               const dayEvents = MOCK_EVENTS.filter(e => e.date === dateStr);
-              const isToday = day === 26 && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026;
+              const isToday = day === 30 && currentDate.getMonth() === 2 && currentDate.getFullYear() === 2026;
 
               return (
                 <div 
@@ -159,7 +184,7 @@ export default function Calendar() {
           <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
             <h3 className="font-bold text-gray-900 dark:text-white mb-4">Upcoming Events</h3>
             <div className="space-y-4">
-              {MOCK_EVENTS.slice(0, 3).map(event => (
+              {MOCK_EVENTS.filter(e => new Date(e.date) >= currentDate).slice(0, 3).map(event => (
                 <div key={event.id} className="flex gap-4 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors border border-transparent hover:border-gray-200 dark:hover:border-gray-700">
                   <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg bg-[#ff4e00]/10 text-[#ff4e00] shrink-0">
                     <span className="text-xs font-bold uppercase">{new Date(event.date).toLocaleString('default', { month: 'short' })}</span>
