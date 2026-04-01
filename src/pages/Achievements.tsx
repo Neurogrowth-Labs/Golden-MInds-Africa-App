@@ -51,10 +51,17 @@ export default function Achievements() {
                   style={{ width: `${progress}%` }}
                 />
               </div>
-              <div className="w-full flex justify-between text-xs text-gray-400 font-medium">
+              <div className="w-full flex justify-between text-xs text-gray-400 font-medium mb-6">
                 <span>{score} XP</span>
                 <span>{nextLevelScore} XP</span>
               </div>
+
+              <button 
+                onClick={() => window.location.href = '/certifications/certificate/leadership-foundations'}
+                className="w-full py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
+              >
+                <Award className="w-5 h-5" /> View Certificate
+              </button>
             </div>
           </motion.div>
 

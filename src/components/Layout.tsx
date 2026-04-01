@@ -141,24 +141,17 @@ export default function Layout() {
 
   const fellowNavItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { to: '/schedule', icon: Calendar, label: 'Schedule' },
-    { to: '/assignments', icon: FileText, label: 'Assignments' },
-    { to: '/attendance', icon: CalendarCheck, label: 'Attendance' },
-    { to: '/rooms', icon: Video, label: 'Virtual Rooms' },
-    { to: '/learning', icon: BookOpen, label: 'Learning Hub' },
-    { to: '/forum', icon: MessageSquare, label: 'Forum' },
-    { to: '/debates', icon: Users, label: 'Debates' },
-    { to: '/notes', icon: Mic, label: 'AI Notes' },
-    { to: '/network', icon: Globe, label: 'Network' },
-    { to: '/mentors', icon: UserPlus, label: 'Mentors' },
+    { to: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
+    { to: '/calendar', icon: Calendar, label: 'Smart Calendar' },
+    { to: '/mentorship', icon: UserPlus, label: 'Mentors' },
     { to: '/projects', icon: Briefcase, label: 'Projects' },
-    { to: '/simulations', icon: Cpu, label: 'Simulations' },
+    { to: '/portfolio', icon: FolderOpen, label: 'Digital Legacy' },
     { to: '/achievements', icon: Award, label: 'Achievements' },
-    { to: '/collaboration', icon: MessageSquare, label: 'Collaboration' },
+    { to: '/rooms', icon: Video, label: 'Virtual Rooms' },
     { to: '/certifications', icon: ShieldCheck, label: 'Certifications' },
-    { to: '/vault', icon: Database, label: 'Knowledge Vault' },
+    { to: '/knowledge', icon: Database, label: 'Knowledge Vault' },
     { to: '/opportunities', icon: Compass, label: 'Opportunities' },
-    { to: '/portfolio', icon: FolderOpen, label: 'Portfolio' },
+    { to: '/publications', icon: Users, label: 'Publications & Debates' },
   ];
 
   if (profile?.role === 'admin') {

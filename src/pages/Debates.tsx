@@ -13,7 +13,9 @@ interface Message {
   score?: number;
 }
 
-export default function Debates() {
+import { Routes, Route } from 'react-router-dom';
+
+function DebatesMain() {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
@@ -216,5 +218,15 @@ export default function Debates() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Debates() {
+  return (
+    <Routes>
+      <Route path="/" element={<DebatesMain />} />
+      <Route path="article/:id" element={<DebatesMain />} />
+      <Route path="debate/:id" element={<DebatesMain />} />
+    </Routes>
   );
 }

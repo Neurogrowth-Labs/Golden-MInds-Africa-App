@@ -1,16 +1,97 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Briefcase, FileText, Award, Download, Share2, Globe, ExternalLink, Edit3, CheckCircle2 } from 'lucide-react';
+import { Briefcase, FileText, Award, Download, Share2, Globe, ExternalLink, Edit3, CheckCircle2, Sparkles } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleGenAI } from '@google/genai';
+import { Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-export default function Portfolio() {
+function PortfolioOverview() {
+  const navigate = useNavigate();
+  return (
+    <div className="space-y-8">
+      <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center">
+        <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+          <Award className="w-10 h-10 text-emerald-600" />
+        </div>
+        <h2 className="text-3xl font-bold font-serif mb-4 text-[#022c22]">Your Leadership Portfolio</h2>
+        <p className="text-gray-600 max-w-2xl mx-auto mb-8">
+          The Showcase Your Brilliance system allows you to curate and present your most impactful work. 
+          Submit projects, policy briefs, and achievements to build a comprehensive record of your leadership journey.
+        </p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+          <div className="p-6 bg-gray-50 rounded-2xl">
+            <h3 className="font-bold text-gray-900 mb-2">1. Curate</h3>
+            <p className="text-sm text-gray-600">Select your best work from simulations, debates, and independent research.</p>
+          </div>
+          <div className="p-6 bg-gray-50 rounded-2xl">
+            <h3 className="font-bold text-gray-900 mb-2">2. Submit</h3>
+            <p className="text-sm text-gray-600">Send your curated items for peer and faculty review to earn verified credentials.</p>
+          </div>
+          <div className="p-6 bg-gray-50 rounded-2xl">
+            <h3 className="font-bold text-gray-900 mb-2">3. Showcase</h3>
+            <p className="text-sm text-gray-600">Share your verified portfolio with mentors, peers, and external stakeholders.</p>
+          </div>
+        </div>
+        
+        <div className="bg-emerald-50 rounded-2xl p-6 mb-8 text-left">
+          <h3 className="font-bold text-[#022c22] mb-4 flex items-center gap-2">
+            <Sparkles className="w-5 h-5" />
+            Current Status Snapshot
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="text-2xl font-bold text-gray-900">3</div>
+              <div className="text-sm text-gray-600">Active Drafts</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="text-2xl font-bold text-amber-600">1</div>
+              <div className="text-sm text-gray-600">Pending Review</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="text-2xl font-bold text-blue-600">5</div>
+              <div className="text-sm text-gray-600">Submitted</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl shadow-sm">
+              <div className="text-2xl font-bold text-emerald-600">12</div>
+              <div className="text-sm text-gray-600">Reviewed & Verified</div>
+            </div>
+          </div>
+        </div>
+
+        <button 
+          onClick={() => navigate('/portfolio')}
+          className="bg-[#022c22] hover:bg-[#064e3b] text-white px-8 py-3 rounded-xl font-bold transition-colors"
+        >
+          Go to Portfolio Builder
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function PortfolioMain() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [isExporting, setIsExporting] = useState(false);
   const [portfolioSummary, setPortfolioSummary] = useState('');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [activeTab, setActiveTab] = useState(searchParams.get('status') || 'active');
+
+  useEffect(() => {
+    const status = searchParams.get('status');
+    if (status) {
+      setActiveTab(status);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ status: tab });
+  };
 
   const handleGenerateSummary = async () => {
     setIsGeneratingSummary(true);
@@ -38,7 +119,44 @@ export default function Portfolio() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="space-y-8">
+      {/* Hero Action */}
+      <div className="bg-gradient-to-br from-[#022c22] to-[#064e3b] rounded-3xl p-8 text-white shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/10 rounded-full blur-3xl -mr-20 -mt-20" />
+        <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2">Showcase Your Brilliance</h1>
+            <p className="text-emerald-100 max-w-xl">
+              Build your leadership portfolio, track your submissions, and present your achievements to the world.
+            </p>
+          </div>
+          <button 
+            onClick={() => navigate('/portfolio-builder/overview')}
+            className="bg-[#d4af37] hover:bg-[#b8972e] text-[#022c22] px-6 py-3 rounded-xl font-bold shadow-lg transition-colors flex items-center gap-2 shrink-0"
+          >
+            <Sparkles className="w-5 h-5" />
+            Showcase Your Brilliance
+          </button>
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="flex overflow-x-auto hide-scrollbar gap-2 border-b border-gray-200 pb-2">
+        {['active', 'pending', 'submitted', 'reviewed'].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => handleTabChange(tab)}
+            className={`px-4 py-2 rounded-full text-sm font-bold capitalize whitespace-nowrap transition-colors ${
+              activeTab === tab 
+                ? 'bg-[#022c22] text-white' 
+                : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            }`}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-4xl font-bold font-serif mb-2 text-[#022c22]">Digital Portfolio Builder</h1>
@@ -174,6 +292,24 @@ export default function Portfolio() {
           </motion.div>
         </div>
       </div>
+    </div>
+  );
+}
+
+export default function Portfolio() {
+  return (
+    <div className="max-w-6xl mx-auto pb-12">
+      <Routes>
+        <Route index element={<PortfolioMain />} />
+        <Route path="overview" element={<PortfolioOverview />} />
+        <Route path="preview" element={<PortfolioMain />} />
+        <Route path="publish" element={<PortfolioMain />} />
+        <Route path="sections" element={<PortfolioMain />} />
+        <Route path="sections/featured" element={<PortfolioMain />} />
+        <Route path="sections/debates" element={<PortfolioMain />} />
+        <Route path="sections/research" element={<PortfolioMain />} />
+        <Route path="sections/badges" element={<PortfolioMain />} />
+      </Routes>
     </div>
   );
 }

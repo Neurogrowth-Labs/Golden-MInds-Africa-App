@@ -65,7 +65,7 @@ export default function VirtualRooms() {
     // Simulate verification
     setTimeout(() => {
       if (accessCode.toUpperCase() === 'GMAF2026') {
-        navigate(`/room/${selectedRoom}`);
+        navigate(`/rooms/${selectedRoom}`);
       } else {
         setError('Invalid access code. Please try again.');
         setIsVerifying(false);

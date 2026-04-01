@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Search, Book, FileText, Video, Network, Sparkles, Filter, ChevronRight, Hash } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
@@ -12,7 +13,8 @@ const MOCK_RESOURCES = [
   { id: 4, title: 'Debate Archive: Data Sovereignty', type: 'Transcript', author: 'Golden Minds Fellows', tags: ['Debate', 'Data', 'Sovereignty'], date: '2026-03-10' },
 ];
 
-export default function KnowledgeVault() {
+function KnowledgeVaultMain() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
@@ -148,7 +150,11 @@ export default function KnowledgeVault() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {MOCK_RESOURCES.map(resource => (
-              <div key={resource.id} className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-[#ff4e00]/50 transition-colors group cursor-pointer">
+              <div 
+                key={resource.id} 
+                onClick={() => navigate('/knowledge/doc/policy-framework-2026')}
+                className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-[#ff4e00]/50 transition-colors group cursor-pointer"
+              >
                 <div className="flex items-start justify-between mb-4">
                   <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400 group-hover:bg-[#ff4e00]/10 group-hover:text-[#ff4e00] transition-colors">
                     {resource.type === 'Document' && <FileText className="w-5 h-5" />}
@@ -176,5 +182,14 @@ export default function KnowledgeVault() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function KnowledgeVault() {
+  return (
+    <Routes>
+      <Route path="/" element={<KnowledgeVaultMain />} />
+      <Route path="doc/:id" element={<KnowledgeVaultMain />} />
+    </Routes>
   );
 }

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Video, Mic, MicOff, VideoOff, MonitorUp, Hand, Smile, PhoneOff, 
   MessageSquare, Users, FileText, Globe, Settings, Maximize, 
-  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles
+  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp, Send
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -58,6 +58,19 @@ export default function LectureRoom() {
   const [transcript, setTranscript] = useState<any[]>([]);
   const transcriptRef = useRef<HTMLDivElement>(null);
 
+  // AI Summary State
+  const [isSummaryOpen, setIsSummaryOpen] = useState(false);
+  const [summary, setSummary] = useState('');
+  const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+
+  // AI Q&A State
+  const [qaMessages, setQaMessages] = useState([
+    { id: 1, sender: 'AI Assistant', text: 'Hello! I am your AI assistant for this lecture. Ask me anything about the content being discussed.', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
+  ]);
+  const [newQaMessage, setNewQaMessage] = useState('');
+  const [isGeneratingQa, setIsGeneratingQa] = useState(false);
+  const qaRef = useRef<HTMLDivElement>(null);
+
   // Chat State
   const [messages, setMessages] = useState([
     { id: 1, sender: 'Dr. Amina Mensah', text: 'Welcome to the chat!', recipient: 'Everyone', time: '14:00' }
@@ -82,6 +95,12 @@ export default function LectureRoom() {
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);
+
+  useEffect(() => {
+    if (qaRef.current) {
+      qaRef.current.scrollTop = qaRef.current.scrollHeight;
+    }
+  }, [qaMessages]);
 
   useEffect(() => {
     // Simulate live transcription
@@ -270,6 +289,7 @@ export default function LectureRoom() {
           <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="flex flex-col h-full">
             <TabsList className="bg-transparent border-b border-gray-800 rounded-none h-auto p-0 flex w-full">
               <TabsTrigger value="chat" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><MessageSquare className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="qa" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Sparkles className="w-5 h-5" /></TabsTrigger>
               <TabsTrigger value="participants" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Users className="w-5 h-5" /></TabsTrigger>
               <TabsTrigger value="transcript" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><FileText className="w-5 h-5" /></TabsTrigger>
               <TabsTrigger value="translation" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Globe className="w-5 h-5" /></TabsTrigger>
@@ -284,26 +304,69 @@ export default function LectureRoom() {
                   <div className="flex items-center gap-2">
                     <button 
                       onClick={async () => {
+                        if (isSummaryOpen && summary) {
+                          setIsSummaryOpen(false);
+                          return;
+                        }
+                        setIsGeneratingSummary(true);
+                        setIsSummaryOpen(true);
                         try {
                           const text = transcript.map(t => `${t.speaker}: ${t.text}`).join('\n');
                           const response = await ai.models.generateContent({
                             model: 'gemini-3-flash-preview',
-                            contents: `Summarize the following lecture transcript and extract key insights:\n\n${text}`
+                            contents: `Summarize the following lecture transcript and extract key insights. Format it nicely with bullet points:\n\n${text}`
                           });
-                          alert(response.text);
+                          setSummary(response.text || 'Could not generate summary.');
                         } catch (e) {
-                          alert('Failed to generate summary');
+                          setSummary('Failed to generate summary. Please try again.');
+                        } finally {
+                          setIsGeneratingSummary(false);
                         }
                       }}
-                      className="text-xs bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-2 py-1 rounded flex items-center gap-1"
+                      className="text-xs bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-2 py-1 rounded flex items-center gap-1 transition-colors"
                     >
-                      <Sparkles className="w-3 h-3" /> Summary
+                      <Sparkles className="w-3 h-3" /> {isSummaryOpen && summary ? 'Close Summary' : 'Generate Summary'}
                     </button>
                     <span className="flex items-center gap-1 text-xs text-green-500 bg-green-500/10 px-2 py-1 rounded">
                       <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" /> Live
                     </span>
                   </div>
                 </div>
+
+                <AnimatePresence>
+                  {isSummaryOpen && (
+                    <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      className="mb-4 overflow-hidden shrink-0"
+                    >
+                      <div className="bg-gray-800/50 border border-[#ff4e00]/30 rounded-xl p-4 relative">
+                        <div className="absolute top-0 right-0 p-2">
+                          <button onClick={() => setIsSummaryOpen(false)} className="text-gray-400 hover:text-white">
+                            <ChevronUp className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <h4 className="text-[#ff4e00] font-bold text-sm mb-2 flex items-center gap-2">
+                          <Sparkles className="w-4 h-4" /> AI Summary
+                        </h4>
+                        {isGeneratingSummary ? (
+                          <div className="flex items-center gap-2 text-gray-400 text-sm">
+                            <div className="w-4 h-4 border-2 border-[#ff4e00] border-t-transparent rounded-full animate-spin" />
+                            Generating insights...
+                          </div>
+                        ) : (
+                          <div className="text-sm text-gray-300 prose prose-invert prose-sm max-w-none">
+                            {summary.split('\n').map((line, i) => (
+                              <p key={i} className="mb-1">{line}</p>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <div className="space-y-4 overflow-y-auto flex-1" ref={transcriptRef}>
                   {transcript.map((item, i) => (
                     <div key={i} className="text-sm">
@@ -449,6 +512,125 @@ export default function LectureRoom() {
                         Send
                       </button>
                     </div>
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="qa" className="m-0 h-full">
+                <div className="flex flex-col h-full">
+                  <div className="flex items-center gap-2 mb-4 shrink-0">
+                    <Sparkles className="w-5 h-5 text-[#ff4e00]" />
+                    <h3 className="text-white font-bold text-sm uppercase tracking-wider">AI Assistant</h3>
+                  </div>
+                  
+                  <div className="flex-1 overflow-y-auto space-y-4 p-2" ref={qaRef}>
+                    {qaMessages.map(msg => (
+                      <div key={msg.id} className={`flex flex-col ${msg.sender === 'You' ? 'items-end' : 'items-start'}`}>
+                        <span className="text-xs text-gray-500 mb-1">
+                          {msg.sender} • {msg.time}
+                        </span>
+                        <div className={`px-4 py-3 rounded-2xl max-w-[85%] text-sm leading-relaxed ${
+                          msg.sender === 'You' 
+                            ? 'bg-[#ff4e00] text-white rounded-br-sm' 
+                            : 'bg-gray-800 text-gray-200 border border-gray-700 rounded-bl-sm'
+                        }`}>
+                          {msg.text.split('\n').map((line, i) => (
+                            <p key={i} className={i > 0 ? 'mt-2' : ''}>{line}</p>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {isGeneratingQa && (
+                      <div className="flex flex-col items-start">
+                        <span className="text-xs text-gray-500 mb-1">AI Assistant</span>
+                        <div className="px-4 py-3 rounded-2xl bg-gray-800 border border-gray-700 rounded-bl-sm flex items-center gap-2">
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                          <div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-4 shrink-0 relative">
+                    <input 
+                      type="text" 
+                      value={newQaMessage}
+                      onChange={(e) => setNewQaMessage(e.target.value)}
+                      onKeyDown={async (e) => {
+                        if (e.key === 'Enter' && newQaMessage.trim() && !isGeneratingQa) {
+                          const userMsg = newQaMessage.trim();
+                          setNewQaMessage('');
+                          setQaMessages(prev => [...prev, { id: Date.now(), sender: 'You', text: userMsg, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                          setIsGeneratingQa(true);
+                          
+                          try {
+                            const transcriptText = transcript.map(t => `${t.speaker}: ${t.text}`).join('\n');
+                            const response = await ai.models.generateContent({
+                              model: 'gemini-3-flash-preview',
+                              contents: `You are an AI teaching assistant for a fellowship program. Answer the following question based on the lecture transcript provided below. If the answer is not in the transcript, use your general knowledge but mention that it wasn't explicitly covered in the lecture.\n\nTranscript:\n${transcriptText}\n\nQuestion: ${userMsg}`
+                            });
+                            
+                            setQaMessages(prev => [...prev, { 
+                              id: Date.now(), 
+                              sender: 'AI Assistant', 
+                              text: response.text || 'Sorry, I could not generate an answer.', 
+                              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                            }]);
+                          } catch (error) {
+                            setQaMessages(prev => [...prev, { 
+                              id: Date.now(), 
+                              sender: 'AI Assistant', 
+                              text: 'Sorry, I encountered an error while trying to answer your question.', 
+                              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                            }]);
+                          } finally {
+                            setIsGeneratingQa(false);
+                          }
+                        }
+                      }}
+                      placeholder="Ask a question about the lecture..." 
+                      className="w-full bg-gray-800 border border-gray-700 rounded-xl pl-4 pr-12 py-3 text-sm text-white focus:outline-none focus:border-[#ff4e00] focus:ring-1 focus:ring-[#ff4e00] transition-all" 
+                      disabled={isGeneratingQa}
+                    />
+                    <button 
+                      onClick={async () => {
+                        if (newQaMessage.trim() && !isGeneratingQa) {
+                          const userMsg = newQaMessage.trim();
+                          setNewQaMessage('');
+                          setQaMessages(prev => [...prev, { id: Date.now(), sender: 'You', text: userMsg, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                          setIsGeneratingQa(true);
+                          
+                          try {
+                            const transcriptText = transcript.map(t => `${t.speaker}: ${t.text}`).join('\n');
+                            const response = await ai.models.generateContent({
+                              model: 'gemini-3-flash-preview',
+                              contents: `You are an AI teaching assistant for a fellowship program. Answer the following question based on the lecture transcript provided below. If the answer is not in the transcript, use your general knowledge but mention that it wasn't explicitly covered in the lecture.\n\nTranscript:\n${transcriptText}\n\nQuestion: ${userMsg}`
+                            });
+                            
+                            setQaMessages(prev => [...prev, { 
+                              id: Date.now(), 
+                              sender: 'AI Assistant', 
+                              text: response.text || 'Sorry, I could not generate an answer.', 
+                              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                            }]);
+                          } catch (error) {
+                            setQaMessages(prev => [...prev, { 
+                              id: Date.now(), 
+                              sender: 'AI Assistant', 
+                              text: 'Sorry, I encountered an error while trying to answer your question.', 
+                              time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) 
+                            }]);
+                          } finally {
+                            setIsGeneratingQa(false);
+                          }
+                        }
+                      }}
+                      disabled={isGeneratingQa || !newQaMessage.trim()}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-gray-400 hover:text-[#ff4e00] disabled:opacity-50 disabled:hover:text-gray-400 transition-colors"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
                   </div>
                 </div>
               </TabsContent>

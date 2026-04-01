@@ -9,55 +9,157 @@ export default function Simulations() {
 
   const simulations = [
     {
-      id: 'crisis-1',
-      title: 'National Health Crisis',
-      category: 'Crisis Management',
-      difficulty: 'Hard',
-      duration: '45 mins',
-      icon: AlertTriangle,
-      color: 'text-red-600',
-      bg: 'bg-red-50',
-      description: 'A sudden outbreak threatens the capital. You are the Minister of Health. Balance public safety, economic impact, and international relations.',
-      completed: false,
-    },
-    {
-      id: 'policy-1',
-      title: 'Tech Infrastructure Bill',
-      category: 'Policy Negotiation',
+      id: 'sim-1',
+      title: 'Founding a Nation',
+      category: 'Governance Systems',
       difficulty: 'Medium',
-      duration: '30 mins',
+      duration: '120 mins',
       icon: Building2,
       color: 'text-blue-600',
       bg: 'bg-blue-50',
-      description: 'Negotiate a controversial bill to expand digital infrastructure while protecting data privacy against lobbying groups.',
+      description: 'Create a constitution, governance structure, and economic model using GDP and population datasets.',
       completed: true,
-      score: 85,
+      score: 92,
     },
     {
-      id: 'governance-1',
-      title: 'Navigating Chinese FDI',
-      category: 'Global Systems',
+      id: 'sim-2',
+      title: 'Budget War Room',
+      category: 'Political Economy',
       difficulty: 'Hard',
-      duration: '60 mins',
+      duration: '180 mins',
       icon: BarChart3,
       color: 'text-green-600',
       bg: 'bg-green-50',
-      description: 'Negotiate a major infrastructure deal with Chinese investors. Balance the need for development with concerns over debt and neo-colonialism.',
-      completed: false,
+      description: 'Allocate the national budget across competing ministries while navigating surprise fiscal shocks and inflation spikes.',
+      completed: true,
+      score: 88,
     },
     {
-      id: 'community-1',
-      title: 'Resource Allocation Dispute',
-      category: 'Community Leadership',
+      id: 'sim-3',
+      title: 'Constitution Drafting Assembly',
+      category: 'Institutional Design',
       difficulty: 'Medium',
-      duration: '40 mins',
+      duration: '150 mins',
       icon: Users,
       color: 'text-purple-600',
       bg: 'bg-purple-50',
-      description: 'Mediate a conflict between two communities over water rights and agricultural subsidies.',
+      description: 'Design judiciary independence, electoral systems, and checks and balances based on comparative constitutional models.',
+      completed: false,
+    },
+    {
+      id: 'sim-4',
+      title: 'Financial Crisis War Room',
+      category: 'Crisis Governance',
+      difficulty: 'Extreme',
+      duration: '120 mins',
+      icon: AlertTriangle,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      description: 'Manage a currency collapse, inflation spike, and capital flight. Draft an emergency stabilization plan.',
+      completed: false,
+    },
+    {
+      id: 'sim-5',
+      title: 'Diplomatic Negotiation Table',
+      category: 'Geopolitics',
+      difficulty: 'Hard',
+      duration: '150 mins',
+      icon: ShieldAlert,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+      description: 'Mediate a cross-border conflict using trade dependency maps and military capacity indices.',
+      completed: false,
+    },
+    {
+      id: 'sim-6',
+      title: 'National Security War Room',
+      category: 'Crisis Governance',
+      difficulty: 'Extreme',
+      duration: '180 mins',
+      icon: AlertTriangle,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      description: 'Respond to civil unrest escalation, intelligence ambiguity, and media misinformation in real-time.',
+      completed: false,
+    },
+    {
+      id: 'sim-7',
+      title: 'Policy Lab Studio',
+      category: 'Public Systems',
+      difficulty: 'Medium',
+      duration: '120 mins',
+      icon: Building2,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+      description: 'Design a national reform program for education and healthcare systems using capacity models.',
+      completed: false,
+    },
+    {
+      id: 'sim-8',
+      title: 'AI Governance Council',
+      category: 'Technology Policy',
+      difficulty: 'Hard',
+      duration: '150 mins',
+      icon: Cpu,
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
+      description: 'Regulate national AI systems while balancing algorithm bias metrics and data privacy risk models.',
+      completed: false,
+    },
+    {
+      id: 'sim-9',
+      title: 'African Union Policy Summit',
+      category: 'Regional Integration',
+      difficulty: 'Hard',
+      duration: '180 mins',
+      icon: Users,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      description: 'Navigate post-colonial governance transitions and resource governance challenges in a regional summit.',
+      completed: false,
+    },
+    {
+      id: 'sim-10',
+      title: 'Leadership Decision Audit Room',
+      category: 'Case Analysis',
+      difficulty: 'Medium',
+      duration: '120 mins',
+      icon: CheckCircle2,
+      color: 'text-teal-600',
+      bg: 'bg-teal-50',
+      description: 'Reconstruct and analyze failed decisions from the 2008 financial crisis and COVID-19 governance failures.',
+      completed: false,
+    },
+    {
+      id: 'sim-11',
+      title: 'Multilateral Trade Negotiation',
+      category: 'Diplomacy',
+      difficulty: 'Hard',
+      duration: '150 mins',
+      icon: BarChart3,
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+      description: 'Negotiate resource sharing agreements and sanctions using global trade flow data and tariff structures.',
+      completed: false,
+    },
+    {
+      id: 'sim-12',
+      title: 'Final Integrated State Simulation',
+      category: 'Capstone',
+      difficulty: 'Extreme',
+      duration: '240 mins',
+      icon: ShieldAlert,
+      color: 'text-red-600',
+      bg: 'bg-red-50',
+      description: 'Manage the economy, security, diplomacy, and policy system simultaneously amidst dynamic shocks.',
       completed: false,
     }
   ];
+
+  const completedSims = simulations.filter(s => s.completed);
+  const avgScore = completedSims.length > 0 
+    ? Math.round(completedSims.reduce((acc, curr) => acc + (curr.score || 0), 0) / completedSims.length)
+    : 0;
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
@@ -69,12 +171,12 @@ export default function Simulations() {
         <div className="flex items-center gap-4 bg-white px-6 py-3 rounded-2xl border border-gray-200 shadow-sm">
           <div className="text-center">
             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Simulations Completed</p>
-            <p className="text-2xl font-bold text-gray-900 font-serif">1 <span className="text-sm text-gray-400 font-sans">/ 4</span></p>
+            <p className="text-2xl font-bold text-gray-900 font-serif">{completedSims.length} <span className="text-sm text-gray-400 font-sans">/ {simulations.length}</span></p>
           </div>
           <div className="w-px h-10 bg-gray-200"></div>
           <div className="text-center">
             <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">Avg. Score</p>
-            <p className="text-2xl font-bold text-green-600 font-serif">85%</p>
+            <p className="text-2xl font-bold text-green-600 font-serif">{avgScore}%</p>
           </div>
         </div>
       </div>
@@ -141,20 +243,20 @@ export default function Simulations() {
             <div className="lg:col-span-2 space-y-6">
               <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center">
+                  <div className="w-10 h-10 bg-red-100 text-red-600 rounded-full flex items-center justify-center">
                     <ShieldAlert className="w-5 h-5" />
                   </div>
                   <h3 className="font-bold text-gray-900">Situation Update: Day 1, 08:00 AM</h3>
                 </div>
                 <p className="text-gray-700 leading-relaxed mb-4">
-                  Minister, we have confirmed 50 cases of the unknown pathogen in the central district. Hospitals are reporting a surge in respiratory distress. The media has caught wind of the situation, and panic is beginning to spread. The President is expecting your recommendation in 10 minutes.
+                  Minister, we have a critical situation. The Rand has devalued 18% overnight following a massive investor withdrawal. Inflation is spiking, and early reports indicate public unrest is rising in major urban centers. The President needs your immediate recommendation to stabilize the economy.
                 </p>
                 <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                   <p className="text-sm font-bold text-gray-900 mb-2">Key Data Points:</p>
                   <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                    <li>R0 estimated at 2.5 (highly contagious)</li>
-                    <li>Central district population: 2.5 million</li>
-                    <li>Current hospital capacity: 85% full</li>
+                    <li>Currency Devaluation: 18% (24hr)</li>
+                    <li>Inflation Spike: Projected +4.5% this month</li>
+                    <li>Foreign Capital Flight: $2.4B withdrawn</li>
                   </ul>
                 </div>
               </div>
@@ -162,16 +264,20 @@ export default function Simulations() {
               <div className="space-y-4">
                 <h4 className="font-bold text-gray-900">Your Action:</h4>
                 <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-[#ff4e00] hover:bg-orange-50 transition-all group">
-                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">A. Immediate Lockdown of Central District</p>
-                  <p className="text-sm text-gray-500 mt-1">Contain the spread immediately, but risk severe economic disruption and public backlash.</p>
+                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">A. Raise Interest Rates Aggressively</p>
+                  <p className="text-sm text-gray-500 mt-1">Defend the currency and curb inflation, but risk triggering a severe recession and higher unemployment.</p>
                 </button>
                 <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-[#ff4e00] hover:bg-orange-50 transition-all group">
-                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">B. Issue Public Warning & Increase Hospital Funding</p>
-                  <p className="text-sm text-gray-500 mt-1">Maintain economic activity while preparing medical infrastructure, but risk wider spread.</p>
+                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">B. Request IMF Intervention</p>
+                  <p className="text-sm text-gray-500 mt-1">Secure emergency stabilization funds, but accept strict austerity measures and political backlash.</p>
                 </button>
                 <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-[#ff4e00] hover:bg-orange-50 transition-all group">
-                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">C. Request International Assistance Quietly</p>
-                  <p className="text-sm text-gray-500 mt-1">Seek expert help without causing panic, but delay immediate local action.</p>
+                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">C. Implement Capital Control Policies</p>
+                  <p className="text-sm text-gray-500 mt-1">Halt the immediate outflow of foreign capital, but severely damage long-term investor confidence.</p>
+                </button>
+                <button className="w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-[#ff4e00] hover:bg-orange-50 transition-all group">
+                  <p className="font-bold text-gray-900 group-hover:text-[#ff4e00]">D. Announce Emergency Stimulus Package</p>
+                  <p className="text-sm text-gray-500 mt-1">Calm public unrest and support local businesses, but risk hyperinflation and further currency collapse.</p>
                 </button>
               </div>
             </div>
@@ -182,38 +288,38 @@ export default function Simulations() {
                 <div className="space-y-4">
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Public Trust</span>
-                      <span className="font-bold text-green-600">80%</span>
+                      <span className="text-gray-600">Market Confidence</span>
+                      <span className="font-bold text-red-600">22%</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-green-500 w-[80%]"></div>
+                      <div className="h-full bg-red-500 w-[22%]"></div>
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Economic Stability</span>
-                      <span className="font-bold text-yellow-600">65%</span>
+                      <span className="text-gray-600">Political Stability</span>
+                      <span className="font-bold text-yellow-600">55%</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-yellow-500 w-[65%]"></div>
+                      <div className="h-full bg-yellow-500 w-[55%]"></div>
                     </div>
                   </div>
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-gray-600">Containment</span>
-                      <span className="font-bold text-red-600">30%</span>
+                      <span className="text-gray-600">Public Sentiment</span>
+                      <span className="font-bold text-orange-600">40%</span>
                     </div>
                     <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-red-500 w-[30%]"></div>
+                      <div className="h-full bg-orange-500 w-[40%]"></div>
                     </div>
                   </div>
                 </div>
               </div>
 
               <div className="bg-blue-50 p-6 rounded-2xl border border-blue-100">
-                <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><Cpu className="w-5 h-5" /> AI Advisor</h3>
+                <h3 className="font-bold text-blue-900 mb-2 flex items-center gap-2"><Cpu className="w-5 h-5" /> AI Sovereign Advisor</h3>
                 <p className="text-sm text-blue-800 italic">
-                  "Minister, historical data suggests that early containment is crucial for unknown pathogens, despite the immediate economic cost. However, a lockdown without clear communication will severely damage public trust."
+                  "Minister, historical data from similar emerging market shocks suggests that capital controls (Option C) provide immediate relief but take years to recover from. An aggressive rate hike (Option A) is the standard orthodox response, though it will hurt the working class immediately."
                 </p>
               </div>
             </div>

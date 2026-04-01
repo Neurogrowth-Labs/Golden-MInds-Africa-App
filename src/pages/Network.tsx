@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Globe, Users, Star, Search, MapPin, Briefcase, MessageSquare, Calendar, Award } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from 'react-router-dom';
 
-export default function Network() {
+function NetworkMain() {
   const { profile } = useAuth();
-  const [activeTab, setActiveTab] = useState('directory');
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Determine active tab from URL
+  const activeTab = location.pathname.includes('/mentors') ? 'mentors' : 
+                    location.pathname.includes('/opportunities') ? 'opportunities' : 
+                    location.pathname.includes('/alumni') ? 'alumni' : 'directory';
 
   const tabs = [
-    { id: 'directory', label: 'Fellow Directory', icon: Globe },
-    { id: 'mentors', label: 'AI Mentor Match', icon: Star },
-    { id: 'opportunities', label: 'Opportunity Market', icon: Briefcase },
-    { id: 'alumni', label: 'Alumni Legacy', icon: Award },
+    { id: 'directory', label: 'Fellow Directory', icon: Globe, path: '/pan-african-network/fellows' },
+    { id: 'mentors', label: 'AI Mentor Match', icon: Star, path: '/pan-african-network/mentors' },
+    { id: 'opportunities', label: 'Opportunity Market', icon: Briefcase, path: '/pan-african-network/opportunities' },
+    { id: 'alumni', label: 'Alumni Legacy', icon: Award, path: '/pan-african-network/alumni' },
   ];
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-4xl font-bold font-serif text-gray-900">Pan-African Network</h1>
+          <h1 
+            className="text-4xl font-bold font-serif text-gray-900 cursor-pointer hover:underline"
+            onClick={() => navigate('/pan-african-network')}
+          >
+            Pan-African Network
+          </h1>
           <p className="text-gray-500 mt-2">Connect, collaborate, and grow with leaders across the continent.</p>
         </div>
       </div>
@@ -27,7 +39,7 @@ export default function Network() {
         {tabs.map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => navigate(tab.path)}
             className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
               activeTab === tab.id ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
             }`}
@@ -183,5 +195,28 @@ export default function Network() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Network() {
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to="fellows" replace />} />
+      <Route path="fellows" element={<NetworkMain />} />
+      <Route path="fellows/:fellowId" element={<NetworkMain />} />
+      <Route path="mentors" element={<NetworkMain />} />
+      <Route path="mentors/match" element={<NetworkMain />} />
+      <Route path="mentors/recommendations" element={<NetworkMain />} />
+      <Route path="mentors/:mentorId" element={<NetworkMain />} />
+      <Route path="mentors/:mentorId/request-meeting" element={<NetworkMain />} />
+      <Route path="opportunities" element={<NetworkMain />} />
+      <Route path="opportunities/:opportunityId" element={<NetworkMain />} />
+      <Route path="opportunities/:opportunityId/apply" element={<NetworkMain />} />
+      <Route path="alumni" element={<NetworkMain />} />
+      <Route path="alumni/directory" element={<NetworkMain />} />
+      <Route path="alumni/:alumniId" element={<NetworkMain />} />
+      <Route path="alumni/opportunities" element={<NetworkMain />} />
+      <Route path="search" element={<NetworkMain />} />
+    </Routes>
   );
 }

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
@@ -24,6 +24,9 @@ import Opportunities from './pages/Opportunities';
 import Portfolio from './pages/Portfolio';
 import Mentors from './pages/Mentors';
 
+// Placeholder for Showcase if it doesn't exist
+const Showcase = () => <div className="p-8">Showcase Page</div>;
+
 export default function App() {
   return (
     <AuthProvider>
@@ -32,26 +35,58 @@ export default function App() {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
-            <Route path="schedule" element={<Schedule />} />
+            
+            {/* 1. AI Mentor Matching */}
+            <Route path="mentorship/*" element={<Mentors />} />
+            
+            {/* 2. Projects & Portfolio */}
+            <Route path="projects/*" element={<Projects />} />
+            
+            {/* 3. Digital Legacy (Portfolio Engine) */}
+            <Route path="portfolio/*" element={<Portfolio />} />
+            
+            {/* 4. Smart Calendar */}
+            <Route path="calendar/*" element={<Schedule />} />
+            
+            {/* 5. Fellowship Achievements */}
+            <Route path="achievements/*" element={<Achievements />} />
+            
+            {/* 6. Rooms (Chat + Collaboration) */}
+            <Route path="rooms/*" element={<VirtualRooms />} />
+            <Route path="rooms/:roomId" element={<LectureRoom />} />
+            
+            {/* 7. Smart Certifications */}
+            <Route path="certifications/*" element={<Certifications />} />
+            
+            {/* 8. Knowledge Vault */}
+            <Route path="knowledge/*" element={<KnowledgeVault />} />
+            
+            {/* 9. Opportunity Marketplace */}
+            <Route path="opportunities/*" element={<Opportunities />} />
+            
+            {/* 10. Digital Portfolio Showcase */}
+            <Route path="showcase/*" element={<Showcase />} />
+            
+            {/* 11. Publications & Debates */}
+            <Route path="publications/*" element={<Debates />} />
+
+            {/* Legacy / Other Routes */}
             <Route path="assignments" element={<Assignments />} />
             <Route path="attendance" element={<Attendance />} />
-            <Route path="learning" element={<LearningHub />} />
-            <Route path="rooms" element={<VirtualRooms />} />
-            <Route path="room/:roomId" element={<LectureRoom />} />
+            <Route path="learning-hub/*" element={<LearningHub />} />
             <Route path="forum" element={<Forum />} />
-            <Route path="debates" element={<Debates />} />
             <Route path="notes" element={<AINotes />} />
-            <Route path="network" element={<Network />} />
-            <Route path="projects" element={<Projects />} />
+            <Route path="pan-african-network/*" element={<Network />} />
             <Route path="simulations" element={<Simulations />} />
-            <Route path="achievements" element={<Achievements />} />
             <Route path="collaboration" element={<CollaborationRooms />} />
-            <Route path="certifications" element={<Certifications />} />
-            <Route path="vault" element={<KnowledgeVault />} />
-            <Route path="opportunities" element={<Opportunities />} />
-            <Route path="portfolio" element={<Portfolio />} />
-            <Route path="mentors" element={<Mentors />} />
             <Route path="admin" element={<Admin />} />
+
+            {/* Redirects for old routes */}
+            <Route path="smart-calendar/*" element={<Navigate to="/calendar" replace />} />
+            <Route path="debates/*" element={<Navigate to="/publications" replace />} />
+            <Route path="vault/*" element={<Navigate to="/knowledge" replace />} />
+            <Route path="portfolio-builder/*" element={<Navigate to="/portfolio" replace />} />
+            <Route path="mentors/*" element={<Navigate to="/mentorship" replace />} />
           </Route>
         </Routes>
       </BrowserRouter>

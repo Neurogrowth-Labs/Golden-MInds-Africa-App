@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
+import { useNavigate, Routes, Route } from 'react-router-dom';
 import { Briefcase, GraduationCap, DollarSign, Mic, Sparkles, ExternalLink, Search, Filter } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
@@ -13,7 +14,8 @@ const MOCK_OPPORTUNITIES = [
   { id: 5, type: 'startup', title: 'Techstars Africa Accelerator', org: 'Techstars', deadline: '2026-07-20', tags: ['Startup', 'Tech', 'Accelerator'], match: 85 },
 ];
 
-export default function Opportunities() {
+function OpportunitiesMain() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [aiRecommendation, setAiRecommendation] = useState('');
@@ -120,10 +122,11 @@ export default function Opportunities() {
         {filteredOpportunities.map((opp, i) => (
           <motion.div
             key={opp.id}
+            onClick={() => navigate('/opportunities/job/un-policy-analyst')}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col h-full"
+            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow flex flex-col h-full cursor-pointer"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="w-12 h-12 rounded-2xl bg-gray-50 flex items-center justify-center border border-gray-100">
@@ -164,5 +167,14 @@ export default function Opportunities() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function Opportunities() {
+  return (
+    <Routes>
+      <Route path="/" element={<OpportunitiesMain />} />
+      <Route path="job/:id" element={<OpportunitiesMain />} />
+    </Routes>
   );
 }

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
+import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { Award, Share2, Download, CheckCircle2, ShieldCheck, ExternalLink, Sparkles } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
@@ -16,7 +17,7 @@ const MOCK_CERTIFICATES = [
     skills: ['Policy Analysis', 'Tech Ecosystems', 'Leadership', 'Cross-border Collaboration']
   },
   { 
-    id: 'cert-002', 
+    id: 'leadership-foundations', 
     title: 'AI Governance Masterclass', 
     type: 'Micro-Credential', 
     issueDate: '2026-02-20', 
@@ -26,10 +27,19 @@ const MOCK_CERTIFICATES = [
   },
 ];
 
-export default function Certifications() {
+function CertificationsMain() {
+  const navigate = useNavigate();
+  const { id } = useParams();
   const [selectedCert, setSelectedCert] = useState(MOCK_CERTIFICATES[1]);
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  useEffect(() => {
+    if (id) {
+      const cert = MOCK_CERTIFICATES.find(c => c.id === id);
+      if (cert) setSelectedCert(cert);
+    }
+  }, [id]);
 
   const handleGenerateSummary = async () => {
     setIsGenerating(true);
@@ -192,5 +202,14 @@ export default function Certifications() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Certifications() {
+  return (
+    <Routes>
+      <Route path="/" element={<CertificationsMain />} />
+      <Route path="certificate/:id" element={<CertificationsMain />} />
+    </Routes>
   );
 }

@@ -102,12 +102,18 @@ export default function Dashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold font-serif mb-2">
+          <h1 
+            className="text-4xl font-bold font-serif mb-2 cursor-pointer hover:underline"
+            onClick={() => navigate('/dashboard')}
+          >
             Welcome back, {profile?.name?.split(' ')[0]}
           </h1>
           <p className="text-gray-600">Here's your fellowship overview for today.</p>
         </div>
-        <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100">
+        <div 
+          className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
+          onClick={() => navigate('/fellowship/status')}
+        >
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-sm font-medium">Fellowship Active</span>
         </div>
@@ -115,27 +121,27 @@ export default function Dashboard() {
 
       {/* Quick Actions (shadcn/ui) */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="rounded-2xl shadow-lg border-gray-100">
+        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/calendar')}>
           <CardContent className="p-6 flex flex-col items-center gap-3">
             <Calendar size={32} className="text-[#ff4e00]" />
             <h2 className="text-xl font-semibold">View Schedule</h2>
-            <Button onClick={() => navigate('/schedule')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Open</Button>
+            <Button onClick={(e) => { e.stopPropagation(); navigate('/calendar'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Open</Button>
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-lg border-gray-100">
+        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/assignments/submit')}>
           <CardContent className="p-6 flex flex-col items-center gap-3">
             <Upload size={32} className="text-[#5A5A40]" />
             <h2 className="text-xl font-semibold">Submit Assignment</h2>
-            <Button onClick={() => navigate('/assignments')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Upload</Button>
+            <Button onClick={(e) => { e.stopPropagation(); navigate('/assignments/submit'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Upload</Button>
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-lg border-gray-100">
+        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/attendance/mark')}>
           <CardContent className="p-6 flex flex-col items-center gap-3">
             <CheckCircle size={32} className="text-green-600" />
             <h2 className="text-xl font-semibold">Mark Attendance</h2>
-            <Button onClick={() => navigate('/attendance')} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Check In</Button>
+            <Button onClick={(e) => { e.stopPropagation(); navigate('/attendance/mark'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Check In</Button>
           </CardContent>
         </Card>
       </div>
@@ -147,7 +153,8 @@ export default function Dashboard() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#1a1a1a] text-white rounded-3xl p-8 shadow-xl relative overflow-hidden"
+            className="bg-[#1a1a1a] text-white rounded-3xl p-8 shadow-xl relative overflow-hidden cursor-pointer hover:bg-black transition-colors"
+            onClick={() => navigate('/calendar/events/w1a-leadership-modern-world-theory')}
           >
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#ff4e00]/20 to-transparent rounded-full blur-3xl -mr-20 -mt-20" />
             
@@ -182,16 +189,24 @@ export default function Dashboard() {
               transition={{ delay: 0.1 }}
               className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
             >
-              <div className="flex items-center gap-2 mb-6">
+              <div 
+                className="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/ai/copilot')}
+              >
                 <Sparkles className="w-5 h-5 text-[#ff4e00]" />
                 <h3 className="text-xl font-bold font-serif">AI Leadership Copilot</h3>
               </div>
               <div className="bg-[#f5f5f0] rounded-2xl p-6 border border-gray-200">
                 <p className="text-gray-700 leading-relaxed text-sm mb-4">
-                  Based on your recent participation in the "Policy & Tech" debate, you showed strong analytical skills. Consider reviewing the upcoming material on "Digital Infrastructure" to prepare for tomorrow's session.
+                  Based on your recent participation in the "Policy & Tech" debate, you showed strong analytical skills. Consider reviewing the upcoming material on <span className="text-[#ff4e00] font-bold cursor-pointer hover:underline" onClick={() => navigate('/learning/digital-infrastructure')}>"Digital Infrastructure"</span> to prepare for tomorrow's session.
                 </p>
                 <div className="pt-4 border-t border-gray-200">
-                  <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2">AI Future Pathway Predictor</p>
+                  <p 
+                    className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 cursor-pointer hover:text-[#ff4e00] transition-colors"
+                    onClick={() => navigate('/ai/pathway-predictor')}
+                  >
+                    AI Future Pathway Predictor
+                  </p>
                   <p className="text-sm font-medium text-[#5A5A40]">
                     "Based on your engagement in policy debates and research contributions, you are well suited for governance and public leadership roles."
                   </p>
@@ -205,7 +220,10 @@ export default function Dashboard() {
               transition={{ delay: 0.15 }}
               className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 flex flex-col"
             >
-              <div className="flex items-center gap-2 mb-6">
+              <div 
+                className="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/study-hubs/map')}
+              >
                 <MapPin className="w-5 h-5 text-[#5A5A40]" />
                 <h3 className="text-xl font-bold font-serif">Study Hubs</h3>
               </div>
@@ -224,7 +242,7 @@ export default function Dashboard() {
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <p className="text-sm text-gray-500 mb-4">Find nearby cafes or co-working spaces to study.</p>
                     <button 
-                      onClick={findNearbyHubs}
+                      onClick={(e) => { e.stopPropagation(); findNearbyHubs(); navigate('/study-hubs/nearby'); }}
                       className="px-4 py-2 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors"
                     >
                       Find Nearby
@@ -243,37 +261,60 @@ export default function Dashboard() {
             className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/analytics/dashboard')}
+              >
                 <TrendingUp className="w-5 h-5 text-[#ff4e00]" />
-                <h3 className="text-xl font-bold font-serif">Personal Impact Dashboard</h3>
+                <h3 className="text-xl font-bold font-serif">Intelligent Dashboard System</h3>
               </div>
-              <button className="text-sm text-[#ff4e00] font-bold hover:underline">View Full Report</button>
+              <button 
+                className="text-sm text-[#ff4e00] font-bold hover:underline"
+                onClick={() => navigate('/analytics/full-report')}
+              >
+                View Full Report
+              </button>
             </div>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Attendance</p>
-                <p className="text-2xl font-bold text-gray-900 font-serif">95%</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Debate Score</p>
-                <p className="text-2xl font-bold text-gray-900 font-serif">88</p>
-              </div>
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Collab Score</p>
+              <div 
+                className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => navigate('/analytics/leadership-index')}
+              >
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Leadership Index</p>
                 <p className="text-2xl font-bold text-gray-900 font-serif">92</p>
               </div>
-              <div className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center">
-                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Leadership</p>
-                <p className="text-2xl font-bold text-gray-900 font-serif">Top 10%</p>
+              <div 
+                className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => navigate('/analytics/policy-score')}
+              >
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Policy Score</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">88</p>
+              </div>
+              <div 
+                className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => navigate('/analytics/geopolitical-iq')}
+              >
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Geopolitical IQ</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">95</p>
+              </div>
+              <div 
+                className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
+                onClick={() => navigate('/analytics/governance-stability')}
+              >
+                <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Governance Stability</p>
+                <p className="text-2xl font-bold text-gray-900 font-serif">85%</p>
               </div>
             </div>
 
-            <div className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3">
+            <div 
+              className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3 cursor-pointer hover:bg-blue-100 transition-colors"
+              onClick={() => navigate('/ai/sovereign-advisor')}
+            >
               <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-bold text-blue-900 mb-1">AI Performance Insight</p>
-                <p className="text-sm text-blue-800">"Your debate engagement increased 40% this month. You collaborate most effectively with fellows in policy discussions."</p>
+                <p className="text-sm font-bold text-blue-900 mb-1">AI Sovereign Advisor Insight</p>
+                <p className="text-sm text-blue-800">"<span className="cursor-pointer hover:underline font-bold" onClick={(e) => { e.stopPropagation(); navigate('/ai/crisis-performance'); }}>Your crisis response speed is in the top 10%.</span> To improve your Policy Score, focus on integrating more quantitative evidence in your next brief."</p>
               </div>
             </div>
           </motion.div>
@@ -286,16 +327,32 @@ export default function Dashboard() {
             className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100"
           >
             <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-2">
+              <div 
+                className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={() => navigate('/community/top-fellows')}
+              >
                 <Trophy className="w-5 h-5 text-yellow-500" />
                 <h3 className="text-xl font-bold font-serif">Top Fellows</h3>
               </div>
-              <span className="text-sm text-gray-500 font-medium">Global Leaderboard</span>
+              <span 
+                className="text-sm text-gray-500 font-medium cursor-pointer hover:text-gray-900 hover:underline transition-colors"
+                onClick={() => navigate('/community/leaderboard')}
+              >
+                Global Leaderboard
+              </span>
             </div>
             
             <div className="space-y-4">
               {leaderboard.map((user, index) => (
-                <motion.div layout initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.3 }} key={user.id} className="flex items-center justify-between p-4 bg-[#f5f5f0] rounded-2xl border border-gray-200 transition-colors hover:bg-white">
+                <motion.div 
+                  layout 
+                  initial={{ opacity: 0, scale: 0.95 }} 
+                  animate={{ opacity: 1, scale: 1 }} 
+                  transition={{ duration: 0.3 }} 
+                  key={user.id} 
+                  className="flex items-center justify-between p-4 bg-[#f5f5f0] rounded-2xl border border-gray-200 transition-colors hover:bg-white cursor-pointer hover:shadow-sm"
+                  onClick={() => navigate(`/profile/${user.name?.toLowerCase().replace(/\s+/g, '-')}`)}
+                >
                   <div className="flex items-center gap-4">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
                       index === 0 ? 'bg-yellow-100 text-yellow-700' :
@@ -373,14 +430,23 @@ export default function Dashboard() {
             className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100"
           >
             <div className="flex items-center justify-between mb-4">
-              <h3 className="font-bold">My Badges</h3>
+              <h3 
+                className="font-bold cursor-pointer hover:underline"
+                onClick={() => navigate('/badges')}
+              >
+                My Badges
+              </h3>
               <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
                 {earnedBadges.length} Earned
               </span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {earnedBadges.map(badge => (
-                <div key={badge.id} className={`${badge.bg} rounded-2xl p-4 flex flex-col items-center text-center border border-white/50 shadow-sm`}>
+                <div 
+                  key={badge.id} 
+                  className={`${badge.bg} rounded-2xl p-4 flex flex-col items-center text-center border border-white/50 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
+                  onClick={() => navigate(`/badges/${badge.id}`)}
+                >
                   <badge.icon className={`w-8 h-8 ${badge.color} mb-2`} />
                   <span className="text-sm font-bold text-gray-900 leading-tight mb-1">{badge.name}</span>
                   <span className="text-[10px] text-gray-500 uppercase tracking-wider">{badge.description}</span>
@@ -392,30 +458,70 @@ export default function Dashboard() {
           {/* Previews based on user request */}
           <Card className="rounded-2xl shadow-sm border-gray-100">
             <CardContent className="p-6">
-              <h2 className="text-lg font-bold mb-4">Your Schedule</h2>
+              <h2 
+                className="text-lg font-bold mb-4 cursor-pointer hover:underline"
+                onClick={() => navigate('/calendar')}
+              >
+                Your Schedule
+              </h2>
               <div className="space-y-3">
-                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">W1A: Leadership in the Modern World - 14:00 GMT</div>
-                <div className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium">W1B: Leadership Practice - 14:00 GMT</div>
+                <div 
+                  className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => navigate('/calendar/events/w1a-leadership-modern-world-theory')}
+                >
+                  W1A: Leadership in the Modern World - 14:00 GMT
+                </div>
+                <div 
+                  className="p-3 border border-gray-100 bg-gray-50 rounded-xl text-sm font-medium cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => navigate('/calendar/events/w1b-leadership-modern-world-practice')}
+                >
+                  W1B: Leadership Practice - 14:00 GMT
+                </div>
               </div>
             </CardContent>
           </Card>
 
           <Card className="rounded-2xl shadow-sm border-gray-100">
             <CardContent className="p-6">
-              <h2 className="text-lg font-bold mb-4">Submit Assignment</h2>
+              <h2 
+                className="text-lg font-bold mb-4 cursor-pointer hover:underline"
+                onClick={() => navigate('/assignments')}
+              >
+                Assignment List
+              </h2>
               <div className="flex flex-col gap-3">
                 <input type="file" className="border border-gray-200 bg-gray-50 p-2 text-sm rounded-lg w-full" />
-                <Button className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Submit</Button>
+                <Button 
+                  className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl"
+                  onClick={() => navigate('/assignments/submit')}
+                >
+                  Submit Assignment
+                </Button>
               </div>
             </CardContent>
           </Card>
 
           <Card className="rounded-2xl shadow-sm border-gray-100">
             <CardContent className="p-6">
-              <h2 className="text-lg font-bold mb-4">Attendance</h2>
+              <h2 
+                className="text-lg font-bold mb-4 cursor-pointer hover:underline"
+                onClick={() => navigate('/attendance')}
+              >
+                Attendance Overview
+              </h2>
               <div className="flex flex-col gap-3">
-                <Button className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl">Check In Now</Button>
-                <p className="text-sm text-gray-500 font-medium text-center">Attendance Rate: 85%</p>
+                <Button 
+                  className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl"
+                  onClick={() => navigate('/attendance/mark')}
+                >
+                  Check In Now
+                </Button>
+                <p 
+                  className="text-sm text-gray-500 font-medium text-center cursor-pointer hover:text-gray-900 hover:underline transition-colors"
+                  onClick={() => navigate('/attendance/report')}
+                >
+                  Attendance Rate: 85%
+                </p>
               </div>
             </CardContent>
           </Card>

@@ -3,21 +3,24 @@ import { motion } from 'motion/react';
 import { Users, Sparkles, Calendar, MessageSquare, Star, ArrowRight, ShieldCheck } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../contexts/AuthContext';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 const MOCK_MENTORS = [
-  { id: 1, name: 'Dr. Amina Yusuf', role: 'Former Minister of Tech, Nigeria', industry: 'Public Policy & Tech', match: 98, avatar: 'https://ui-avatars.com/api/?name=Amina+Yusuf&background=022c22&color=fff' },
-  { id: 2, name: 'Kwame Osei', role: 'Founder, AgriTech Africa', industry: 'Entrepreneurship', match: 85, avatar: 'https://ui-avatars.com/api/?name=Kwame+Osei&background=d4af37&color=fff' },
-  { id: 3, name: 'Sarah Ndlovu', role: 'Director, Pan-African Trade Board', industry: 'Economics', match: 92, avatar: 'https://ui-avatars.com/api/?name=Sarah+Ndlovu&background=5A5A40&color=fff' },
+  { id: 1, name: 'Dr. Amina Yusuf', role: 'Former Minister of Tech, Nigeria', industry: 'Public Policy & Tech', match: 98, avatar: 'https://ui-avatars.com/api/?name=Amina+Yusuf&background=022c22&color=fff', slug: 'amina-yusuf' },
+  { id: 2, name: 'Kwame Osei', role: 'Founder, AgriTech Africa', industry: 'Entrepreneurship', match: 85, avatar: 'https://ui-avatars.com/api/?name=Kwame+Osei&background=d4af37&color=fff', slug: 'kwame-osei' },
+  { id: 3, name: 'Sarah Ndlovu', role: 'Director, Pan-African Trade Board', industry: 'Economics', match: 92, avatar: 'https://ui-avatars.com/api/?name=Sarah+Ndlovu&background=5A5A40&color=fff', slug: 'sarah-ndlovu' },
 ];
 
-export default function Mentors() {
+function MentorsMain() {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const [isMatching, setIsMatching] = useState(false);
   const [matchResult, setMatchResult] = useState('');
 
   const handleAIMatch = async () => {
+    navigate('/mentorship/match');
     setIsMatching(true);
     try {
       const prompt = `Act as an AI mentor matching engine for an African leadership fellowship. 
@@ -42,7 +45,7 @@ export default function Mentors() {
     <div className="max-w-6xl mx-auto space-y-8 pb-12">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold font-serif mb-2 text-[#022c22]">AI Mentor Matching</h1>
+          <h1 className="text-4xl font-bold font-serif mb-2 text-[#022c22] cursor-pointer hover:underline" onClick={() => navigate('/mentorship')}>AI Mentor Matching</h1>
           <p className="text-gray-600">Connect with industry leaders and alumni based on your career goals.</p>
         </div>
         <button 
@@ -80,7 +83,8 @@ export default function Mentors() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow"
+            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow cursor-pointer"
+            onClick={() => navigate(`/mentorship/mentor/${mentor.slug}`)}
           >
             <div className="relative mb-4">
               <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm">
@@ -96,10 +100,16 @@ export default function Mentors() {
             <p className="text-xs text-gray-500 font-medium bg-gray-50 px-3 py-1 rounded-full mb-6">{mentor.industry}</p>
             
             <div className="flex gap-2 w-full mt-auto">
-              <button className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-bold transition-colors">
+              <button 
+                className="flex-1 flex items-center justify-center gap-2 bg-gray-50 hover:bg-gray-100 text-gray-700 py-2.5 rounded-xl text-sm font-bold transition-colors"
+                onClick={(e) => { e.stopPropagation(); navigate(`/mentorship/chat/${mentor.id}`); }}
+              >
                 <MessageSquare className="w-4 h-4" /> Message
               </button>
-              <button className="flex-1 flex items-center justify-center gap-2 bg-[#022c22] hover:bg-[#064e3b] text-white py-2.5 rounded-xl text-sm font-bold transition-colors">
+              <button 
+                className="flex-1 flex items-center justify-center gap-2 bg-[#022c22] hover:bg-[#064e3b] text-white py-2.5 rounded-xl text-sm font-bold transition-colors"
+                onClick={(e) => { e.stopPropagation(); navigate(`/mentorship/schedule/${mentor.id}`); }}
+              >
                 <Calendar className="w-4 h-4" /> Schedule
               </button>
             </div>
@@ -107,5 +117,17 @@ export default function Mentors() {
         ))}
       </div>
     </div>
+  );
+}
+
+export default function Mentors() {
+  return (
+    <Routes>
+      <Route path="/" element={<MentorsMain />} />
+      <Route path="match" element={<MentorsMain />} />
+      <Route path="mentor/:slug" element={<MentorsMain />} />
+      <Route path="chat/:mentorId" element={<MentorsMain />} />
+      <Route path="schedule/:mentorId" element={<MentorsMain />} />
+    </Routes>
   );
 }
