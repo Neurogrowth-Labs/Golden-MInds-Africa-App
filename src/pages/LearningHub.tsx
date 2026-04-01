@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock, Download, PenTool } from 'lucide-react';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI, Type } from '@google/genai';
 import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from 'react-router-dom';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -156,12 +156,7 @@ const getIconForTypeLarge = (type: string) => {
   }
 };
 
-const SMART_FEED = [
-  { id: 'f1', title: "From 'Heroic' to Ubuntu Leadership", type: "Article", time: "5 min read", match: "98% Match" },
-  { id: 'f2', title: "Case Study: Botswana's Stable Democracy", type: "Case Study", time: "15 min read", match: "95% Match" },
-  { id: 'f3', title: "The Role of the African Union & RECs", type: "Video", time: "12 mins", match: "88% Match" },
-  { id: 'f4', title: "Navigating Chinese Investment in Africa", type: "Article", time: "8 min read", match: "85% Match" },
-];
+// SMART_FEED is now dynamically generated
 
 function LearningHubMain() {
   const navigate = useNavigate();
@@ -170,10 +165,61 @@ function LearningHubMain() {
   const [selectedMaterial, setSelectedMaterial] = useState<any>(null);
   const [aiSummary, setAiSummary] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
+  const [smartFeed, setSmartFeed] = useState<any[]>([]);
+  const [isLoadingFeed, setIsLoadingFeed] = useState(false);
 
   // Determine active tab from URL
   const activeTab = location.pathname.includes('/feed') ? 'feed' : 
                     location.pathname.includes('/search') ? 'search' : 'modules';
+
+  useEffect(() => {
+    if (activeTab === 'feed' && smartFeed.length === 0 && !isLoadingFeed) {
+      generateSmartFeed();
+    }
+  }, [activeTab]);
+
+  const generateSmartFeed = async () => {
+    setIsLoadingFeed(true);
+    try {
+      const prompt = `Act as an AI learning recommendation engine for an African leadership fellowship.
+      Based on a user who has completed modules in "Leadership" and "Governance", is interested in "Tech Entrepreneurship", and engages mostly with "Videos" and "Case Studies", suggest 4 highly relevant learning resources.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt,
+        config: {
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: Type.ARRAY,
+            items: {
+              type: Type.OBJECT,
+              properties: {
+                id: { type: Type.STRING },
+                title: { type: Type.STRING },
+                type: { type: Type.STRING, description: "Article, Video, or Case Study" },
+                time: { type: Type.STRING, description: "e.g., 5 min read or 12 mins" },
+                match: { type: Type.STRING, description: "e.g., 98% Match" }
+              },
+              required: ["id", "title", "type", "time", "match"]
+            }
+          }
+        }
+      });
+
+      const data = JSON.parse(response.text || '[]');
+      setSmartFeed(data);
+    } catch (error) {
+      console.error("Error generating smart feed:", error);
+      setSmartFeed([
+        { id: 'f1', title: "From 'Heroic' to Ubuntu Leadership", type: "Article", time: "5 min read", match: "98% Match" },
+        { id: 'f2', title: "Case Study: Botswana's Stable Democracy", type: "Case Study", time: "15 min read", match: "95% Match" },
+        { id: 'f3', title: "The Role of the African Union & RECs", type: "Video", time: "12 mins", match: "88% Match" },
+        { id: 'f4', title: "Navigating Chinese Investment in Africa", type: "Article", time: "8 min read", match: "85% Match" },
+      ]);
+    } finally {
+      setIsLoadingFeed(false);
+    }
+  };
 
   const handleGenerateSummary = async (materialTitle: string) => {
     setIsGenerating(true);
@@ -314,26 +360,33 @@ function LearningHubMain() {
             </div>
 
             <div className="grid grid-cols-1 gap-4">
-              {SMART_FEED.map((item) => (
-                <div key={item.id} className="bg-white p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex items-center justify-between cursor-pointer">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center">
-                      {item.type === 'Video' ? <PlayCircle className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
-                    </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 text-lg">{item.title}</h3>
-                      <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
-                        <span className="uppercase tracking-wider font-bold">{item.type}</span>
-                        <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                        <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {item.time}</span>
+              {isLoadingFeed ? (
+                <div className="flex flex-col items-center justify-center py-12 text-gray-400 bg-white rounded-3xl border border-gray-200">
+                  <Loader2 className="w-8 h-8 animate-spin mb-4 text-[#ff4e00]" />
+                  <p className="text-sm font-medium">Curating your personalized learning feed...</p>
+                </div>
+              ) : (
+                smartFeed.map((item) => (
+                  <div key={item.id} className="bg-white p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex items-center justify-between cursor-pointer">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center shrink-0">
+                        {item.type === 'Video' ? <PlayCircle className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-gray-900 text-lg">{item.title}</h3>
+                        <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                          <span className="uppercase tracking-wider font-bold">{item.type}</span>
+                          <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {item.time}</span>
+                        </div>
                       </div>
                     </div>
+                    <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shrink-0 ml-4">
+                      <TrendingUp className="w-3 h-3" /> {item.match}
+                    </div>
                   </div>
-                  <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                    <TrendingUp className="w-3 h-3" /> {item.match}
-                  </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
           </div>
         )}

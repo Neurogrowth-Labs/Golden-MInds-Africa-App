@@ -1,205 +1,571 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'motion/react';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
-import { Award, Share2, Download, CheckCircle2, ShieldCheck, ExternalLink, Sparkles } from 'lucide-react';
+import { 
+  Award, Share2, Download, CheckCircle2, ShieldCheck, 
+  ExternalLink, Sparkles, Crown, QrCode as QrCodeIcon, FileText, 
+  Briefcase, Linkedin, Mail, BarChart3, FileBadge, 
+  GraduationCap, Loader2, RefreshCw, HelpCircle, X, Twitter
+} from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import { 
+  Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
+} from 'recharts';
+import QRCode from 'react-qr-code';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_CERTIFICATES = [
-  { 
-    id: 'cert-001', 
-    title: 'Golden Minds Africa Fellowship', 
-    type: 'Full Fellowship', 
-    issueDate: '2026-12-15', 
-    status: 'In Progress', 
-    progress: 45,
-    skills: ['Policy Analysis', 'Tech Ecosystems', 'Leadership', 'Cross-border Collaboration']
+// Mock Data for the Fellow's Performance & Credentials
+const FELLOW_DATA = {
+  name: "Lusima Dio",
+  track: "Public Policy & Tech Governance",
+  duration: "Jan 2026 - Dec 2026",
+  classification: "Distinction",
+  percentile: "Top 10%",
+  id: "GMF-2026-000123",
+  issueDate: "December 15, 2026",
+  scores: {
+    projects: 95,
+    simulations: 92,
+    participation: 98,
+    assessments: 94,
+    overall: 94.75
   },
-  { 
-    id: 'leadership-foundations', 
-    title: 'AI Governance Masterclass', 
-    type: 'Micro-Credential', 
-    issueDate: '2026-02-20', 
-    status: 'Earned', 
-    progress: 100,
-    skills: ['AI Ethics', 'Data Sovereignty', 'Regulatory Frameworks']
-  },
-];
+  radarData: [
+    { subject: 'Leadership', A: 95, fullMark: 100 },
+    { subject: 'Policy', A: 92, fullMark: 100 },
+    { subject: 'Analysis', A: 98, fullMark: 100 },
+    { subject: 'Participation', A: 94, fullMark: 100 },
+  ],
+  portfolio: [
+    { id: 1, title: "AI Sovereignty in East Africa", type: "Policy Brief", date: "Oct 2026" },
+    { id: 2, title: "Digital Identity Systems & Privacy", type: "Case Study", date: "Aug 2026" },
+    { id: 3, title: "Crisis Management: Tech Infrastructure", type: "Simulation Output", date: "Nov 2026" },
+    { id: 4, title: "The Future of African Smart Cities", type: "Research Paper", date: "Dec 2026" }
+  ]
+};
 
 function CertificationsMain() {
   const navigate = useNavigate();
   const { id } = useParams();
-  const [selectedCert, setSelectedCert] = useState(MOCK_CERTIFICATES[1]);
-  const [aiSummary, setAiSummary] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [activeTab, setActiveTab] = useState<'certificate' | 'performance' | 'portfolio' | 'recommendation'>('certificate');
+  
+  // AI Recommendation State
+  const [recommendationLetter, setRecommendationLetter] = useState<string | null>(null);
+  const [isGeneratingLetter, setIsGeneratingLetter] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      const cert = MOCK_CERTIFICATES.find(c => c.id === id);
-      if (cert) setSelectedCert(cert);
-    }
-  }, [id]);
+  // AI Explainability State
+  const [showExplanation, setShowExplanation] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState<string | null>(null);
+  const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
 
-  const handleGenerateSummary = async () => {
-    setIsGenerating(true);
+  const handleExplainScore = async () => {
+    setShowExplanation(true);
+    if (aiExplanation) return; // Don't regenerate if already generated
+
+    setIsGeneratingExplanation(true);
     try {
+      const prompt = `Act as an AI Academic Evaluator for the Golden Minds Africa Fellowship. 
+      Explain the final score of ${FELLOW_DATA.scores.overall}% and the classification of "${FELLOW_DATA.classification}" for ${FELLOW_DATA.name}.
+      
+      Here is the breakdown:
+      - Policy Projects & Briefs: ${FELLOW_DATA.scores.projects}%
+      - Crisis Simulations: ${FELLOW_DATA.scores.simulations}%
+      - Debates & Participation: ${FELLOW_DATA.scores.participation}%
+      - Academic Assessments: ${FELLOW_DATA.scores.assessments}%
+      
+      Provide a brief, encouraging, and analytical explanation (max 3 paragraphs) of why they received this score, highlighting their strengths in Participation and Projects, and areas they excelled in. Format with HTML paragraphs and bold text.`;
+
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
-        contents: `Write a short, professional LinkedIn summary (2 sentences) for a fellow who just earned the "${selectedCert.title}" certification, highlighting these skills: ${selectedCert.skills.join(', ')}.`
+        contents: prompt
       });
-      setAiSummary(response.text);
+      setAiExplanation(response.text || 'Failed to generate explanation.');
     } catch (error) {
       console.error('AI Error:', error);
+      setAiExplanation('An error occurred while generating the explanation. Please try again.');
     } finally {
-      setIsGenerating(false);
+      setIsGeneratingExplanation(false);
+    }
+  };
+
+  const handleGenerateLetter = async () => {
+    setIsGeneratingLetter(true);
+    try {
+      const prompt = `Act as the Academic Dean of the prestigious Golden Minds Africa Fellowship (comparable to Harvard Kennedy School or Oxford Blavatnik School). 
+      Write a highly professional, authoritative, and personalized letter of recommendation for ${FELLOW_DATA.name}, who graduated with a "${FELLOW_DATA.classification}" (${FELLOW_DATA.percentile}) in the "${FELLOW_DATA.track}" track. 
+      Highlight their exceptional scores: Projects (${FELLOW_DATA.scores.projects}%), Simulations (${FELLOW_DATA.scores.simulations}%), and overall average of ${FELLOW_DATA.scores.overall}%. 
+      Mention their policy portfolio, specifically their work on "AI Sovereignty in East Africa". 
+      The tone must be extremely prestigious, formal, and suitable for top-tier employers in government, policy, consulting, or international organizations. Use HTML formatting (paragraphs, bold text) for structure.`;
+
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+      });
+      setRecommendationLetter(response.text || 'Failed to generate letter.');
+    } catch (error) {
+      console.error('AI Error:', error);
+      setRecommendationLetter('An error occurred while generating the recommendation letter. Please try again.');
+    } finally {
+      setIsGeneratingLetter(false);
     }
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Smart Certifications</h1>
-        <p className="text-gray-500 dark:text-gray-400 mt-2">Manage your digital credentials and share your achievements.</p>
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8 pb-20">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 bg-[#0A1F44] text-[#C9A646] rounded-lg">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <h1 className="text-3xl md:text-4xl font-serif font-bold text-gray-900 dark:text-white">
+              Credentials & Recognition
+            </h1>
+          </div>
+          <p className="text-gray-500 dark:text-gray-400 max-w-2xl text-lg">
+            Your globally recognized, verifiable credentials from the Golden Minds Africa Fellowship.
+          </p>
+        </div>
+        
+        <div className="flex gap-3">
+          <button className="flex items-center gap-2 px-4 py-2 bg-[#0a66c2] text-white rounded-lg font-medium hover:bg-[#004182] transition-colors shadow-sm">
+            <Linkedin className="w-4 h-4" /> Add to Profile
+          </button>
+          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors shadow-sm">
+            <Share2 className="w-4 h-4" /> Share
+          </button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Certificate List */}
-        <div className="space-y-4">
-          <h2 className="font-bold text-gray-900 dark:text-white mb-4">Your Credentials</h2>
-          {MOCK_CERTIFICATES.map(cert => (
-            <button
-              key={cert.id}
-              onClick={() => setSelectedCert(cert)}
-              className={`w-full text-left p-4 rounded-2xl border transition-all ${
-                selectedCert.id === cert.id 
-                  ? 'bg-white dark:bg-[#141414] border-[#ff4e00] shadow-md' 
-                  : 'bg-gray-50 dark:bg-gray-900/50 border-gray-200 dark:border-gray-800 hover:border-[#ff4e00]/50'
-              }`}
+      {/* Navigation Tabs */}
+      <div className="flex overflow-x-auto hide-scrollbar border-b border-gray-200 dark:border-gray-800">
+        {[
+          { id: 'certificate', label: 'Digital Certificate', icon: Award },
+          { id: 'performance', label: 'Performance Breakdown', icon: BarChart3 },
+          { id: 'portfolio', label: 'Policy Portfolio', icon: Briefcase },
+          { id: 'recommendation', label: 'Recommendation Letter', icon: FileBadge },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`flex items-center gap-2 px-6 py-4 font-medium text-sm transition-colors relative whitespace-nowrap ${
+              activeTab === tab.id 
+                ? 'text-[#0A1F44] dark:text-[#C9A646]' 
+                : 'text-gray-500 hover:text-gray-900 dark:hover:text-gray-300'
+            }`}
+          >
+            <tab.icon className="w-4 h-4" />
+            {tab.label}
+            {activeTab === tab.id && (
+              <motion.div layoutId="certTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#0A1F44] dark:bg-[#C9A646]" />
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* Tab Content */}
+      <div className="mt-8">
+        <AnimatePresence mode="wait">
+          
+          {/* 1. DIGITAL CERTIFICATE */}
+          {activeTab === 'certificate' && (
+            <motion.div
+              key="certificate"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-6"
             >
-              <div className="flex items-start justify-between mb-2">
-                <div className={`p-2 rounded-xl ${cert.status === 'Earned' ? 'bg-green-500/10 text-green-500' : 'bg-blue-500/10 text-blue-500'}`}>
-                  <Award className="w-5 h-5" />
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-gray-500 font-medium mr-2">Share:</span>
+                  <button 
+                    onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + '/verify/' + FELLOW_DATA.id)}`, '_blank')}
+                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-[#0077b5] rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Share on LinkedIn"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + '/verify/' + FELLOW_DATA.id)}&text=I just earned my Golden Minds Africa Fellowship certificate!`, '_blank')}
+                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-[#1DA1F2] rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Share on Twitter"
+                  >
+                    <Twitter className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => window.location.href = `mailto:?subject=My Golden Minds Africa Fellowship Certificate&body=Check out my certificate here: ${window.location.origin}/verify/${FELLOW_DATA.id}`}
+                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    title="Share via Email"
+                  >
+                    <Mail className="w-4 h-4" />
+                  </button>
                 </div>
-                {cert.status === 'Earned' && <CheckCircle2 className="w-5 h-5 text-green-500" />}
+                <div className="flex gap-3">
+                  <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                    <Download className="w-4 h-4" /> Download PDF
+                  </button>
+                  <button 
+                    onClick={() => navigate('/verify/' + FELLOW_DATA.id)}
+                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                  >
+                    <QrCodeIcon className="w-4 h-4" /> View Verification Portal
+                  </button>
+                </div>
               </div>
-              <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-1">{cert.title}</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{cert.type}</p>
-              
-              {cert.status === 'In Progress' ? (
-                <div className="space-y-1">
-                  <div className="flex justify-between text-[10px] font-medium text-gray-500">
-                    <span>Progress</span>
-                    <span>{cert.progress}%</span>
+
+              {/* The Certificate Visual */}
+              <div className="bg-white p-2 md:p-4 shadow-2xl rounded-sm border border-gray-200 max-w-5xl mx-auto">
+                <div className="border-[12px] border-double border-[#C9A646] p-8 md:p-16 relative bg-[#faf9f6] overflow-hidden">
+                  {/* Watermark */}
+                  <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                    <ShieldCheck className="w-[32rem] h-[32rem] text-[#C9A646]" />
                   </div>
-                  <div className="h-1.5 w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden">
-                    <div className="h-full bg-blue-500 rounded-full" style={{ width: `${cert.progress}%` }} />
+                  
+                  <div className="relative z-10 text-center space-y-8">
+                    <div className="flex justify-center mb-8">
+                      <div className="w-24 h-24 bg-[#0A1F44] rounded-full flex items-center justify-center border-4 border-[#C9A646] shadow-lg">
+                        <Crown className="w-12 h-12 text-[#C9A646]" />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#0A1F44] tracking-wide uppercase">
+                        Golden Minds Africa
+                      </h1>
+                      <h2 className="text-xl md:text-2xl font-serif text-[#C9A646] tracking-widest uppercase">
+                        Fellowship Certificate
+                      </h2>
+                    </div>
+                    
+                    <div className="py-12 space-y-6">
+                      <p className="text-gray-600 italic font-serif text-xl">This is to certify that</p>
+                      <p className="text-5xl md:text-6xl font-serif font-bold text-gray-900 tracking-tight">{FELLOW_DATA.name}</p>
+                      <p className="text-gray-600 italic font-serif text-xl max-w-2xl mx-auto leading-relaxed">
+                        has successfully completed the rigorous academic and leadership requirements of the fellowship track in
+                      </p>
+                      <p className="text-3xl font-serif font-bold text-[#0A1F44]">{FELLOW_DATA.track}</p>
+                      
+                      <div className="pt-8">
+                        <p className="text-gray-600 italic font-serif text-lg mb-2">Awarded with the classification of</p>
+                        <div className="inline-block px-8 py-3 border-2 border-[#C9A646] bg-[#C9A646]/10">
+                          <p className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-widest">
+                            {FELLOW_DATA.classification}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Signatures & Verification */}
+                    <div className="flex flex-col md:flex-row justify-between items-end pt-16 border-t border-gray-300 mt-12 gap-8 md:gap-0">
+                      <div className="text-center w-full md:w-auto">
+                        <div className="w-48 border-b border-gray-800 mb-2 mx-auto">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_signature_sample.svg" alt="Signature" className="h-12 mx-auto opacity-80" />
+                        </div>
+                        <p className="font-serif font-bold text-gray-800 text-lg">Dr. Amina Mensah</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Program Director</p>
+                      </div>
+                      
+                      <div className="flex flex-col items-center w-full md:w-auto">
+                        <div className="p-2 bg-white border border-gray-200 shadow-sm mb-2">
+                          <QRCode value={`${window.location.origin}/verify/${FELLOW_DATA.id}`} size={64} />
+                        </div>
+                        <button 
+                          onClick={() => navigate('/verify/' + FELLOW_DATA.id)}
+                          className="text-xs text-gray-500 font-mono font-bold hover:text-blue-600 transition-colors"
+                        >
+                          ID: {FELLOW_DATA.id}
+                        </button>
+                        <p className="text-[10px] text-gray-400 uppercase mt-1">Verify at gmaf.org/verify</p>
+                      </div>
+                      
+                      <div className="text-center w-full md:w-auto">
+                        <div className="w-48 border-b border-gray-800 mb-2 mx-auto">
+                          <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_signature_sample.svg" alt="Signature" className="h-12 mx-auto opacity-80" style={{ transform: 'scaleX(-1)' }} />
+                        </div>
+                        <p className="font-serif font-bold text-gray-800 text-lg">Prof. Kwame Osei</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-bold">Academic Dean</p>
+                      </div>
+                    </div>
                   </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 2. PERFORMANCE CLASSIFICATION */}
+          {activeTab === 'performance' && (
+            <motion.div
+              key="performance"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-8 max-w-5xl mx-auto"
+            >
+              {/* Top Banner */}
+              <div className="bg-gradient-to-br from-[#0A1F44] to-[#051024] rounded-3xl p-8 shadow-xl relative overflow-hidden text-white flex flex-col md:flex-row items-center justify-between gap-8">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#C9A646]/20 rounded-full blur-3xl" />
+                <div className="relative z-10">
+                  <h2 className="text-xl text-[#C9A646] font-bold uppercase tracking-widest mb-2">Final Classification</h2>
+                  <div className="text-5xl font-serif font-bold mb-4">{FELLOW_DATA.classification}</div>
+                  <p className="text-white/80 text-lg">
+                    You performed in the <strong className="text-white">{FELLOW_DATA.percentile}</strong> of your cohort, demonstrating exceptional leadership and analytical capabilities.
+                  </p>
+                </div>
+                <div className="relative z-10 shrink-0 flex flex-col items-center gap-4">
+                  <div className="w-32 h-32 rounded-full border-8 border-[#C9A646] flex items-center justify-center bg-[#0A1F44] shadow-[0_0_30px_rgba(201,166,70,0.3)]">
+                    <span className="text-3xl font-bold font-serif">{FELLOW_DATA.scores.overall}%</span>
+                  </div>
+                  <button 
+                    onClick={handleExplainScore}
+                    className="flex items-center gap-2 px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full text-sm font-medium backdrop-blur-sm transition-colors border border-white/20"
+                  >
+                    <HelpCircle className="w-4 h-4" /> Why this score?
+                  </button>
+                </div>
+              </div>
+
+              {/* AI Explanation Modal/Panel */}
+              <AnimatePresence>
+                {showExplanation && (
+                  <motion.div 
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-[#C9A646]/30 shadow-lg relative overflow-hidden"
+                  >
+                    <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A646]" />
+                    <button 
+                      onClick={() => setShowExplanation(false)}
+                      className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                    
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="p-2 bg-[#C9A646]/10 rounded-lg">
+                        <Sparkles className="w-5 h-5 text-[#C9A646]" />
+                      </div>
+                      <h3 className="text-lg font-bold font-serif text-gray-900 dark:text-white">AI Evaluation Insights</h3>
+                    </div>
+                    
+                    {isGeneratingExplanation ? (
+                      <div className="flex items-center gap-3 text-gray-500 py-4">
+                        <Loader2 className="w-5 h-5 animate-spin text-[#C9A646]" />
+                        <p>Analyzing performance metrics...</p>
+                      </div>
+                    ) : (
+                      <div 
+                        className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
+                        dangerouslySetInnerHTML={{ __html: aiExplanation || '' }}
+                      />
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Breakdown Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                
+                {/* Radar Chart */}
+                <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                  <h3 className="text-lg font-bold font-serif mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                    <BarChart3 className="w-5 h-5 text-[#C9A646]" /> Performance Radar
+                  </h3>
+                  <p className="text-sm text-gray-500 mb-6">Visual breakdown of your core competencies.</p>
+                  <div className="flex-1 min-h-[300px] w-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RadarChart cx="50%" cy="50%" outerRadius="70%" data={FELLOW_DATA.radarData}>
+                        <PolarGrid stroke="#e5e7eb" />
+                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 600 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '#9ca3af', fontSize: 10 }} />
+                        <Radar
+                          name="Fellow"
+                          dataKey="A"
+                          stroke="#0A1F44"
+                          fill="#0A1F44"
+                          fillOpacity={0.4}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  {/* Grading Breakdown */}
+                  <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <h3 className="text-lg font-bold font-serif mb-6 flex items-center gap-2 text-gray-900 dark:text-white">
+                      <BarChart3 className="w-5 h-5 text-[#C9A646]" /> Grading Breakdown
+                    </h3>
+                    <div className="space-y-6">
+                      {[
+                        { label: 'Policy Projects & Briefs', score: FELLOW_DATA.scores.projects },
+                        { label: 'Crisis Simulations', score: FELLOW_DATA.scores.simulations },
+                        { label: 'Debates & Participation', score: FELLOW_DATA.scores.participation },
+                        { label: 'Academic Assessments', score: FELLOW_DATA.scores.assessments },
+                      ].map((item, idx) => (
+                        <div key={idx}>
+                          <div className="flex justify-between text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">
+                            <span>{item.label}</span>
+                            <span>{item.score}%</span>
+                          </div>
+                          <div className="h-2 w-full bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                            <motion.div 
+                              initial={{ width: 0 }}
+                              animate={{ width: `${item.score}%` }}
+                              transition={{ duration: 1, delay: idx * 0.1 }}
+                              className="h-full bg-[#0A1F44] dark:bg-[#C9A646] rounded-full" 
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Excellence Board */}
+                  <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm">
+                    <h3 className="text-lg font-bold font-serif mb-4 flex items-center gap-2 text-gray-900 dark:text-white">
+                      <Award className="w-5 h-5 text-[#C9A646]" /> Recognition
+                    </h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-4 p-4 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-100 dark:border-yellow-900/30 rounded-xl">
+                        <Crown className="w-8 h-8 text-yellow-600 dark:text-yellow-500 shrink-0" />
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white">Top 10% Badge</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Awarded for outstanding academic and practical excellence.</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-4 p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900/30 rounded-xl">
+                        <Sparkles className="w-8 h-8 text-blue-600 dark:text-blue-500 shrink-0" />
+                        <div>
+                          <h4 className="font-bold text-gray-900 dark:text-white">Excellence Award</h4>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Recognized for the exceptional "AI Sovereignty in East Africa" policy brief.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 3. POLICY PORTFOLIO */}
+          {activeTab === 'portfolio' && (
+            <motion.div
+              key="portfolio"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-5xl mx-auto space-y-6"
+            >
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-[#141414] p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                <div>
+                  <h2 className="text-xl font-bold font-serif text-gray-900 dark:text-white mb-1">Compiled Policy Portfolio</h2>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">A professionally formatted collection of your fellowship work, ready for employers.</p>
+                </div>
+                <button className="flex items-center gap-2 px-6 py-3 bg-[#0A1F44] text-white rounded-xl font-bold hover:bg-[#071530] transition-colors whitespace-nowrap shadow-md">
+                  <Download className="w-5 h-5" /> Download Portfolio
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {FELLOW_DATA.portfolio.map((item) => (
+                  <div key={item.id} className="bg-white dark:bg-[#141414] p-6 rounded-2xl border border-gray-200 dark:border-gray-800 hover:border-[#C9A646] transition-colors group cursor-pointer">
+                    <div className="flex justify-between items-start mb-4">
+                      <div className="p-3 bg-gray-50 dark:bg-gray-900 rounded-xl text-gray-600 dark:text-gray-400 group-hover:bg-[#C9A646]/10 group-hover:text-[#C9A646] transition-colors">
+                        <FileText className="w-6 h-6" />
+                      </div>
+                      <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">{item.date}</span>
+                    </div>
+                    <h3 className="font-bold text-gray-900 dark:text-white text-lg mb-2">{item.title}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">{item.type}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+
+          {/* 4. AI RECOMMENDATION LETTER */}
+          {activeTab === 'recommendation' && (
+            <motion.div
+              key="recommendation"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="max-w-4xl mx-auto space-y-6"
+            >
+              {!recommendationLetter && !isGeneratingLetter ? (
+                <div className="bg-white dark:bg-[#141414] rounded-3xl p-12 text-center border border-gray-200 dark:border-gray-800 shadow-sm">
+                  <div className="w-20 h-20 bg-[#C9A646]/10 text-[#C9A646] rounded-full flex items-center justify-center mx-auto mb-6">
+                    <FileBadge className="w-10 h-10" />
+                  </div>
+                  <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white mb-4">Official Recommendation Letter</h2>
+                  <p className="text-gray-600 dark:text-gray-400 max-w-lg mx-auto mb-8">
+                    Generate a highly personalized, authoritative recommendation letter drafted by our AI system based on your specific performance metrics, portfolio, and classification. This letter will be formatted for immediate use with employers or academic institutions.
+                  </p>
+                  <button 
+                    onClick={handleGenerateLetter}
+                    className="flex items-center gap-2 px-8 py-4 bg-[#0A1F44] text-[#C9A646] rounded-xl font-bold hover:bg-[#071530] transition-colors mx-auto shadow-lg"
+                  >
+                    <Sparkles className="w-5 h-5" /> Draft Recommendation Letter
+                  </button>
+                </div>
+              ) : isGeneratingLetter ? (
+                <div className="bg-white dark:bg-[#141414] rounded-3xl p-16 text-center border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col items-center justify-center">
+                  <Loader2 className="w-12 h-12 text-[#C9A646] animate-spin mb-6" />
+                  <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Drafting Official Letter...</h3>
+                  <p className="text-gray-500">Analyzing performance metrics and portfolio data.</p>
                 </div>
               ) : (
-                <div className="text-xs font-medium text-green-600 dark:text-green-400">
-                  Issued: {new Date(cert.issueDate).toLocaleDateString()}
-                </div>
-              )}
-            </button>
-          ))}
-        </div>
-
-        {/* Certificate Detail & Sharing */}
-        <div className="lg:col-span-2 space-y-6">
-          {selectedCert.status === 'Earned' ? (
-            <>
-              {/* Digital Certificate Preview */}
-              <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-8 text-center relative overflow-hidden shadow-xl border border-[#d4af37]/20">
-                <div className="absolute top-0 left-0 w-full h-full bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-10 pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col items-center">
-                  <div className="w-20 h-20 bg-[#d4af37]/10 rounded-full flex items-center justify-center mb-6 border border-[#d4af37]/30">
-                    <ShieldCheck className="w-10 h-10 text-[#d4af37]" />
-                  </div>
-                  <h4 className="text-[#d4af37] font-bold tracking-widest uppercase text-sm mb-2">Certificate of Completion</h4>
-                  <h2 className="text-3xl font-serif font-bold text-white mb-6">{selectedCert.title}</h2>
-                  <p className="text-gray-400 text-sm mb-8 max-w-md mx-auto">
-                    This certifies that the fellow has successfully completed the requirements for the {selectedCert.type}, demonstrating proficiency in:
-                  </p>
-                  <div className="flex flex-wrap justify-center gap-2 mb-8">
-                    {selectedCert.skills.map(skill => (
-                      <span key={skill} className="px-3 py-1 rounded-full bg-white/5 border border-white/10 text-gray-300 text-xs">
-                        {skill}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center gap-8 border-t border-white/10 pt-6 w-full justify-center">
-                    <div className="text-left">
-                      <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Issue Date</p>
-                      <p className="text-white text-sm font-medium">{new Date(selectedCert.issueDate).toLocaleDateString()}</p>
-                    </div>
-                    <div className="w-px h-8 bg-white/10" />
-                    <div className="text-left">
-                      <p className="text-gray-500 text-[10px] uppercase tracking-wider mb-1">Credential ID</p>
-                      <p className="text-white text-sm font-mono">{selectedCert.id}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Action Buttons */}
-              <div className="flex gap-4">
-                <button className="flex-1 bg-[#ff4e00] hover:bg-[#ff6a00] text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
-                  <Share2 className="w-5 h-5" /> Share to LinkedIn
-                </button>
-                <button className="flex-1 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:border-[#ff4e00] dark:hover:border-[#ff4e00] py-3 rounded-xl font-bold flex items-center justify-center gap-2 transition-colors">
-                  <Download className="w-5 h-5" /> Download PDF
-                </button>
-                <button className="px-6 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-gray-900 dark:text-white hover:border-[#ff4e00] dark:hover:border-[#ff4e00] rounded-xl font-bold flex items-center justify-center transition-colors">
-                  <ExternalLink className="w-5 h-5" />
-                </button>
-              </div>
-
-              {/* AI LinkedIn Post Generator */}
-              <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20 rounded-2xl p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-5 h-5 text-blue-500" />
-                  <h3 className="font-bold text-gray-900 dark:text-white">AI Post Generator</h3>
-                </div>
-                {aiSummary ? (
-                  <div className="bg-white/50 dark:bg-black/20 backdrop-blur-sm rounded-xl p-4 text-sm text-gray-700 dark:text-gray-300 border border-white/20 dark:border-white/5 relative">
-                    {aiSummary}
-                    <button 
-                      onClick={() => navigator.clipboard.writeText(aiSummary)}
-                      className="absolute top-2 right-2 text-xs font-medium text-blue-500 hover:text-blue-600 bg-blue-500/10 px-2 py-1 rounded"
-                    >
-                      Copy
+                <div className="space-y-6">
+                  <div className="flex justify-end gap-3">
+                    <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                      <RefreshCw className="w-4 h-4" /> Request Revision
+                    </button>
+                    <button className="flex items-center gap-2 px-4 py-2 bg-[#0A1F44] text-white rounded-lg text-sm font-medium hover:bg-[#071530] transition-colors">
+                      <Download className="w-4 h-4" /> Download PDF
                     </button>
                   </div>
-                ) : (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                    Generate a professional summary of your achievement to share with your network.
-                  </p>
-                )}
-                {!aiSummary && (
-                  <button 
-                    onClick={handleGenerateSummary}
-                    disabled={isGenerating}
-                    className="py-2 px-4 rounded-xl bg-blue-500 text-white font-medium text-sm hover:bg-blue-600 transition-colors disabled:opacity-50"
-                  >
-                    {isGenerating ? 'Generating...' : 'Generate LinkedIn Post'}
-                  </button>
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-12 text-center h-full flex flex-col items-center justify-center">
-              <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
-                <Award className="w-10 h-10 text-gray-400" />
-              </div>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Keep Going!</h3>
-              <p className="text-gray-500 dark:text-gray-400 max-w-sm mx-auto">
-                You are currently working towards the {selectedCert.title}. Complete all required modules and assignments to unlock your digital credential.
-              </p>
-            </div>
+                  
+                  {/* The Letter Document */}
+                  <div className="bg-white p-8 md:p-16 shadow-xl rounded-sm border border-gray-200">
+                    {/* Letterhead */}
+                    <div className="border-b-2 border-[#0A1F44] pb-8 mb-8 flex justify-between items-start">
+                      <div>
+                        <h1 className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-wider">Golden Minds Africa</h1>
+                        <p className="text-sm text-gray-500 font-serif italic">Office of the Academic Dean</p>
+                      </div>
+                      <div className="text-right text-sm text-gray-500 font-serif">
+                        <p>120 Innovation Drive</p>
+                        <p>Kigali, Rwanda</p>
+                        <p>dean@gmaf.org</p>
+                        <p className="mt-4">{FELLOW_DATA.issueDate}</p>
+                      </div>
+                    </div>
+                    
+                    {/* Letter Content */}
+                    <div 
+                      className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed text-gray-800"
+                      dangerouslySetInnerHTML={{ __html: recommendationLetter || '' }}
+                    />
+                    
+                    {/* Signoff */}
+                    <div className="mt-16 pt-8">
+                      <p className="font-serif text-gray-800 mb-4">Sincerely,</p>
+                      <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_signature_sample.svg" alt="Signature" className="h-16 opacity-80 mb-2" style={{ transform: 'scaleX(-1)' }} />
+                      <p className="font-serif font-bold text-gray-900">Prof. Kwame Osei</p>
+                      <p className="font-serif text-gray-600">Academic Dean, Golden Minds Africa Fellowship</p>
+                      <p className="font-serif text-gray-600">Former Minister of Technology & Innovation</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </motion.div>
           )}
-        </div>
+
+        </AnimatePresence>
       </div>
     </div>
   );

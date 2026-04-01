@@ -23,6 +23,7 @@ import KnowledgeVault from './pages/KnowledgeVault';
 import Opportunities from './pages/Opportunities';
 import Portfolio from './pages/Portfolio';
 import Mentors from './pages/Mentors';
+import Verify from './pages/Verify';
 
 // Placeholder for Showcase if it doesn't exist
 const Showcase = () => <div className="p-8">Showcase Page</div>;
@@ -33,6 +34,8 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/verify/:id" element={<Verify />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/" element={<Layout />}>
             <Route index element={<Dashboard />} />
             
