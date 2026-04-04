@@ -40,9 +40,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setProfile(userDoc.data() as UserProfile);
           } else {
             // Create new fellow profile
+            const tempName = sessionStorage.getItem('temp_name');
             const newProfile: UserProfile = {
               uid: currentUser.uid,
-              name: currentUser.displayName || 'Fellow',
+              name: tempName || currentUser.displayName || 'Fellow',
               email: currentUser.email || '',
               role: 'fellow',
               avatar: currentUser.photoURL || '',
@@ -50,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               attendanceStreak: 0
             };
             await setDoc(userDocRef, newProfile);
+            sessionStorage.removeItem('temp_name');
             setProfile(newProfile);
           }
         } catch (error) {

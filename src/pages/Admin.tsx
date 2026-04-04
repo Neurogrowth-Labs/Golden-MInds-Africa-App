@@ -5,7 +5,7 @@ import {
   ShieldAlert, Users, Calendar, Image as ImageIcon, Loader2, Download, 
   BarChart3, BookOpen, MessageSquare, Settings, BrainCircuit, 
   TrendingUp, AlertTriangle, FileText, Plus, Search, MoreVertical, Video,
-  CheckCircle2, Clock
+  CheckCircle2, Clock, GraduationCap, Award, Mail, Trophy, Activity, Filter
 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
@@ -15,7 +15,7 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function Admin() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = searchParams.get('tab') || 'overview';
+  const activeTab = searchParams.get('tab') || 'analytics';
 
   const setActiveTab = (tabId: string) => {
     setSearchParams({ tab: tabId });
@@ -24,12 +24,6 @@ export default function Admin() {
   const [users, setUsers] = useState<any[]>([]);
   const [loadingUsers, setLoadingUsers] = useState(false);
   
-  // Image Generator State
-  const [prompt, setPrompt] = useState('');
-  const [aspectRatio, setAspectRatio] = useState('16:9');
-  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
-  const [isGenerating, setIsGenerating] = useState(false);
-
   // AI Report State
   const [aiReport, setAiReport] = useState('');
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);
@@ -53,32 +47,6 @@ export default function Admin() {
     }
   };
 
-  const handleGenerateImage = async () => {
-    if (!prompt) return;
-    setIsGenerating(true);
-    setGeneratedImage(null);
-
-    try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.1-flash-image-preview',
-        contents: { parts: [{ text: prompt }] },
-        config: { imageConfig: { aspectRatio: aspectRatio, imageSize: "1K" } }
-      });
-
-      for (const part of response.candidates?.[0]?.content?.parts || []) {
-        if (part.inlineData) {
-          setGeneratedImage(`data:image/png;base64,${part.inlineData.data}`);
-          break;
-        }
-      }
-    } catch (error) {
-      console.error("Error generating image:", error);
-      alert("Failed to generate image. Please try again.");
-    } finally {
-      setIsGenerating(false);
-    }
-  };
-
   const generateAIReport = async () => {
     setIsGeneratingReport(true);
     try {
@@ -98,54 +66,45 @@ export default function Admin() {
   };
 
   const tabs = [
-    { id: 'overview', label: 'AI Insights', icon: BrainCircuit },
-    { id: 'users', label: 'Fellows', icon: Users },
-    { id: 'onboarding', label: 'Onboarding Analytics', icon: TrendingUp },
-    { id: 'content', label: 'CMS', icon: BookOpen },
-    { id: 'debates', label: 'Debates', icon: MessageSquare },
-    { id: 'rooms', label: 'Virtual Rooms', icon: Video },
-    { id: 'generator', label: 'Assets', icon: ImageIcon },
+    { id: 'analytics', label: 'Analytics & Reporting', icon: BarChart3 },
+    { id: 'users', label: 'User & Role Management', icon: Users },
+    { id: 'cohorts', label: 'Fellowship & Cohorts', icon: GraduationCap },
+    { id: 'scoring', label: 'Performance & Scoring', icon: TrendingUp },
+    { id: 'certifications', label: 'Certifications', icon: Award },
+    { id: 'recommendations', label: 'Recommendations', icon: Mail },
+    { id: 'calendar', label: 'Calendar & Sessions', icon: Calendar },
+    { id: 'leaderboard', label: 'Recognition & Leaderboard', icon: Trophy },
+    { id: 'audit', label: 'Audit & Activity Logs', icon: Activity },
+    { id: 'settings', label: 'Platform Configuration', icon: Settings },
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-gradient-to-br from-[#1a1a1a] to-[#333] text-[#ff4e00] rounded-2xl flex items-center justify-center shadow-lg">
-            <ShieldAlert className="w-7 h-7" />
-          </div>
-          <div>
-            <h1 className="text-4xl font-bold font-serif mb-1 text-gray-900">Command Center</h1>
-            <p className="text-gray-600 font-medium">Golden Minds AI Core & Administration</p>
-          </div>
+    <div className="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-8">
+      {/* Sidebar Navigation */}
+      <div className="w-full md:w-64 shrink-0 flex flex-col gap-2 overflow-y-auto hide-scrollbar pr-2">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">Command Center</h1>
+          <p className="text-sm text-gray-500 dark:text-gray-400">Golden Minds Admin</p>
         </div>
-        <div className="flex items-center gap-3 bg-white/60 backdrop-blur-md px-5 py-2.5 rounded-full shadow-sm border border-white/40">
-          <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-sm font-bold text-gray-800 tracking-wide">System Online</span>
-        </div>
-      </div>
-
-      {/* Navigation (Mobile Only) */}
-      <div className="md:hidden flex overflow-x-auto hide-scrollbar gap-2 p-1 bg-gray-200/50 rounded-2xl backdrop-blur-sm mb-6">
+        
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-left ${
               activeTab === tab.id 
-                ? 'bg-white text-[#ff4e00] shadow-sm' 
-                : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
+                ? 'bg-[#ff4e00] text-white shadow-md shadow-[#ff4e00]/20' 
+                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
             }`}
           >
-            <tab.icon className="w-4 h-4" />
-            {tab.label}
+            <tab.icon className="w-4 h-4 shrink-0" />
+            <span className="truncate">{tab.label}</span>
           </button>
         ))}
       </div>
 
-      {/* Content Area */}
-      <div className="min-h-[600px]">
+      {/* Main Content Area */}
+      <div className="flex-1 overflow-y-auto hide-scrollbar bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-gray-800 p-8 shadow-sm">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -153,42 +112,53 @@ export default function Admin() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             transition={{ duration: 0.2 }}
+            className="h-full"
           >
-            {/* OVERVIEW TAB */}
-            {activeTab === 'overview' && (
-              <div className="space-y-6">
+            {/* ANALYTICS TAB */}
+            {activeTab === 'analytics' && (
+              <div className="space-y-8">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">Analytics & Reporting</h2>
+                    <p className="text-gray-500 dark:text-gray-400">Real-time insights across the ecosystem</p>
+                  </div>
+                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <Download className="w-4 h-4" /> Export Report
+                  </button>
+                </div>
+
                 {/* Top Stats */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   {[
-                    { label: 'Total Fellows', value: '142', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50' },
-                    { label: 'Avg Engagement', value: '87%', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
-                    { label: 'Active Debates', value: '12', icon: MessageSquare, color: 'text-purple-600', bg: 'bg-purple-50' },
-                    { label: 'At-Risk Fellows', value: '4', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50' },
+                    { label: 'Total Fellows', value: '142', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
+                    { label: 'Avg Engagement', value: '87%', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
+                    { label: 'Completion Rate', value: '94%', icon: CheckCircle2, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-900/20' },
+                    { label: 'At-Risk Fellows', value: '4', icon: AlertTriangle, color: 'text-red-600', bg: 'bg-red-50 dark:bg-red-900/20' },
                   ].map((stat, i) => (
-                    <div key={i} className="bg-white/80 backdrop-blur-xl rounded-3xl p-6 shadow-sm border border-white/50 flex items-center gap-4 hover:shadow-md transition-shadow">
-                      <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-2xl flex items-center justify-center shrink-0`}>
+                    <div key={i} className="bg-gray-50 dark:bg-gray-900/50 rounded-2xl p-6 border border-gray-100 dark:border-gray-800 flex items-center gap-4">
+                      <div className={`w-12 h-12 ${stat.bg} ${stat.color} rounded-xl flex items-center justify-center shrink-0`}>
                         <stat.icon className="w-6 h-6" />
                       </div>
                       <div>
                         <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900">{stat.value}</p>
+                        <p className="text-2xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
                       </div>
                     </div>
                   ))}
                 </div>
 
                 {/* AI Insights Panel */}
-                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-3xl p-8 shadow-xl text-white relative overflow-hidden border border-gray-800">
+                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-2xl p-8 shadow-xl text-white relative overflow-hidden border border-gray-800">
                   <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff4e00]/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
                   
                   <div className="relative z-10 flex flex-col md:flex-row gap-8">
                     <div className="flex-1 space-y-6">
                       <div className="flex items-center gap-3 text-[#ff4e00]">
                         <BrainCircuit className="w-6 h-6" />
-                        <h2 className="text-2xl font-bold font-serif text-white">Golden Minds AI Core</h2>
+                        <h3 className="text-xl font-bold font-serif text-white">Predictive Analytics Engine</h3>
                       </div>
                       <p className="text-gray-400 leading-relaxed max-w-xl">
-                        Predictive analytics engine. Monitor cohort health, predict drop-offs, and generate automated intervention strategies based on real-time engagement data.
+                        Monitor cohort health, predict drop-offs, and generate automated intervention strategies based on real-time engagement data.
                       </p>
                       <button 
                         onClick={generateAIReport}
@@ -200,20 +170,19 @@ export default function Admin() {
                       </button>
                     </div>
                     
-                    <div className="flex-1 bg-black/40 backdrop-blur-md rounded-2xl p-6 border border-white/10 min-h-[200px]">
+                    <div className="flex-1 bg-black/40 rounded-xl p-6 border border-white/10 backdrop-blur-sm">
+                      <h4 className="font-bold text-sm text-gray-400 mb-4 uppercase tracking-wider">Latest AI Insights</h4>
                       {isGeneratingReport ? (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-400 space-y-3">
+                        <div className="flex items-center justify-center h-32">
                           <Loader2 className="w-8 h-8 animate-spin text-[#ff4e00]" />
-                          <p className="font-medium animate-pulse">Analyzing cohort data patterns...</p>
-                        </div>
-                      ) : aiReport ? (
-                        <div className="prose prose-invert prose-sm max-w-none">
-                          <div dangerouslySetInnerHTML={{ __html: aiReport.replace(/\n/g, '<br/>') }} />
                         </div>
                       ) : (
-                        <div className="flex flex-col items-center justify-center h-full text-gray-500 text-center">
-                          <FileText className="w-10 h-10 mb-3 opacity-20" />
-                          <p>Click generate to run the predictive model.</p>
+                        <div className="prose prose-invert prose-sm max-w-none">
+                          {aiReport ? (
+                            <div dangerouslySetInnerHTML={{ __html: aiReport.replace(/\n/g, '<br/>') }} />
+                          ) : (
+                            <p className="text-gray-500 italic">Click generate to analyze current cohort data.</p>
+                          )}
                         </div>
                       )}
                     </div>
@@ -224,363 +193,103 @@ export default function Admin() {
 
             {/* USERS TAB */}
             {activeTab === 'users' && (
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-sm border border-white/50 overflow-hidden">
-                <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <h2 className="text-xl font-bold font-serif">User Management</h2>
-                  <div className="flex gap-3 w-full sm:w-auto">
-                    <div className="relative flex-1 sm:w-64">
-                      <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <div className="space-y-6">
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">User & Role Management</h2>
+                    <p className="text-gray-500 dark:text-gray-400">Manage fellows, mentors, and administrators</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <div className="relative">
+                      <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input 
                         type="text" 
-                        placeholder="Search fellows..." 
-                        className="w-full pl-9 pr-4 py-2 bg-gray-100 border-transparent focus:border-[#ff4e00] focus:ring-0 rounded-xl text-sm"
+                        placeholder="Search users..." 
+                        className="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4e00]/50"
                       />
                     </div>
-                    <button className="bg-[#1a1a1a] text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center gap-2">
-                      <Plus className="w-4 h-4" /> Add
+                    <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-black dark:hover:bg-gray-200 transition-colors">
+                      <Plus className="w-4 h-4" /> Add User
                     </button>
                   </div>
                 </div>
-                
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
-                        <th className="p-4 font-bold">Fellow</th>
-                        <th className="p-4 font-bold">Role</th>
-                        <th className="p-4 font-bold">Score</th>
-                        <th className="p-4 font-bold">Status</th>
-                        <th className="p-4 font-bold text-right">Actions</th>
+
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
+                  <table className="w-full text-left text-sm">
+                    <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-800">
+                      <tr>
+                        <th className="px-6 py-4">Name</th>
+                        <th className="px-6 py-4">Role</th>
+                        <th className="px-6 py-4">Status</th>
+                        <th className="px-6 py-4">Last Active</th>
+                        <th className="px-6 py-4 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100">
+                    <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
                       {loadingUsers ? (
-                        <tr><td colSpan={5} className="p-8 text-center text-gray-500"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></td></tr>
-                      ) : users.map(user => (
-                        <tr key={user.id} className="hover:bg-gray-50/50 transition-colors">
-                          <td className="p-4">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-gray-200 overflow-hidden shrink-0">
-                                {user.photoURL ? <img src={user.photoURL} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" /> : <div className="w-full h-full bg-[#1a1a1a] text-white flex items-center justify-center text-xs font-bold">{user.name?.charAt(0)}</div>}
-                              </div>
-                              <div>
-                                <p className="font-bold text-gray-900 text-sm">{user.name}</p>
-                                <p className="text-xs text-gray-500">{user.email}</p>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${user.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'}`}>
-                              {user.role || 'Fellow'}
-                            </span>
-                          </td>
-                          <td className="p-4 font-bold text-gray-700">{user.participationScore || 0}</td>
-                          <td className="p-4">
-                            <span className="flex items-center gap-1.5 text-xs font-bold text-green-600">
-                              <div className="w-1.5 h-1.5 rounded-full bg-green-500" /> Active
-                            </span>
-                          </td>
-                          <td className="p-4 text-right">
-                            <button className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 transition-colors">
-                              <MoreVertical className="w-4 h-4" />
-                            </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* CONTENT & DEBATES PLACEHOLDERS */}
-            {(activeTab === 'content' || activeTab === 'debates') && (
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-12 shadow-sm border border-white/50 text-center flex flex-col items-center justify-center min-h-[400px]">
-                <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-6">
-                  {activeTab === 'content' ? <BookOpen className="w-10 h-10 text-gray-400" /> : <MessageSquare className="w-10 h-10 text-gray-400" />}
-                </div>
-                <h2 className="text-2xl font-bold font-serif mb-2">Module Coming Soon</h2>
-                <p className="text-gray-500 max-w-md">
-                  The {activeTab === 'content' ? 'Content Management System' : 'Debate Management'} module is currently being upgraded with blockchain credentialing and advanced AI moderation tools.
-                </p>
-              </div>
-            )}
-
-            {/* VIRTUAL ROOMS TAB */}
-            {activeTab === 'rooms' && (
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50">
-                <div className="flex items-center justify-between mb-8">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
-                      <Video className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold font-serif">Virtual Rooms Analytics</h2>
-                      <p className="text-sm text-gray-500">Monitor active sessions and engagement metrics.</p>
-                    </div>
-                  </div>
-                  <button className="px-4 py-2 bg-[#1a1a1a] text-white rounded-xl text-sm font-bold hover:bg-black transition-colors flex items-center gap-2">
-                    <Plus className="w-4 h-4" /> New Room
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Active Rooms</span>
-                      <Video className="w-5 h-5 text-purple-500" />
-                    </div>
-                    <span className="text-4xl font-bold font-serif">2</span>
-                    <p className="text-sm text-green-600 font-medium mt-2 flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4" /> +1 from yesterday
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Total Participants</span>
-                      <Users className="w-5 h-5 text-blue-500" />
-                    </div>
-                    <span className="text-4xl font-bold font-serif">70</span>
-                    <p className="text-sm text-gray-500 font-medium mt-2">Across all live sessions</p>
-                  </div>
-                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Avg. Engagement</span>
-                      <BarChart3 className="w-5 h-5 text-green-500" />
-                    </div>
-                    <span className="text-4xl font-bold font-serif">85%</span>
-                    <p className="text-sm text-green-600 font-medium mt-2 flex items-center gap-1">
-                      <TrendingUp className="w-4 h-4" /> High participation
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-gray-50 border-b border-gray-100">
-                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Room Name</th>
-                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Facilitator</th>
-                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Participants</th>
-                        <th className="p-4 text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {[
-                        { name: 'Room Alpha', facilitator: 'Dr. Amina Mensah', status: 'Live', participants: 42, color: 'text-red-500', bg: 'bg-red-50' },
-                        { name: 'Room Beta', facilitator: 'Prof. David Osei', status: 'Live', participants: 28, color: 'text-red-500', bg: 'bg-red-50' },
-                        { name: 'Room Gamma', facilitator: 'Sarah Kiptoo', status: 'Waiting', participants: 15, color: 'text-blue-500', bg: 'bg-blue-50' },
-                      ].map((room, i) => (
-                        <tr key={i} className="hover:bg-gray-50 transition-colors">
-                          <td className="p-4">
-                            <div className="font-bold text-gray-900">{room.name}</div>
-                          </td>
-                          <td className="p-4 text-gray-600">{room.facilitator}</td>
-                          <td className="p-4">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${room.bg} ${room.color}`}>
-                              {room.status}
-                            </span>
-                          </td>
-                          <td className="p-4 text-gray-600">{room.participants} / 50</td>
-                          <td className="p-4">
-                            <button className="text-[#ff4e00] hover:text-[#e64600] font-medium text-sm">View Insights</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* GENERATOR TAB */}
-            {activeTab === 'onboarding' && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Completion Rate</h3>
-                      <div className="w-8 h-8 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-4xl font-bold text-gray-900 font-serif">92%</div>
-                      <p className="text-sm text-green-600 font-medium mt-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" /> +4% this cohort</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Avg. Time</h3>
-                      <div className="w-8 h-8 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-4xl font-bold text-gray-900 font-serif">8m 45s</div>
-                      <p className="text-sm text-blue-600 font-medium mt-1 flex items-center gap-1">Optimal duration</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Drop-offs</h3>
-                      <div className="w-8 h-8 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
-                        <AlertTriangle className="w-4 h-4" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-4xl font-bold text-gray-900 font-serif">14</div>
-                      <p className="text-sm text-red-600 font-medium mt-1 flex items-center gap-1">Needs attention</p>
-                    </div>
-                  </div>
-                  <div className="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">Day 1 Engagement</h3>
-                      <div className="w-8 h-8 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
-                        <MessageSquare className="w-4 h-4" />
-                      </div>
-                    </div>
-                    <div>
-                      <div className="text-4xl font-bold text-gray-900 font-serif">88%</div>
-                      <p className="text-sm text-purple-600 font-medium mt-1 flex items-center gap-1">Highly active</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-3xl border border-gray-200 p-8">
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h2 className="text-2xl font-bold font-serif text-gray-900">Drop-off Analysis</h2>
-                      <p className="text-gray-500">Where users are abandoning the onboarding flow.</p>
-                    </div>
-                    <button className="px-4 py-2 bg-[#ff4e00] text-white rounded-xl font-bold text-sm hover:bg-[#e64600] transition-colors">
-                      Send Nudges
-                    </button>
-                  </div>
-                  
-                  <div className="space-y-6">
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-bold text-gray-700">Phase 1: Welcome & Identity</span>
-                        <span className="text-gray-500">100% completion</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500 w-full"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-bold text-gray-700">Phase 2: Personal Goals</span>
-                        <span className="text-gray-500">98% completion</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-green-500 w-[98%]"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-bold text-gray-700">Phase 3: Program Orientation</span>
-                        <span className="text-gray-500">95% completion</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-yellow-500 w-[95%]"></div>
-                      </div>
-                    </div>
-                    <div>
-                      <div className="flex justify-between text-sm mb-2">
-                        <span className="font-bold text-gray-700">Phase 4: Platform Mastery</span>
-                        <span className="text-red-500 font-bold">82% completion (High Drop-off)</span>
-                      </div>
-                      <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-500 w-[82%]"></div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'generator' && (
-              <div className="bg-white/80 backdrop-blur-xl rounded-3xl p-8 shadow-sm border border-white/50">
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center">
-                    <ImageIcon className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold font-serif">Asset Generator</h2>
-                    <p className="text-sm text-gray-500">Create cover images for sessions and modules.</p>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                  <div className="space-y-6">
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">Image Prompt</label>
-                      <textarea 
-                        value={prompt}
-                        onChange={(e) => setPrompt(e.target.value)}
-                        placeholder="e.g., A modern African city skyline at sunset, digital art style, vibrant colors..."
-                        rows={4}
-                        className="w-full px-4 py-3 bg-gray-50 border-transparent focus:border-[#ff4e00] focus:ring-0 rounded-xl transition-colors resize-none"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-bold text-gray-700 mb-2">Aspect Ratio</label>
-                      <select 
-                        value={aspectRatio}
-                        onChange={(e) => setAspectRatio(e.target.value)}
-                        className="w-full px-4 py-3 bg-gray-50 border-transparent focus:border-[#ff4e00] focus:ring-0 rounded-xl transition-colors font-medium"
-                      >
-                        <option value="1:1">1:1 (Square)</option>
-                        <option value="4:3">4:3 (Standard)</option>
-                        <option value="16:9">16:9 (Widescreen)</option>
-                        <option value="21:9">21:9 (Cinematic)</option>
-                        <option value="9:16">9:16 (Portrait)</option>
-                      </select>
-                    </div>
-
-                    <button 
-                      onClick={handleGenerateImage}
-                      disabled={!prompt || isGenerating}
-                      className="w-full py-4 bg-[#1a1a1a] text-white rounded-xl font-bold hover:bg-black transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-black/10"
-                    >
-                      {isGenerating ? (
-                        <><Loader2 className="w-5 h-5 animate-spin" /> Generating Asset...</>
+                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500"><Loader2 className="w-6 h-6 animate-spin mx-auto" /></td></tr>
+                      ) : users.length === 0 ? (
+                        <tr><td colSpan={5} className="px-6 py-8 text-center text-gray-500">No users found.</td></tr>
                       ) : (
-                        <><ImageIcon className="w-5 h-5" /> Generate Image</>
+                        users.map(user => (
+                          <tr key={user.id} className="hover:bg-gray-50 dark:hover:bg-gray-900/50 transition-colors">
+                            <td className="px-6 py-4">
+                              <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-800 flex items-center justify-center font-bold text-gray-600 dark:text-gray-300">
+                                  {user.name?.charAt(0) || '?'}
+                                </div>
+                                <div>
+                                  <div className="font-medium text-gray-900 dark:text-white">{user.name}</div>
+                                  <div className="text-xs text-gray-500">{user.email}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className={`px-2.5 py-1 rounded-full text-xs font-medium uppercase tracking-wider ${
+                                user.role === 'admin' ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400' :
+                                user.role === 'mentor' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' :
+                                'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'
+                              }`}>
+                                {user.role || 'fellow'}
+                              </span>
+                            </td>
+                            <td className="px-6 py-4">
+                              <span className="flex items-center gap-1.5 text-green-600 dark:text-green-400">
+                                <div className="w-1.5 h-1.5 rounded-full bg-current" /> Active
+                              </span>
+                            </td>
+                            <td className="px-6 py-4 text-gray-500">Just now</td>
+                            <td className="px-6 py-4 text-right">
+                              <button className="p-1 text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors">
+                                <MoreVertical className="w-5 h-5" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))
                       )}
-                    </button>
-                  </div>
-
-                  <div className="bg-gray-50 rounded-3xl border border-gray-200 flex flex-col items-center justify-center min-h-[300px] overflow-hidden relative group">
-                    {generatedImage ? (
-                      <>
-                        <img src={generatedImage} alt="Generated Cover" className="w-full h-full object-contain" />
-                        <a 
-                          href={generatedImage} 
-                          download="session-cover.png"
-                          className="absolute bottom-4 right-4 bg-white/90 backdrop-blur p-3 rounded-xl shadow-xl hover:bg-white transition-all text-gray-900 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0"
-                        >
-                          <Download className="w-5 h-5" />
-                        </a>
-                      </>
-                    ) : isGenerating ? (
-                      <div className="flex flex-col items-center text-gray-400">
-                        <Loader2 className="w-10 h-10 animate-spin mb-4 text-[#ff4e00]" />
-                        <p className="font-medium">Synthesizing pixels...</p>
-                      </div>
-                    ) : (
-                      <div className="flex flex-col items-center text-gray-400 p-8 text-center">
-                        <ImageIcon className="w-16 h-16 mb-4 opacity-20" />
-                        <p className="font-medium">Your generated image will appear here.</p>
-                      </div>
-                    )}
-                  </div>
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
+
+            {/* PLACEHOLDER FOR OTHER TABS */}
+            {['cohorts', 'scoring', 'certifications', 'recommendations', 'calendar', 'leaderboard', 'audit', 'settings'].includes(activeTab) && (
+              <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
+                <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-2xl flex items-center justify-center text-gray-400">
+                  {React.createElement(tabs.find(t => t.id === activeTab)?.icon || Settings, { className: "w-8 h-8" })}
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white mb-2">
+                    {tabs.find(t => t.id === activeTab)?.label}
+                  </h2>
+                  <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto">
+                    This module is currently under development. It will provide comprehensive controls and insights for this section of the platform.
+                  </p>
+                </div>
+              </div>
+            )}
+
           </motion.div>
         </AnimatePresence>
       </div>

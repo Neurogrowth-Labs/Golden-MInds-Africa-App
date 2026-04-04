@@ -1,37 +1,75 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { loginWithGoogle, logout } from '../firebase';
-import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus } from 'lucide-react';
+import { loginWithGoogle, logout, loginWithEmail, registerWithEmail } from '../firebase';
+import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User } from 'lucide-react';
 import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
   const { user, profile, loading } = useAuth();
   const [showAdminPortal, setShowAdminPortal] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  
+  // Form state
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [authError, setAuthError] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleAdminLogin = async () => {
     if (isLoggingIn) return;
     setIsLoggingIn(true);
+    setAuthError('');
     sessionStorage.setItem('intended_role', 'admin');
     try {
-      await loginWithGoogle();
-    } catch (error) {
+      if (email && password) {
+        await loginWithEmail(email, password);
+      } else {
+        await loginWithGoogle();
+      }
+    } catch (error: any) {
       console.error("Login failed", error);
+      setAuthError(error.message || 'Failed to sign in');
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleFellowLogin = async () => {
+  const handleEmailAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
     if (isLoggingIn) return;
     setIsLoggingIn(true);
+    setAuthError('');
+    
+    try {
+      if (authMode === 'signup') {
+        // Note: The name will be updated in the AuthContext when the profile is created
+        sessionStorage.setItem('temp_name', name);
+        await registerWithEmail(email, password);
+      } else {
+        await loginWithEmail(email, password);
+      }
+    } catch (error: any) {
+      console.error("Auth failed", error);
+      setAuthError(error.message || `Failed to ${authMode === 'signup' ? 'sign up' : 'sign in'}`);
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    if (isLoggingIn) return;
+    setIsLoggingIn(true);
+    setAuthError('');
     try {
       await loginWithGoogle();
-    } catch (error) {
-      console.error("Login failed", error);
+    } catch (error: any) {
+      console.error("Google login failed", error);
+      setAuthError(error.message || 'Failed to sign in with Google');
     } finally {
       setIsLoggingIn(false);
     }
@@ -88,13 +126,60 @@ export default function Layout() {
               </div>
               
               <h2 className="text-2xl font-bold mb-2 font-serif text-white">Admin Access</h2>
-              <p className="text-gray-400 mb-8 text-sm leading-relaxed">
-                Sign in with your authorized Google workspace account to access the Golden Minds Command Center.
+              <p className="text-gray-400 mb-6 text-sm leading-relaxed">
+                Sign in with your authorized admin credentials to access the Golden Minds Command Center.
               </p>
+
+              {authError && (
+                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
+                  {authError}
+                </div>
+              )}
               
+              <form onSubmit={(e) => { e.preventDefault(); handleAdminLogin(); }} className="space-y-4 mb-6">
+                <div>
+                  <div className="relative">
+                    <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <input 
+                      type="email" 
+                      placeholder="Admin Email" 
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="relative">
+                    <Lock className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                    <input 
+                      type="password" 
+                      placeholder="Password" 
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
+                    />
+                  </div>
+                </div>
+                <button 
+                  type="submit"
+                  disabled={isLoggingIn || (!email && !password)}
+                  className="w-full py-3.5 px-4 bg-[#ff4e00] text-white font-bold rounded-xl hover:bg-[#e64600] transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In with Email'}
+                </button>
+              </form>
+
+              <div className="relative flex items-center py-2 mb-6">
+                <div className="flex-grow border-t border-gray-800"></div>
+                <span className="flex-shrink-0 mx-4 text-gray-500 text-sm">or</span>
+                <div className="flex-grow border-t border-gray-800"></div>
+              </div>
+
               <button 
                 onClick={handleAdminLogin}
                 disabled={isLoggingIn}
+                type="button"
                 className="w-full py-3.5 px-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
               >
                 {isLoggingIn ? (
@@ -102,7 +187,7 @@ export default function Layout() {
                 ) : (
                   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
                 )}
-                {isLoggingIn ? 'Signing in...' : 'Continue as Administrator'}
+                Continue with Google
               </button>
               
               <div className="mt-6 pt-6 border-t border-gray-800 text-center">
@@ -114,15 +199,99 @@ export default function Layout() {
           </div>
         )}
 
-        <div className="max-w-md w-full bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl text-center relative z-10">
-          <div className="w-20 h-20 bg-gradient-to-br from-[#ff4e00] to-[#ff8c00] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-[#ff4e00]/20">
-            <span className="text-3xl font-bold">GM</span>
+        <div className="max-w-md w-full bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10">
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-[#ff4e00] to-[#ff8c00] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-[#ff4e00]/20">
+              <span className="text-3xl font-bold">GM</span>
+            </div>
+            <h1 className="text-3xl font-bold mb-2">Golden Minds</h1>
+            <p className="text-gray-400">Africa Fellowship App</p>
           </div>
-          <h1 className="text-3xl font-bold mb-2">Golden Minds</h1>
-          <p className="text-gray-400 mb-8">Africa Fellowship App</p>
+
+          {/* Toggle Login/Signup */}
+          <div className="flex p-1 bg-black/40 rounded-xl mb-6">
+            <button
+              onClick={() => { setAuthMode('login'); setAuthError(''); }}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${authMode === 'login' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => { setAuthMode('signup'); setAuthError(''); }}
+              className={`flex-1 py-2 text-sm font-bold rounded-lg transition-colors ${authMode === 'signup' ? 'bg-white/10 text-white' : 'text-gray-400 hover:text-white'}`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {authError && (
+            <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
+              {authError}
+            </div>
+          )}
+
+          <form onSubmit={handleEmailAuth} className="space-y-4 mb-6">
+            {authMode === 'signup' && (
+              <div>
+                <div className="relative">
+                  <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input 
+                    type="text" 
+                    placeholder="Full Name" 
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required
+                    className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
+                  />
+                </div>
+              </div>
+            )}
+            <div>
+              <div className="relative">
+                <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <input 
+                  type="email" 
+                  placeholder="Email Address" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
+                />
+              </div>
+            </div>
+            <div>
+              <div className="relative">
+                <Lock className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                <input 
+                  type="password" 
+                  placeholder="Password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
+                />
+              </div>
+            </div>
+            <button 
+              type="submit"
+              disabled={isLoggingIn}
+              className="w-full py-3.5 px-4 bg-[#ff4e00] text-white font-bold rounded-xl hover:bg-[#e64600] transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : (authMode === 'login' ? 'Sign In' : 'Create Account')}
+            </button>
+          </form>
+
+          <div className="relative flex items-center py-2 mb-6">
+            <div className="flex-grow border-t border-gray-800"></div>
+            <span className="flex-shrink-0 mx-4 text-gray-500 text-sm">or continue with</span>
+            <div className="flex-grow border-t border-gray-800"></div>
+          </div>
+
           <button 
-            onClick={handleFellowLogin}
+            onClick={handleGoogleLogin}
             disabled={isLoggingIn}
+            type="button"
             className="w-full py-3 px-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
           >
             {isLoggingIn ? (
@@ -130,7 +299,7 @@ export default function Layout() {
             ) : (
               <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
             )}
-            {isLoggingIn ? 'Signing in...' : 'Sign in with Google'}
+            Google
           </button>
         </div>
       </div>
@@ -159,15 +328,7 @@ export default function Layout() {
     fellowNavItems.push({ to: '/admin', icon: ShieldAlert, label: 'Admin' });
   }
 
-  const adminNavItems = [
-    { to: '/admin?tab=overview', icon: BrainCircuit, label: 'AI Insights' },
-    { to: '/admin?tab=users', icon: Users, label: 'Fellows' },
-    { to: '/admin?tab=content', icon: BookOpen, label: 'CMS' },
-    { to: '/admin?tab=debates', icon: MessageSquare, label: 'Debates' },
-    { to: '/admin?tab=generator', icon: ImageIcon, label: 'Assets' },
-  ];
-
-  const currentNavItems = isAdminRoute ? adminNavItems : fellowNavItems;
+  const currentNavItems = fellowNavItems;
 
   return (
     <div className="min-h-screen bg-[#f5f5f0] text-gray-900 flex">
@@ -182,10 +343,7 @@ export default function Layout() {
         
         <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto hide-scrollbar">
           {currentNavItems.map((item) => {
-            // Custom active logic for query params
-            const isActive = isAdminRoute 
-              ? location.search === item.to.split('?')[1] || (item.to === '/admin?tab=overview' && !location.search)
-              : location.pathname === item.to;
+            const isActive = location.pathname === item.to || (item.to === '/admin' && location.pathname.startsWith('/admin'));
 
             return (
               <NavLink
