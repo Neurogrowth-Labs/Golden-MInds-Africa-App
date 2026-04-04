@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Calendar as CalendarIcon, Clock, MapPin, Users, Video, Sparkles, ChevronLeft, ChevronRight, Plus, ArrowLeft } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import LabSession from './LabSession';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -341,6 +342,7 @@ export default function Schedule() {
         <Route path="/events/upcoming" element={renderCalendarView()} />
         <Route path="/events/:eventId" element={renderEventDetails()} />
         <Route path="/ai-assistant/*" element={renderAIAssistant()} />
+        <Route path="/lab/:labId" element={<LabSession />} />
       </Routes>
     </div>
   );

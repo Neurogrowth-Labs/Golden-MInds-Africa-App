@@ -104,7 +104,7 @@ export default function Dashboard() {
         <div>
           <h1 
             className="text-4xl font-bold font-serif mb-2 cursor-pointer hover:underline"
-            onClick={() => navigate('/dashboard')}
+            onClick={() => navigate('/')}
           >
             Welcome back, {profile?.name?.split(' ')[0]}
           </h1>
@@ -112,7 +112,7 @@ export default function Dashboard() {
         </div>
         <div 
           className="flex items-center gap-3 bg-white px-4 py-2 rounded-full shadow-sm border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors"
-          onClick={() => navigate('/fellowship/status')}
+          onClick={() => navigate('/achievements')}
         >
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
           <span className="text-sm font-medium">Fellowship Active</span>
@@ -191,19 +191,19 @@ export default function Dashboard() {
             >
               <div 
                 className="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/ai/copilot')}
+                onClick={() => navigate('/knowledge')}
               >
                 <Sparkles className="w-5 h-5 text-[#ff4e00]" />
                 <h3 className="text-xl font-bold font-serif">AI Leadership Copilot</h3>
               </div>
               <div className="bg-[#f5f5f0] rounded-2xl p-6 border border-gray-200">
                 <p className="text-gray-700 leading-relaxed text-sm mb-4">
-                  Based on your recent participation in the "Policy & Tech" debate, you showed strong analytical skills. Consider reviewing the upcoming material on <span className="text-[#ff4e00] font-bold cursor-pointer hover:underline" onClick={() => navigate('/learning/digital-infrastructure')}>"Digital Infrastructure"</span> to prepare for tomorrow's session.
+                  Based on your recent participation in the "Policy & Tech" debate, you showed strong analytical skills. Consider reviewing the upcoming material on <span className="text-[#ff4e00] font-bold cursor-pointer hover:underline" onClick={() => navigate('/learning-hub')}>"Digital Infrastructure"</span> to prepare for tomorrow's session.
                 </p>
                 <div className="pt-4 border-t border-gray-200">
                   <p 
                     className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-2 cursor-pointer hover:text-[#ff4e00] transition-colors"
-                    onClick={() => navigate('/ai/pathway-predictor')}
+                    onClick={() => navigate('/achievements')}
                   >
                     AI Future Pathway Predictor
                   </p>
@@ -222,7 +222,7 @@ export default function Dashboard() {
             >
               <div 
                 className="flex items-center gap-2 mb-6 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/study-hubs/map')}
+                onClick={() => navigate('/rooms')}
               >
                 <MapPin className="w-5 h-5 text-[#5A5A40]" />
                 <h3 className="text-xl font-bold font-serif">Study Hubs</h3>
@@ -242,7 +242,7 @@ export default function Dashboard() {
                   <div className="flex flex-col items-center justify-center h-full text-center">
                     <p className="text-sm text-gray-500 mb-4">Find nearby cafes or co-working spaces to study.</p>
                     <button 
-                      onClick={(e) => { e.stopPropagation(); findNearbyHubs(); navigate('/study-hubs/nearby'); }}
+                      onClick={(e) => { e.stopPropagation(); findNearbyHubs(); }}
                       className="px-4 py-2 bg-[#1a1a1a] text-white rounded-xl text-sm font-medium hover:bg-black transition-colors"
                     >
                       Find Nearby
@@ -263,14 +263,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div 
                 className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/analytics/dashboard')}
+                onClick={() => navigate('/achievements')}
               >
                 <TrendingUp className="w-5 h-5 text-[#ff4e00]" />
                 <h3 className="text-xl font-bold font-serif">Intelligent Dashboard System</h3>
               </div>
               <button 
                 className="text-sm text-[#ff4e00] font-bold hover:underline"
-                onClick={() => navigate('/analytics/full-report')}
+                onClick={() => navigate('/achievements')}
               >
                 View Full Report
               </button>
@@ -279,28 +279,28 @@ export default function Dashboard() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div 
                 className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => navigate('/analytics/leadership-index')}
+                onClick={() => navigate('/achievements')}
               >
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Leadership Index</p>
                 <p className="text-2xl font-bold text-gray-900 font-serif">92</p>
               </div>
               <div 
                 className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => navigate('/analytics/policy-score')}
+                onClick={() => navigate('/achievements')}
               >
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Policy Score</p>
                 <p className="text-2xl font-bold text-gray-900 font-serif">88</p>
               </div>
               <div 
                 className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => navigate('/analytics/geopolitical-iq')}
+                onClick={() => navigate('/achievements')}
               >
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Geopolitical IQ</p>
                 <p className="text-2xl font-bold text-gray-900 font-serif">95</p>
               </div>
               <div 
                 className="bg-gray-50 p-4 rounded-2xl border border-gray-100 text-center cursor-pointer hover:bg-gray-100 transition-colors"
-                onClick={() => navigate('/analytics/governance-stability')}
+                onClick={() => navigate('/achievements')}
               >
                 <p className="text-xs text-gray-500 uppercase font-bold tracking-wider mb-1">Governance Stability</p>
                 <p className="text-2xl font-bold text-gray-900 font-serif">85%</p>
@@ -309,12 +309,12 @@ export default function Dashboard() {
 
             <div 
               className="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex items-start gap-3 cursor-pointer hover:bg-blue-100 transition-colors"
-              onClick={() => navigate('/ai/sovereign-advisor')}
+              onClick={() => navigate('/knowledge')}
             >
               <Sparkles className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
               <div>
                 <p className="text-sm font-bold text-blue-900 mb-1">AI Sovereign Advisor Insight</p>
-                <p className="text-sm text-blue-800">"<span className="cursor-pointer hover:underline font-bold" onClick={(e) => { e.stopPropagation(); navigate('/ai/crisis-performance'); }}>Your crisis response speed is in the top 10%.</span> To improve your Policy Score, focus on integrating more quantitative evidence in your next brief."</p>
+                <p className="text-sm text-blue-800">"<span className="cursor-pointer hover:underline font-bold" onClick={(e) => { e.stopPropagation(); navigate('/achievements'); }}>Your crisis response speed is in the top 10%.</span> To improve your Policy Score, focus on integrating more quantitative evidence in your next brief."</p>
               </div>
             </div>
           </motion.div>
@@ -329,14 +329,14 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-6">
               <div 
                 className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/community/top-fellows')}
+                onClick={() => navigate('/mentorship')}
               >
                 <Trophy className="w-5 h-5 text-yellow-500" />
                 <h3 className="text-xl font-bold font-serif">Top Fellows</h3>
               </div>
               <span 
                 className="text-sm text-gray-500 font-medium cursor-pointer hover:text-gray-900 hover:underline transition-colors"
-                onClick={() => navigate('/community/leaderboard')}
+                onClick={() => navigate('/mentorship')}
               >
                 Global Leaderboard
               </span>
@@ -351,7 +351,7 @@ export default function Dashboard() {
                   transition={{ duration: 0.3 }} 
                   key={user.id} 
                   className="flex items-center justify-between p-4 bg-[#f5f5f0] rounded-2xl border border-gray-200 transition-colors hover:bg-white cursor-pointer hover:shadow-sm"
-                  onClick={() => navigate(`/profile/${user.name?.toLowerCase().replace(/\s+/g, '-')}`)}
+                  onClick={() => navigate(`/mentorship`)}
                 >
                   <div className="flex items-center gap-4">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm ${
@@ -432,7 +432,7 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-4">
               <h3 
                 className="font-bold cursor-pointer hover:underline"
-                onClick={() => navigate('/badges')}
+                onClick={() => navigate('/achievements')}
               >
                 My Badges
               </h3>
@@ -445,7 +445,7 @@ export default function Dashboard() {
                 <div 
                   key={badge.id} 
                   className={`${badge.bg} rounded-2xl p-4 flex flex-col items-center text-center border border-white/50 shadow-sm cursor-pointer hover:shadow-md transition-shadow`}
-                  onClick={() => navigate(`/badges/${badge.id}`)}
+                  onClick={() => navigate(`/achievements`)}
                 >
                   <badge.icon className={`w-8 h-8 ${badge.color} mb-2`} />
                   <span className="text-sm font-bold text-gray-900 leading-tight mb-1">{badge.name}</span>

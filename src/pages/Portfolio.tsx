@@ -131,7 +131,7 @@ function PortfolioMain() {
             </p>
           </div>
           <button 
-            onClick={() => navigate('/portfolio-builder/overview')}
+            onClick={() => navigate('/portfolio/overview')}
             className="bg-[#d4af37] hover:bg-[#b8972e] text-[#022c22] px-6 py-3 rounded-xl font-bold shadow-lg transition-colors flex items-center gap-2 shrink-0"
           >
             <Sparkles className="w-5 h-5" />

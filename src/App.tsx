@@ -24,9 +24,7 @@ import Opportunities from './pages/Opportunities';
 import Portfolio from './pages/Portfolio';
 import Mentors from './pages/Mentors';
 import Verify from './pages/Verify';
-
-// Placeholder for Showcase if it doesn't exist
-const Showcase = () => <div className="p-8">Showcase Page</div>;
+import Showcase from './pages/Showcase';
 
 export default function App() {
   return (

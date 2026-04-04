@@ -152,6 +152,7 @@ export default function Layout() {
     { to: '/knowledge', icon: Database, label: 'Knowledge Vault' },
     { to: '/opportunities', icon: Compass, label: 'Opportunities' },
     { to: '/publications', icon: Users, label: 'Publications & Debates' },
+    { to: '/showcase', icon: Globe, label: 'Global Showcase' },
   ];
 
   if (profile?.role === 'admin') {

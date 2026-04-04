@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Search, Book, FileText, Video, Network, Sparkles, Filter, ChevronRight, Hash } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import KnowledgeGraph from './KnowledgeGraph';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -131,7 +132,10 @@ function KnowledgeVaultMain() {
               <Network className="w-5 h-5" /> Knowledge Graph
             </div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Explore connections between topics and resources visually.</p>
-            <button className="w-full py-2 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition-colors">
+            <button 
+              onClick={() => navigate('/knowledge/graph')}
+              className="w-full py-2 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition-colors"
+            >
               Open Graph Explorer
             </button>
           </div>
@@ -190,6 +194,7 @@ export default function KnowledgeVault() {
     <Routes>
       <Route path="/" element={<KnowledgeVaultMain />} />
       <Route path="doc/:id" element={<KnowledgeVaultMain />} />
+      <Route path="graph" element={<KnowledgeGraph />} />
     </Routes>
   );
 }
