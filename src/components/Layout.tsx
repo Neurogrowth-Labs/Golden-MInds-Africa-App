@@ -7,7 +7,6 @@ import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
   const { user, profile, loading } = useAuth();
-  const [showAdminPortal, setShowAdminPortal] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   
@@ -19,25 +18,6 @@ export default function Layout() {
 
   const navigate = useNavigate();
   const location = useLocation();
-
-  const handleAdminLogin = async () => {
-    if (isLoggingIn) return;
-    setIsLoggingIn(true);
-    setAuthError('');
-    sessionStorage.setItem('intended_role', 'admin');
-    try {
-      if (email && password) {
-        await loginWithEmail(email, password);
-      } else {
-        await loginWithGoogle();
-      }
-    } catch (error: any) {
-      console.error("Login failed", error);
-      setAuthError(error.message || 'Failed to sign in');
-    } finally {
-      setIsLoggingIn(false);
-    }
-  };
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,107 +78,6 @@ export default function Layout() {
   if (!user) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0502] text-white p-4 relative overflow-hidden">
-        {/* Admin Sign Up Portal Button in Top Right */}
-        <div className="absolute top-6 right-6 z-20">
-          <button 
-            onClick={() => setShowAdminPortal(true)}
-            className="flex items-center gap-2 px-5 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-sm font-bold transition-all backdrop-blur-md text-gray-300 hover:text-white"
-          >
-            <ShieldAlert className="w-4 h-4 text-[#ff4e00]" />
-            Admin Portal
-          </button>
-        </div>
-
-        {/* Admin Portal Modal */}
-        {showAdminPortal && (
-          <div className="absolute inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-            <div className="bg-[#1a1a1a] border border-gray-800 p-8 rounded-3xl shadow-2xl max-w-md w-full relative">
-              <button 
-                onClick={() => setShowAdminPortal(false)}
-                className="absolute top-6 right-6 text-gray-500 hover:text-white transition-colors"
-                disabled={isLoggingIn}
-              >
-                <X className="w-5 h-5" />
-              </button>
-              
-              <div className="w-16 h-16 bg-gradient-to-br from-[#ff4e00] to-[#ff8c00] rounded-2xl mb-6 flex items-center justify-center shadow-lg shadow-[#ff4e00]/20">
-                <ShieldAlert className="w-8 h-8 text-white" />
-              </div>
-              
-              <h2 className="text-2xl font-bold mb-2 font-serif text-white">Admin Access</h2>
-              <p className="text-gray-400 mb-6 text-sm leading-relaxed">
-                Sign in with your authorized admin credentials to access the Golden Minds Command Center.
-              </p>
-
-              {authError && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm">
-                  {authError}
-                </div>
-              )}
-              
-              <form onSubmit={(e) => { e.preventDefault(); handleAdminLogin(); }} className="space-y-4 mb-6">
-                <div>
-                  <div className="relative">
-                    <Mail className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <input 
-                      type="email" 
-                      placeholder="Admin Email" 
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <div className="relative">
-                    <Lock className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
-                    <input 
-                      type="password" 
-                      placeholder="Password" 
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#ff4e00] transition-colors"
-                    />
-                  </div>
-                </div>
-                <button 
-                  type="submit"
-                  disabled={isLoggingIn || (!email && !password)}
-                  className="w-full py-3.5 px-4 bg-[#ff4e00] text-white font-bold rounded-xl hover:bg-[#e64600] transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
-                >
-                  {isLoggingIn ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Sign In with Email'}
-                </button>
-              </form>
-
-              <div className="relative flex items-center py-2 mb-6">
-                <div className="flex-grow border-t border-gray-800"></div>
-                <span className="flex-shrink-0 mx-4 text-gray-500 text-sm">or</span>
-                <div className="flex-grow border-t border-gray-800"></div>
-              </div>
-
-              <button 
-                onClick={handleAdminLogin}
-                disabled={isLoggingIn}
-                type="button"
-                className="w-full py-3.5 px-4 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed"
-              >
-                {isLoggingIn ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                ) : (
-                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-5 h-5" />
-                )}
-                Continue with Google
-              </button>
-              
-              <div className="mt-6 pt-6 border-t border-gray-800 text-center">
-                <p className="text-xs text-gray-500">
-                  Requesting new admin access? Contact the program director.
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
-
         <div className="max-w-md w-full bg-white/5 backdrop-blur-xl border border-white/10 p-8 rounded-3xl shadow-2xl relative z-10">
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-br from-[#ff4e00] to-[#ff8c00] rounded-2xl mx-auto mb-6 flex items-center justify-center shadow-lg shadow-[#ff4e00]/20">
