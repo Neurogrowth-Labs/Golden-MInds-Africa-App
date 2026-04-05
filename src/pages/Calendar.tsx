@@ -68,21 +68,21 @@ export default function Calendar() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
-      <div className="flex items-center justify-between">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Smart Calendar</h1>
           <p className="text-gray-500 dark:text-gray-400 mt-2">Manage your fellowship schedule and get AI-powered time management insights.</p>
         </div>
-        <button className="bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-4 py-2 rounded-xl font-medium flex items-center gap-2 transition-colors">
+        <button className="bg-[#ff4e00] hover:bg-[#ff6a00] text-white px-4 py-2 rounded-xl font-medium flex items-center justify-center gap-2 transition-colors w-full sm:w-auto">
           <Plus className="w-5 h-5" /> New Event
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Calendar View */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-          <div className="flex items-center justify-between mb-6">
+        <div className="lg:col-span-2 bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-6 overflow-x-auto">
+          <div className="flex items-center justify-between mb-6 min-w-[500px]">
             <h2 className="text-xl font-bold text-gray-900 dark:text-white">
               {currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}
             </h2>
@@ -96,17 +96,17 @@ export default function Calendar() {
             </div>
           </div>
 
-          <div className="grid grid-cols-7 gap-2 mb-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 mb-2 min-w-[500px]">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-sm font-medium text-gray-500 py-2">
+              <div key={day} className="text-center text-xs sm:text-sm font-medium text-gray-500 py-2">
                 {day}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 min-w-[500px]">
             {[...Array(firstDay)].map((_, i) => (
-              <div key={`empty-${i}`} className="h-24 rounded-xl border border-transparent" />
+              <div key={`empty-${i}`} className="h-16 sm:h-24 rounded-xl border border-transparent" />
             ))}
             {[...Array(daysInMonth)].map((_, i) => {
               const day = i + 1;
@@ -117,18 +117,18 @@ export default function Calendar() {
               return (
                 <div 
                   key={day} 
-                  className={`h-24 rounded-xl border p-2 transition-colors hover:border-[#ff4e00]/50 ${
+                  className={`h-16 sm:h-24 rounded-xl border p-1 sm:p-2 transition-colors hover:border-[#ff4e00]/50 ${
                     isToday 
                       ? 'border-[#ff4e00] bg-[#ff4e00]/5' 
                       : 'border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50'
                   }`}
                 >
-                  <div className={`text-sm font-medium mb-1 ${isToday ? 'text-[#ff4e00]' : 'text-gray-700 dark:text-gray-300'}`}>
+                  <div className={`text-xs sm:text-sm font-medium mb-1 ${isToday ? 'text-[#ff4e00]' : 'text-gray-700 dark:text-gray-300'}`}>
                     {day}
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-1 overflow-hidden h-[calc(100%-1.5rem)]">
                     {dayEvents.map(event => (
-                      <div key={event.id} className="text-[10px] truncate px-1.5 py-0.5 rounded bg-[#ff4e00]/10 text-[#ff4e00] font-medium">
+                      <div key={event.id} className="text-[8px] sm:text-[10px] truncate px-1 sm:px-1.5 py-0.5 rounded bg-[#ff4e00]/10 text-[#ff4e00] font-medium">
                         {event.title}
                       </div>
                     ))}

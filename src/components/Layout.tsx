@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { loginWithGoogle, logout, loginWithEmail, registerWithEmail } from '../firebase';
-import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User } from 'lucide-react';
+import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu } from 'lucide-react';
 import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
   const { user, profile, loading } = useAuth();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   // Form state
   const [email, setEmail] = useState('');
@@ -199,7 +200,7 @@ export default function Layout() {
     { to: '/certifications', icon: ShieldCheck, label: 'Certifications' },
     { to: '/knowledge', icon: Database, label: 'Knowledge Vault' },
     { to: '/opportunities', icon: Compass, label: 'Opportunities' },
-    { to: '/publications', icon: Users, label: 'Publications & Debates' },
+    { to: '/ecosystem', icon: Users, label: 'Content Ecosystem' },
     { to: '/showcase', icon: Globe, label: 'Global Showcase' },
   ];
 
@@ -209,18 +210,39 @@ export default function Layout() {
 
   const currentNavItems = fellowNavItems;
 
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="min-h-screen bg-[#f5f5f0] text-gray-900 flex">
+      {/* Mobile Menu Overlay */}
+      {mobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <aside className="w-64 bg-white border-r border-gray-200 flex flex-col hidden md:flex">
-        <div className="p-6 flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-[#5A5A40] to-[#8A8A60] rounded-xl flex items-center justify-center text-white font-bold shadow-md">
-            GM
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-6 flex items-center justify-between md:justify-start gap-3">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-[#5A5A40] to-[#8A8A60] rounded-xl flex items-center justify-center text-white font-bold shadow-md">
+              GM
+            </div>
+            <span className="font-bold text-xl tracking-tight">Golden Minds</span>
           </div>
-          <span className="font-bold text-xl tracking-tight">Golden Minds</span>
+          <button 
+            className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         
-        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto hide-scrollbar">
+        <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto hide-scrollbar pb-20 md:pb-0">
           {currentNavItems.map((item) => {
             const isActive = location.pathname === item.to || (item.to === '/admin' && location.pathname.startsWith('/admin'));
 
@@ -241,7 +263,7 @@ export default function Layout() {
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="p-4 border-t border-gray-200 bg-white">
           {isAdminRoute && (
             <button 
               onClick={() => navigate('/')}
@@ -251,35 +273,51 @@ export default function Layout() {
               <span className="text-sm font-bold">Fellow Dashboard</span>
             </button>
           )}
-          <div className="flex items-center gap-3 mb-4 px-2">
+          <div 
+            onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }}
+            className="flex items-center gap-3 mb-4 px-2 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition-colors"
+          >
             <img src={profile?.avatar || `https://ui-avatars.com/api/?name=${profile?.name}`} alt="Avatar" className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold truncate">{profile?.name}</p>
               <p className="text-xs text-gray-500 capitalize">{profile?.role}</p>
             </div>
           </div>
-          <button 
-            onClick={logout}
-            className="w-full flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-          >
-            <LogOut className="w-4 h-4" />
-            <span className="text-sm font-medium">Sign Out</span>
-          </button>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => { navigate('/settings'); setMobileMenuOpen(false); }}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            >
+              <span className="text-sm font-medium">Settings</span>
+            </button>
+            <button 
+              onClick={logout}
+              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="text-sm font-medium">Sign Out</span>
+            </button>
+          </div>
         </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col overflow-hidden">
-        <header className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center">
+      <main className="flex-1 flex flex-col overflow-hidden w-full">
+        <header className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-gradient-to-br from-[#5A5A40] to-[#8A8A60] rounded-lg flex items-center justify-center text-white font-bold">
               GM
             </div>
             <span className="font-bold">Golden Minds</span>
           </div>
-          {/* Mobile menu button would go here */}
+          <button 
+            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+            onClick={() => setMobileMenuOpen(true)}
+          >
+            <Menu className="w-6 h-6" />
+          </button>
         </header>
-        <div className="flex-1 overflow-auto p-4 md:p-8">
+        <div className="flex-1 overflow-auto p-4 md:p-8 w-full">
           <Outlet />
         </div>
       </main>

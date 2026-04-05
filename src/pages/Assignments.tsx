@@ -150,16 +150,16 @@ export default function Assignments() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 pb-12">
+    <div className="max-w-6xl mx-auto space-y-8 pb-12 p-4 md:p-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold font-serif mb-2 text-[#022c22]">Showcase Your Brilliance</h1>
-          <p className="text-gray-600">Submit, review, and build your leadership portfolio.</p>
+          <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2 text-[#022c22]">Showcase Your Brilliance</h1>
+          <p className="text-gray-600 text-sm sm:text-base">Submit, review, and build your leadership portfolio.</p>
         </div>
-        <div className="flex items-center gap-3 bg-gradient-to-r from-[#d4af37] to-yellow-500 text-white px-5 py-2.5 rounded-full shadow-md">
+        <div className="flex items-center gap-2 sm:gap-3 bg-gradient-to-r from-[#d4af37] to-yellow-500 text-white px-4 sm:px-5 py-2 sm:py-2.5 rounded-full shadow-md w-max">
           <Award className="w-4 h-4" />
-          <span className="text-sm font-bold tracking-wide">Portfolio Builder Active</span>
+          <span className="text-xs sm:text-sm font-bold tracking-wide">Portfolio Builder Active</span>
         </div>
       </div>
 
@@ -167,12 +167,12 @@ export default function Assignments() {
         {/* Left Column: Assignment List */}
         <div className="lg:col-span-1 space-y-6">
           {/* Tabs */}
-          <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100">
+          <div className="flex bg-white p-1 rounded-2xl shadow-sm border border-gray-100 overflow-x-auto hide-scrollbar">
             {['pending', 'submitted', 'reviewed'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => { setActiveTab(tab as any); setSelectedAssignment(null); }}
-                className={`flex-1 py-2.5 rounded-xl text-sm font-bold capitalize transition-all ${
+                className={`flex-1 py-2 sm:py-2.5 px-3 sm:px-4 rounded-xl text-xs sm:text-sm font-bold capitalize transition-all whitespace-nowrap ${
                   activeTab === tab ? 'bg-[#022c22] text-[#d4af37] shadow-md' : 'text-gray-500 hover:bg-gray-100'
                 }`}
               >
@@ -183,13 +183,13 @@ export default function Assignments() {
 
           {/* List Controls */}
           <div className="flex justify-between items-center px-2">
-            <span className="text-sm font-bold text-gray-500">{sortedAssignments.length} Assignments</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Sort by:</span>
+            <span className="text-xs sm:text-sm font-bold text-gray-500">{sortedAssignments.length} Assignments</span>
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="hidden sm:inline text-xs font-bold text-gray-400 uppercase tracking-wider">Sort by:</span>
               <select 
                 value={sortBy} 
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="text-sm bg-transparent border-none text-gray-700 font-bold focus:ring-0 cursor-pointer p-0"
+                className="text-xs sm:text-sm bg-transparent border-none text-gray-700 font-bold focus:ring-0 cursor-pointer p-0"
               >
                 <option value="dueDate">Due Date</option>
                 <option value="points">Points</option>
@@ -199,7 +199,7 @@ export default function Assignments() {
                 className="p-1 hover:bg-gray-200 rounded-lg text-gray-500 transition-colors"
                 title={`Sort ${sortOrder === 'asc' ? 'Descending' : 'Ascending'}`}
               >
-                {sortOrder === 'asc' ? <ArrowUp className="w-4 h-4" /> : <ArrowDown className="w-4 h-4" />}
+                {sortOrder === 'asc' ? <ArrowUp className="w-3 h-3 sm:w-4 sm:h-4" /> : <ArrowDown className="w-3 h-3 sm:w-4 sm:h-4" />}
               </button>
             </div>
           </div>
@@ -213,7 +213,7 @@ export default function Assignments() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.1 }}
                 onClick={() => setSelectedAssignment(assignment)}
-                className={`bg-white rounded-3xl p-5 shadow-sm border cursor-pointer transition-all ${
+                className={`bg-white rounded-3xl p-4 sm:p-5 shadow-sm border cursor-pointer transition-all ${
                   selectedAssignment?.id === assignment.id ? 'border-[#022c22] ring-2 ring-[#022c22]/20' : 'border-gray-100 hover:border-gray-300'
                 }`}
               >
@@ -223,26 +223,26 @@ export default function Assignments() {
                     assignment.status === 'submitted' ? 'bg-blue-50 text-blue-600' :
                     'bg-green-50 text-green-600'
                   }`}>
-                    {assignment.status === 'pending' && <Clock className="w-5 h-5" />}
-                    {assignment.status === 'submitted' && <CheckCircle2 className="w-5 h-5" />}
-                    {assignment.status === 'reviewed' && <Award className="w-5 h-5" />}
+                    {assignment.status === 'pending' && <Clock className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    {assignment.status === 'submitted' && <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    {assignment.status === 'reviewed' && <Award className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
                   {assignment.score && (
-                    <span className="font-bold text-lg text-[#022c22]">{assignment.score}%</span>
+                    <span className="font-bold text-base sm:text-lg text-[#022c22]">{assignment.score}%</span>
                   )}
                 </div>
-                <h3 className="font-bold font-serif text-gray-900 mb-1 line-clamp-2">{assignment.title}</h3>
-                <p className="text-xs text-gray-500 font-medium mb-3">{assignment.due}</p>
-                <div className="flex items-center justify-between text-xs font-bold text-gray-400 uppercase tracking-wider">
+                <h3 className="font-bold font-serif text-gray-900 mb-1 line-clamp-2 text-sm sm:text-base">{assignment.title}</h3>
+                <p className="text-[10px] sm:text-xs text-gray-500 font-medium mb-3">{assignment.due}</p>
+                <div className="flex items-center justify-between text-[10px] sm:text-xs font-bold text-gray-400 uppercase tracking-wider">
                   <span>{assignment.type}</span>
                   <span>{assignment.points} PTS</span>
                 </div>
               </motion.div>
             ))}
             {sortedAssignments.length === 0 && (
-              <div className="text-center p-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-3xl">
-                <FileText className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                <p className="font-medium">No {activeTab} assignments.</p>
+              <div className="text-center p-6 sm:p-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-3xl">
+                <FileText className="w-6 h-6 sm:w-8 sm:h-8 mx-auto mb-2 opacity-50" />
+                <p className="font-medium text-sm sm:text-base">No {activeTab} assignments.</p>
               </div>
             )}
           </div>
@@ -260,20 +260,20 @@ export default function Assignments() {
                 className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden flex flex-col h-full min-h-[600px]"
               >
                 {/* Editor Header */}
-                <div className="p-6 border-b border-gray-100 bg-gray-50/50">
-                  <div className="flex items-center gap-2 text-xs font-bold text-[#d4af37] uppercase tracking-wider mb-2">
+                <div className="p-4 md:p-6 border-b border-gray-100 bg-gray-50/50">
+                  <div className="flex items-center gap-2 text-[10px] sm:text-xs font-bold text-[#d4af37] uppercase tracking-wider mb-2">
                     {selectedAssignment.type} Submission
                   </div>
-                  <h2 className="text-2xl font-bold font-serif text-gray-900 mb-2">{selectedAssignment.title}</h2>
-                  <p className="text-sm text-gray-500 flex items-center gap-2">
-                    <Clock className="w-4 h-4" /> Due: {selectedAssignment.due}
+                  <h2 className="text-lg sm:text-xl md:text-2xl font-bold font-serif text-gray-900 mb-2">{selectedAssignment.title}</h2>
+                  <p className="text-xs sm:text-sm text-gray-500 flex items-center gap-2">
+                    <Clock className="w-3 h-3 sm:w-4 sm:h-4" /> Due: {selectedAssignment.due}
                   </p>
                 </div>
 
                 {selectedAssignment.status === 'pending' ? (
-                  <div className="flex-1 flex flex-col p-6">
+                  <div className="flex-1 flex flex-col p-4 md:p-6">
                     {/* Multi-Format Upload Area */}
-                    <div className="flex gap-2 mb-6 overflow-x-auto hide-scrollbar pb-2">
+                    <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto hide-scrollbar pb-2">
                       <input 
                         type="file" 
                         ref={fileInputRef} 
@@ -287,27 +287,27 @@ export default function Assignments() {
                       />
                       <button 
                         onClick={() => fileInputRef.current?.click()}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors whitespace-nowrap ${attachedFile ? 'bg-[#022c22] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${attachedFile ? 'bg-[#022c22] text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                       >
-                        <Upload className="w-4 h-4" /> {attachedFile ? attachedFile.name : 'Upload PDF/DOCX'}
+                        <Upload className="w-3 h-3 sm:w-4 sm:h-4" /> {attachedFile ? attachedFile.name : 'Upload PDF/DOCX'}
                       </button>
                       <button 
                         onClick={() => setLinkInputType(linkInputType === 'video' ? null : 'video')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors whitespace-nowrap ${linkInputType === 'video' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${linkInputType === 'video' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                       >
-                        <PlayCircle className="w-4 h-4" /> Video Link
+                        <PlayCircle className="w-3 h-3 sm:w-4 sm:h-4" /> Video Link
                       </button>
                       <button 
                         onClick={toggleRecording}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors whitespace-nowrap ${isRecording ? 'bg-red-100 text-red-600 animate-pulse' : audioNote ? 'bg-green-100 text-green-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${isRecording ? 'bg-red-100 text-red-600 animate-pulse' : audioNote ? 'bg-green-100 text-green-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                       >
-                        <Mic className="w-4 h-4" /> {isRecording ? `Recording... ${formatTime(recordingTime)}` : audioNote ? 'Audio Note Attached' : 'Audio Note'}
+                        <Mic className="w-3 h-3 sm:w-4 sm:h-4" /> {isRecording ? `Recording... ${formatTime(recordingTime)}` : audioNote ? 'Audio Note Attached' : 'Audio Note'}
                       </button>
                       <button 
                         onClick={() => setLinkInputType(linkInputType === 'url' ? null : 'url')}
-                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-bold transition-colors whitespace-nowrap ${linkInputType === 'url' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
+                        className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${linkInputType === 'url' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
                       >
-                        <LinkIcon className="w-4 h-4" /> External URL
+                        <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4" /> External URL
                       </button>
                     </div>
 
@@ -354,14 +354,14 @@ export default function Assignments() {
                     )}
 
                     {/* Smart Editor */}
-                    <div className="flex-1 border border-gray-200 rounded-2xl overflow-hidden flex flex-col focus-within:border-[#022c22] focus-within:ring-1 focus-within:ring-[#022c22] transition-all">
+                    <div className="flex-1 border border-gray-200 rounded-2xl overflow-hidden flex flex-col focus-within:border-[#022c22] focus-within:ring-1 focus-within:ring-[#022c22] transition-all min-h-[200px]">
                       <div className="bg-gray-50 border-b border-gray-200 p-2 flex items-center justify-between">
                         <div className="flex gap-1">
                           <button onClick={() => applyFormatting('bold')} className="p-1.5 hover:bg-gray-200 rounded text-gray-600 font-bold">B</button>
                           <button onClick={() => applyFormatting('italic')} className="p-1.5 hover:bg-gray-200 rounded text-gray-600 italic font-serif">I</button>
                           <button onClick={() => applyFormatting('underline')} className="p-1.5 hover:bg-gray-200 rounded text-gray-600 underline">U</button>
                         </div>
-                        <div className="flex items-center gap-2 text-xs text-gray-400 font-medium px-2">
+                        <div className="flex items-center gap-1 sm:gap-2 text-[10px] sm:text-xs text-gray-400 font-medium px-2">
                           <Save className="w-3 h-3" /> Auto-saved
                         </div>
                       </div>
@@ -370,14 +370,14 @@ export default function Assignments() {
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="Start writing your assignment here, or paste a link above..."
-                        className="flex-1 w-full p-4 resize-none outline-none text-gray-700 leading-relaxed"
+                        className="flex-1 w-full p-3 sm:p-4 resize-none outline-none text-sm sm:text-base text-gray-700 leading-relaxed"
                       />
                     </div>
 
                     {/* AI Feedback Section */}
                     <div className="mt-6 space-y-4">
                       {aiFeedback && (
-                        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-5">
+                        <div className="bg-emerald-50 border border-emerald-100 rounded-2xl p-4 md:p-5">
                           <div className="flex items-center gap-2 text-emerald-800 font-bold mb-3">
                             <Sparkles className="w-5 h-5" /> AI Feedback Preview
                           </div>
@@ -387,48 +387,48 @@ export default function Assignments() {
                         </div>
                       )}
                       
-                      <div className="flex flex-col sm:flex-row gap-3">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <button 
                           onClick={handleAIFeedback}
                           disabled={isAnalyzing || !content.trim()}
-                          className="flex-1 py-3.5 bg-[#022c22] hover:bg-[#064e3b] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                          className="flex-1 py-3 sm:py-3.5 bg-[#022c22] hover:bg-[#064e3b] text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50 text-sm sm:text-base"
                         >
-                          {isAnalyzing ? <Sparkles className="w-5 h-5 animate-pulse" /> : <BrainCircuit className="w-5 h-5" />}
+                          {isAnalyzing ? <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" /> : <BrainCircuit className="w-4 h-4 sm:w-5 sm:h-5" />}
                           {isAnalyzing ? 'Analyzing Draft...' : 'Get AI Feedback'}
                         </button>
-                        <button className="flex-1 py-3.5 bg-[#d4af37] hover:bg-yellow-500 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20">
-                          <Upload className="w-5 h-5" /> Submit Final
+                        <button className="flex-1 py-3 sm:py-3.5 bg-[#d4af37] hover:bg-yellow-500 text-white rounded-xl font-bold transition-colors flex items-center justify-center gap-2 shadow-lg shadow-yellow-500/20 text-sm sm:text-base">
+                          <Upload className="w-4 h-4 sm:w-5 sm:h-5" /> Submit Final
                         </button>
                       </div>
                     </div>
                   </div>
                 ) : (
-                  <div className="p-8 flex flex-col items-center justify-center text-center h-full">
+                  <div className="p-6 sm:p-8 flex flex-col items-center justify-center text-center h-full">
                     {selectedAssignment.status === 'reviewed' ? (
                       <>
-                        <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mb-6 border-4 border-green-100">
-                          <span className="text-4xl font-bold text-green-600">{selectedAssignment.score}%</span>
+                        <div className="w-20 h-20 sm:w-24 sm:h-24 bg-green-50 rounded-full flex items-center justify-center mb-4 sm:mb-6 border-4 border-green-100">
+                          <span className="text-3xl sm:text-4xl font-bold text-green-600">{selectedAssignment.score}%</span>
                         </div>
-                        <h3 className="text-2xl font-bold font-serif mb-2">Excellent Work!</h3>
-                        <p className="text-gray-500 max-w-md mb-8">
+                        <h3 className="text-xl sm:text-2xl font-bold font-serif mb-2">Excellent Work!</h3>
+                        <p className="text-sm sm:text-base text-gray-500 max-w-md mb-6 sm:mb-8">
                           Your assignment has been graded. It has been automatically added to your Public Leadership Portfolio.
                         </p>
-                        <div className="w-full max-w-md bg-gray-50 rounded-2xl p-6 text-left border border-gray-200">
-                          <div className="flex items-center gap-2 text-gray-900 font-bold mb-3">
-                            <MessageSquare className="w-5 h-5 text-[#d4af37]" /> Mentor Feedback
+                        <div className="w-full max-w-md bg-gray-50 rounded-2xl p-4 sm:p-6 text-left border border-gray-200">
+                          <div className="flex items-center gap-2 text-gray-900 font-bold mb-2 sm:mb-3 text-sm sm:text-base">
+                            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4af37]" /> Mentor Feedback
                           </div>
-                          <p className="text-sm text-gray-600 leading-relaxed italic">
+                          <p className="text-xs sm:text-sm text-gray-600 leading-relaxed italic">
                             "Brilliant analysis of the digital infrastructure landscape. Your points on rural connectivity were particularly insightful and well-researched. Keep up the great critical thinking."
                           </p>
                         </div>
                       </>
                     ) : (
                       <>
-                        <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mb-6">
-                          <CheckCircle2 className="w-10 h-10 text-blue-500" />
+                        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-blue-50 rounded-full flex items-center justify-center mb-4 sm:mb-6">
+                          <CheckCircle2 className="w-8 h-8 sm:w-10 sm:h-10 text-blue-500" />
                         </div>
-                        <h3 className="text-2xl font-bold font-serif mb-2">Successfully Submitted</h3>
-                        <p className="text-gray-500 max-w-md">
+                        <h3 className="text-xl sm:text-2xl font-bold font-serif mb-2">Successfully Submitted</h3>
+                        <p className="text-sm sm:text-base text-gray-500 max-w-md">
                           Your assignment is currently under review by the facilitation team. You will be notified once grading is complete.
                         </p>
                       </>
@@ -440,11 +440,11 @@ export default function Assignments() {
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center h-full min-h-[600px] text-gray-400 p-8 text-center"
+                className="bg-gray-50/50 border-2 border-dashed border-gray-200 rounded-3xl flex flex-col items-center justify-center h-full min-h-[300px] lg:min-h-[600px] text-gray-400 p-6 sm:p-8 text-center"
               >
-                <FileText className="w-16 h-16 mb-4 opacity-20" />
-                <h3 className="text-xl font-bold font-serif text-gray-500 mb-2">Select an Assignment</h3>
-                <p className="max-w-xs">Choose an assignment from the list to view details, draft your response, or see mentor feedback.</p>
+                <FileText className="w-12 h-12 sm:w-16 sm:h-16 mb-4 opacity-20" />
+                <h3 className="text-lg sm:text-xl font-bold font-serif text-gray-500 mb-2">Select an Assignment</h3>
+                <p className="max-w-xs text-sm sm:text-base">Choose an assignment from the list to view details, draft your response, or see mentor feedback.</p>
               </motion.div>
             )}
           </AnimatePresence>

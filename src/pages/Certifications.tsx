@@ -129,11 +129,11 @@ function CertificationsMain() {
           </p>
         </div>
         
-        <div className="flex gap-3">
-          <button className="flex items-center gap-2 px-4 py-2 bg-[#0a66c2] text-white rounded-lg font-medium hover:bg-[#004182] transition-colors shadow-sm">
+        <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+          <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#0a66c2] text-white rounded-lg font-medium hover:bg-[#004182] transition-colors shadow-sm w-full sm:w-auto">
             <Linkedin className="w-4 h-4" /> Add to Profile
           </button>
-          <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors shadow-sm">
+          <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-50 dark:hover:bg-gray-900 transition-colors shadow-sm w-full sm:w-auto">
             <Share2 className="w-4 h-4" /> Share
           </button>
         </div>
@@ -203,13 +203,13 @@ function CertificationsMain() {
                     <Mail className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="flex gap-3">
-                  <button className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors">
+                <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+                  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
                     <Download className="w-4 h-4" /> Download PDF
                   </button>
                   <button 
                     onClick={() => navigate('/verify/' + FELLOW_DATA.id)}
-                    className="flex items-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+                    className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto"
                   >
                     <QrCodeIcon className="w-4 h-4" /> View Verification Portal
                   </button>

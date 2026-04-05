@@ -79,32 +79,34 @@ export default function Admin() {
   ];
 
   return (
-    <div className="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-8">
+    <div className="max-w-[1600px] mx-auto h-[calc(100vh-8rem)] flex flex-col lg:flex-row gap-8">
       {/* Sidebar Navigation */}
-      <div className="w-full md:w-64 shrink-0 flex flex-col gap-2 overflow-y-auto hide-scrollbar pr-2">
-        <div className="mb-6">
+      <div className="w-full lg:w-64 shrink-0 flex flex-col gap-2 overflow-x-auto lg:overflow-y-auto hide-scrollbar pr-2 pb-4 lg:pb-0">
+        <div className="mb-6 hidden lg:block">
           <h1 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">Command Center</h1>
           <p className="text-sm text-gray-500 dark:text-gray-400">Golden Minds Admin</p>
         </div>
         
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-left ${
-              activeTab === tab.id 
-                ? 'bg-[#ff4e00] text-white shadow-md shadow-[#ff4e00]/20' 
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
-            }`}
-          >
-            <tab.icon className="w-4 h-4 shrink-0" />
-            <span className="truncate">{tab.label}</span>
-          </button>
-        ))}
+        <div className="flex lg:flex-col gap-2 min-w-max lg:min-w-0">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all text-left whitespace-nowrap lg:whitespace-normal ${
+                activeTab === tab.id 
+                  ? 'bg-[#ff4e00] text-white shadow-md shadow-[#ff4e00]/20' 
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800'
+              }`}
+            >
+              <tab.icon className="w-4 h-4 shrink-0" />
+              <span className="truncate">{tab.label}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 overflow-y-auto hide-scrollbar bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-gray-800 p-8 shadow-sm">
+      <div className="flex-1 overflow-y-auto hide-scrollbar bg-white dark:bg-[#141414] rounded-3xl border border-gray-200 dark:border-gray-800 p-4 md:p-8 shadow-sm">
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -117,18 +119,18 @@ export default function Admin() {
             {/* ANALYTICS TAB */}
             {activeTab === 'analytics' && (
               <div className="space-y-8">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">Analytics & Reporting</h2>
                     <p className="text-gray-500 dark:text-gray-400">Real-time insights across the ecosystem</p>
                   </div>
-                  <button className="flex items-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                     <Download className="w-4 h-4" /> Export Report
                   </button>
                 </div>
 
                 {/* Top Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   {[
                     { label: 'Total Fellows', value: '142', icon: Users, color: 'text-blue-600', bg: 'bg-blue-50 dark:bg-blue-900/20' },
                     { label: 'Avg Engagement', value: '87%', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50 dark:bg-green-900/20' },
@@ -148,10 +150,10 @@ export default function Admin() {
                 </div>
 
                 {/* AI Insights Panel */}
-                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-2xl p-8 shadow-xl text-white relative overflow-hidden border border-gray-800">
+                <div className="bg-gradient-to-br from-[#1a1a1a] to-[#2a2a2a] rounded-2xl p-6 md:p-8 shadow-xl text-white relative overflow-hidden border border-gray-800">
                   <div className="absolute top-0 right-0 w-96 h-96 bg-[#ff4e00]/10 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none" />
                   
-                  <div className="relative z-10 flex flex-col md:flex-row gap-8">
+                  <div className="relative z-10 flex flex-col lg:flex-row gap-8">
                     <div className="flex-1 space-y-6">
                       <div className="flex items-center gap-3 text-[#ff4e00]">
                         <BrainCircuit className="w-6 h-6" />
@@ -163,7 +165,7 @@ export default function Admin() {
                       <button 
                         onClick={generateAIReport}
                         disabled={isGeneratingReport}
-                        className="bg-[#ff4e00] hover:bg-[#e64600] text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center gap-2 disabled:opacity-50"
+                        className="w-full sm:w-auto bg-[#ff4e00] hover:bg-[#e64600] text-white px-6 py-3 rounded-xl font-bold transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                       >
                         {isGeneratingReport ? <Loader2 className="w-5 h-5 animate-spin" /> : <BarChart3 className="w-5 h-5" />}
                         Generate Predictive Report
@@ -194,28 +196,28 @@ export default function Admin() {
             {/* USERS TAB */}
             {activeTab === 'users' && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                   <div>
                     <h2 className="text-2xl font-bold font-serif text-gray-900 dark:text-white">User & Role Management</h2>
                     <p className="text-gray-500 dark:text-gray-400">Manage fellows, mentors, and administrators</p>
                   </div>
-                  <div className="flex gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
                     <div className="relative">
                       <Search className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       <input 
                         type="text" 
                         placeholder="Search users..." 
-                        className="pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4e00]/50"
+                        className="w-full sm:w-auto pl-10 pr-4 py-2 bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#ff4e00]/50"
                       />
                     </div>
-                    <button className="flex items-center gap-2 px-4 py-2 bg-[#1a1a1a] dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-black dark:hover:bg-gray-200 transition-colors">
+                    <button className="flex items-center justify-center gap-2 px-4 py-2 bg-[#1a1a1a] dark:bg-white text-white dark:text-black rounded-lg font-medium hover:bg-black dark:hover:bg-gray-200 transition-colors">
                       <Plus className="w-4 h-4" /> Add User
                     </button>
                   </div>
                 </div>
 
-                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden">
-                  <table className="w-full text-left text-sm">
+                <div className="bg-white dark:bg-[#141414] border border-gray-200 dark:border-gray-800 rounded-xl overflow-x-auto">
+                  <table className="w-full text-left text-sm min-w-[600px]">
                     <thead className="bg-gray-50 dark:bg-gray-900/50 text-gray-500 dark:text-gray-400 font-medium border-b border-gray-200 dark:border-gray-800">
                       <tr>
                         <th className="px-6 py-4">Name</th>

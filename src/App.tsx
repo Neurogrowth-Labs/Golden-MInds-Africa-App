@@ -8,6 +8,7 @@ import Attendance from './pages/Attendance';
 import LearningHub from './pages/LearningHub';
 import Forum from './pages/Forum';
 import Debates from './pages/Debates';
+import Ecosystem from './pages/Ecosystem';
 import AINotes from './pages/AINotes';
 import Admin from './pages/Admin';
 import VirtualRooms from './pages/VirtualRooms';
@@ -25,6 +26,8 @@ import Portfolio from './pages/Portfolio';
 import Mentors from './pages/Mentors';
 import Verify from './pages/Verify';
 import Showcase from './pages/Showcase';
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 
 export default function App() {
   return (
@@ -68,8 +71,12 @@ export default function App() {
             {/* 10. Digital Portfolio Showcase */}
             <Route path="showcase/*" element={<Showcase />} />
             
-            {/* 11. Publications & Debates */}
-            <Route path="publications/*" element={<Debates />} />
+            {/* 11. Content & Engagement Ecosystem */}
+            <Route path="ecosystem/*" element={<Ecosystem />} />
+
+            {/* User Settings & Profile */}
+            <Route path="profile" element={<Profile />} />
+            <Route path="settings" element={<Settings />} />
 
             {/* Legacy / Other Routes */}
             <Route path="assignments" element={<Assignments />} />
@@ -84,7 +91,8 @@ export default function App() {
 
             {/* Redirects for old routes */}
             <Route path="smart-calendar/*" element={<Navigate to="/calendar" replace />} />
-            <Route path="debates/*" element={<Navigate to="/publications" replace />} />
+            <Route path="debates/*" element={<Navigate to="/ecosystem" replace />} />
+            <Route path="publications/*" element={<Navigate to="/ecosystem" replace />} />
             <Route path="vault/*" element={<Navigate to="/knowledge" replace />} />
             <Route path="portfolio-builder/*" element={<Navigate to="/portfolio" replace />} />
             <Route path="mentors/*" element={<Navigate to="/mentorship" replace />} />

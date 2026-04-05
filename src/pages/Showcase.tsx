@@ -73,7 +73,7 @@ export default function Showcase() {
                 className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-[#C9A646] transition-colors"
               />
             </div>
-            <button className="bg-[#C9A646] hover:bg-[#b8972e] text-[#0A1F44] px-8 py-4 rounded-xl font-bold transition-colors whitespace-nowrap flex items-center justify-center gap-2">
+            <button className="bg-[#C9A646] hover:bg-[#b8972e] text-[#0A1F44] px-8 py-4 rounded-xl font-bold transition-colors whitespace-nowrap flex items-center justify-center gap-2 w-full sm:w-auto">
               <Sparkles className="w-5 h-5" /> Discover
             </button>
           </div>

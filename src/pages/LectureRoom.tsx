@@ -126,29 +126,29 @@ export default function LectureRoom() {
   };
 
   return (
-    <div className="h-[calc(100vh-8rem)] flex flex-col bg-[#0a0a0a] rounded-3xl overflow-hidden shadow-2xl border border-gray-800">
+    <div className="h-[calc(100vh-4rem)] md:h-[calc(100vh-8rem)] flex flex-col bg-[#0a0a0a] md:rounded-3xl overflow-hidden shadow-2xl border-0 md:border border-gray-800">
       {/* Top Header */}
-      <div className="h-14 bg-[#141414] border-b border-gray-800 flex items-center justify-between px-6 shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-none">LIVE</Badge>
-            <span className="text-white font-bold text-sm tracking-wide ml-2">Room {roomId?.toUpperCase()}</span>
+      <div className="h-14 bg-[#141414] border-b border-gray-800 flex items-center justify-between px-3 sm:px-6 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-4">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <Badge className="bg-green-500/20 text-green-400 hover:bg-green-500/30 border-none text-[10px] sm:text-xs px-1.5 sm:px-2.5">LIVE</Badge>
+            <span className="text-white font-bold text-xs sm:text-sm tracking-wide ml-1 sm:ml-2 truncate max-w-[80px] sm:max-w-none">Room {roomId?.toUpperCase()}</span>
           </div>
-          <div className="h-4 w-px bg-gray-700" />
-          <span className="text-gray-400 text-sm">Policy & Tech Ecosystems</span>
+          <div className="h-4 w-px bg-gray-700 hidden sm:block" />
+          <span className="text-gray-400 text-xs sm:text-sm hidden sm:block truncate max-w-[150px] md:max-w-none">Policy & Tech Ecosystems</span>
         </div>
         
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button 
             onClick={() => setLowBandwidth(!lowBandwidth)}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+            className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${
               lowBandwidth ? 'bg-yellow-500/20 text-yellow-500' : 'bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'
             }`}
           >
-            {lowBandwidth ? <WifiOff className="w-4 h-4" /> : <Wifi className="w-4 h-4" />}
-            {lowBandwidth ? 'Low Bandwidth Mode' : 'HD Quality'}
+            {lowBandwidth ? <WifiOff className="w-3 h-3 sm:w-4 sm:h-4" /> : <Wifi className="w-3 h-3 sm:w-4 sm:h-4" />}
+            <span className="hidden sm:inline">{lowBandwidth ? 'Low Bandwidth Mode' : 'HD Quality'}</span>
           </button>
-          <div className="flex bg-gray-800 rounded-lg p-1">
+          <div className="hidden md:flex bg-gray-800 rounded-lg p-1">
             <button onClick={() => setLayout('single')} className={`p-1.5 rounded-md transition-colors ${layout === 'single' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><Maximize className="w-4 h-4" /></button>
             <button onClick={() => setLayout('split')} className={`p-1.5 rounded-md transition-colors ${layout === 'split' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><LayoutGrid className="w-4 h-4" /></button>
             <button onClick={() => setLayout('pip')} className={`p-1.5 rounded-md transition-colors ${layout === 'pip' ? 'bg-gray-600 text-white' : 'text-gray-400 hover:text-white'}`}><LayoutTemplate className="w-4 h-4" /></button>
@@ -157,33 +157,33 @@ export default function LectureRoom() {
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Video Area */}
-        <div className="flex-1 p-4 flex flex-col gap-4 relative">
+        <div className="flex-1 p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 relative">
           
           {lowBandwidth ? (
-            <div className="flex-1 bg-[#141414] rounded-2xl border border-gray-800 flex flex-col items-center justify-center">
-              <div className="w-24 h-24 bg-gray-800 rounded-full flex items-center justify-center mb-4">
-                <Mic className="w-10 h-10 text-gray-400" />
+            <div className="flex-1 bg-[#141414] rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center">
+              <div className="w-16 h-16 sm:w-24 sm:h-24 bg-gray-800 rounded-full flex items-center justify-center mb-4">
+                <Mic className="w-8 h-8 sm:w-10 sm:h-10 text-gray-400" />
               </div>
-              <h2 className="text-white text-xl font-bold mb-2">Audio-Only Mode Active</h2>
-              <p className="text-gray-500 text-sm">Conserving data. Video is disabled.</p>
+              <h2 className="text-white text-lg sm:text-xl font-bold mb-2">Audio-Only Mode Active</h2>
+              <p className="text-gray-500 text-xs sm:text-sm">Conserving data. Video is disabled.</p>
             </div>
           ) : (
-            <div className={`flex-1 flex gap-4 ${layout === 'split' ? 'flex-row' : 'flex-col'}`}>
+            <div className={`flex-1 flex gap-2 sm:gap-4 ${layout === 'split' ? 'flex-col lg:flex-row' : 'flex-col'}`}>
               {/* Primary Screen (Presentation or Whiteboard) */}
               <div className={`relative bg-[#141414] rounded-2xl border border-gray-800 overflow-hidden ${layout === 'split' ? 'flex-1' : 'h-full'}`}>
                 {showWhiteboard ? (
                   <div className="w-full h-full bg-[#f5f5f0] flex flex-col items-center justify-center relative">
-                    <div className="absolute top-4 left-4 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-200 flex gap-2">
-                      <div className="w-6 h-6 rounded-full bg-black cursor-pointer" />
-                      <div className="w-6 h-6 rounded-full bg-red-500 cursor-pointer" />
-                      <div className="w-6 h-6 rounded-full bg-blue-500 cursor-pointer" />
-                      <div className="w-6 h-6 rounded-full bg-green-500 cursor-pointer" />
+                    <div className="absolute top-2 left-2 sm:top-4 sm:left-4 bg-white px-2 sm:px-4 py-1 sm:py-2 rounded-xl shadow-sm border border-gray-200 flex gap-1 sm:gap-2">
+                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-black cursor-pointer" />
+                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-red-500 cursor-pointer" />
+                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-blue-500 cursor-pointer" />
+                      <div className="w-4 h-4 sm:w-6 sm:h-6 rounded-full bg-green-500 cursor-pointer" />
                     </div>
-                    <PenTool className="w-16 h-16 text-gray-300 mb-4" />
-                    <p className="text-gray-500 font-medium">Collaborative Whiteboard Active</p>
-                    <p className="text-sm text-gray-400">Drawings will appear here in real-time.</p>
+                    <PenTool className="w-10 h-10 sm:w-16 sm:h-16 text-gray-300 mb-2 sm:mb-4" />
+                    <p className="text-gray-500 font-medium text-sm sm:text-base">Collaborative Whiteboard Active</p>
+                    <p className="text-xs sm:text-sm text-gray-400 hidden sm:block">Drawings will appear here in real-time.</p>
                   </div>
                 ) : (
                   <img 
@@ -193,10 +193,11 @@ export default function LectureRoom() {
                     referrerPolicy="no-referrer"
                   />
                 )}
-                <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-lg text-white text-sm font-medium flex items-center gap-2">
-                  <MonitorUp className="w-4 h-4" />
+                <div className="absolute bottom-2 left-2 sm:bottom-4 sm:left-4 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-white text-[10px] sm:text-sm font-medium flex items-center gap-1 sm:gap-2">
+                  <MonitorUp className="w-3 h-3 sm:w-4 sm:h-4" />
                   {showWhiteboard ? 'Collaborative Whiteboard' : "Dr. Amina's Screen"}
                 </div>
+
                 
                 {/* Subtitles Overlay */}
                 {isTranslating && translationMode === 'text' && transcript.length > 0 && (
@@ -844,47 +845,47 @@ export default function LectureRoom() {
       </AnimatePresence>
 
       {/* Bottom Controls */}
-      <div className="h-20 bg-[#141414] border-t border-gray-800 flex items-center justify-between px-6 shrink-0">
-        <div className="flex items-center gap-3">
+      <div className="h-auto md:h-20 bg-[#141414] border-t border-gray-800 flex flex-wrap items-center justify-center sm:justify-between p-3 sm:px-6 gap-3 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => setIsMuted(!isMuted)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isMuted ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
           >
-            {isMuted ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            {isMuted ? <MicOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Mic className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
           <button 
             onClick={() => setIsVideoOff(!isVideoOff)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isVideoOff ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isVideoOff ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
           >
-            {isVideoOff ? <VideoOff className="w-5 h-5" /> : <Video className="w-5 h-5" />}
+            {isVideoOff ? <VideoOff className="w-4 h-4 sm:w-5 sm:h-5" /> : <Video className="w-4 h-4 sm:w-5 sm:h-5" />}
           </button>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
           <button 
             onClick={() => setShowWhiteboard(!showWhiteboard)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${showWhiteboard ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${showWhiteboard ? 'bg-blue-500 text-white hover:bg-blue-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
           >
-            <PenTool className="w-5 h-5" />
+            <PenTool className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <button className="w-12 h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center transition-colors">
-            <MonitorUp className="w-5 h-5" />
+          <button className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center transition-colors">
+            <MonitorUp className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button 
             onClick={() => setIsHandRaised(!isHandRaised)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${isHandRaised ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors ${isHandRaised ? 'bg-yellow-500 text-white hover:bg-yellow-600' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
           >
-            <Hand className="w-5 h-5" />
+            <Hand className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-          <button className="w-12 h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 flex items-center justify-center transition-colors">
-            <Smile className="w-5 h-5" />
+          <button className="hidden sm:flex w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gray-800 text-white hover:bg-gray-700 items-center justify-center transition-colors">
+            <Smile className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button 
             onClick={() => setShowParticipantsPopup(!showParticipantsPopup)}
-            className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors relative ${showParticipantsPopup ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
+            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center transition-colors relative ${showParticipantsPopup ? 'bg-[#ff4e00] text-white' : 'bg-gray-800 text-white hover:bg-gray-700'}`}
           >
-            <Users className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+            <Users className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[8px] sm:text-[10px] font-bold px-1.5 py-0.5 rounded-full">
               {MOCK_PARTICIPANTS.length}
             </span>
           </button>
@@ -892,10 +893,10 @@ export default function LectureRoom() {
 
         <button 
           onClick={handleLeave}
-          className="px-6 py-3 rounded-full bg-red-500 text-white font-bold hover:bg-red-600 transition-colors flex items-center gap-2"
+          className="px-4 sm:px-6 py-2 sm:py-3 rounded-full bg-red-500 text-white text-sm sm:text-base font-bold hover:bg-red-600 transition-colors flex items-center gap-2"
         >
-          <PhoneOff className="w-5 h-5" />
-          Leave
+          <PhoneOff className="w-4 h-4 sm:w-5 sm:h-5" />
+          <span className="hidden sm:inline">Leave</span>
         </button>
       </div>
     </div>

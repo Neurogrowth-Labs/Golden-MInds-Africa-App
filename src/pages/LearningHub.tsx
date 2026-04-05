@@ -251,10 +251,10 @@ function LearningHubMain() {
           <p className="text-gray-600">Access your course materials and AI-augmented insights.</p>
         </div>
 
-        <div className="flex gap-4 border-b border-gray-200 mb-6">
+        <div className="flex gap-4 border-b border-gray-200 mb-6 overflow-x-auto hide-scrollbar">
           <button
             onClick={() => navigate('/learning-hub/modules')}
-            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
+            className={`flex items-center gap-2 px-4 sm:px-6 py-4 font-medium transition-colors relative whitespace-nowrap ${
               activeTab === 'modules' ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -265,7 +265,7 @@ function LearningHubMain() {
           </button>
           <button
             onClick={() => navigate('/learning-hub/feed')}
-            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
+            className={`flex items-center gap-2 px-4 sm:px-6 py-4 font-medium transition-colors relative whitespace-nowrap ${
               activeTab === 'feed' ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -276,7 +276,7 @@ function LearningHubMain() {
           </button>
           <button
             onClick={() => navigate('/learning-hub/search')}
-            className={`flex items-center gap-2 px-6 py-4 font-medium transition-colors relative ${
+            className={`flex items-center gap-2 px-4 sm:px-6 py-4 font-medium transition-colors relative whitespace-nowrap ${
               activeTab === 'search' ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-gray-900'
             }`}
           >
@@ -367,13 +367,13 @@ function LearningHubMain() {
                 </div>
               ) : (
                 smartFeed.map((item) => (
-                  <div key={item.id} className="bg-white p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex items-center justify-between cursor-pointer">
+                  <div key={item.id} className="bg-white p-4 sm:p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center shrink-0">
                         {item.type === 'Video' ? <PlayCircle className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900 text-lg">{item.title}</h3>
+                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{item.title}</h3>
                         <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
                           <span className="uppercase tracking-wider font-bold">{item.type}</span>
                           <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
@@ -381,7 +381,7 @@ function LearningHubMain() {
                         </div>
                       </div>
                     </div>
-                    <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1 shrink-0 ml-4">
+                    <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center justify-center gap-1 shrink-0 sm:ml-4 self-start sm:self-auto">
                       <TrendingUp className="w-3 h-3" /> {item.match}
                     </div>
                   </div>
@@ -393,12 +393,12 @@ function LearningHubMain() {
       </div>
 
       {/* Right Column - AI Assistant & Details */}
-      <div className="w-full lg:w-96 space-y-6">
+      <div className="w-full lg:w-96 space-y-6 lg:col-span-2">
         {selectedMaterial ? (
           <motion.div 
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 sticky top-6"
+            className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 lg:sticky lg:top-6"
           >
             <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center mb-4">
               {getIconForTypeLarge(selectedMaterial.type)}
@@ -462,7 +462,7 @@ function LearningHubMain() {
             </div>
           </motion.div>
         ) : (
-          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center sticky top-6 flex flex-col items-center justify-center min-h-[400px]">
+          <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 text-center lg:sticky lg:top-6 flex flex-col items-center justify-center min-h-[300px] lg:min-h-[400px]">
             <BookOpen className="w-16 h-16 text-gray-200 mb-4" />
             <h3 className="text-xl font-bold text-gray-400 mb-2">No Material Selected</h3>
             <p className="text-gray-400 text-sm max-w-[200px]">

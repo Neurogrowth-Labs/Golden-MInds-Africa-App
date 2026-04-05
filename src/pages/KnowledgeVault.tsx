@@ -37,40 +37,40 @@ function KnowledgeVaultMain() {
   };
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-serif font-bold text-gray-900 dark:text-white">Knowledge Vault</h1>
-          <p className="text-gray-500 dark:text-gray-400 mt-2">Collective intelligence library of all cohorts, powered by AI.</p>
+          <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-white">Knowledge Vault</h1>
+          <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1 sm:mt-2">Collective intelligence library of all cohorts, powered by AI.</p>
         </div>
       </div>
 
       {/* Search & AI Section */}
-      <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-8 shadow-xl relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37]/10 rounded-full blur-3xl" />
+      <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-[#d4af37]/10 rounded-full blur-3xl" />
         
-        <div className="relative z-10 max-w-3xl mx-auto space-y-6">
-          <div className="flex items-center gap-3 text-[#d4af37] mb-2">
-            <Sparkles className="w-6 h-6" />
-            <h2 className="text-xl font-bold">Ask the Vault</h2>
+        <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-6">
+          <div className="flex items-center gap-2 sm:gap-3 text-[#d4af37] mb-1 sm:mb-2">
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+            <h2 className="text-lg sm:text-xl font-bold">Ask the Vault</h2>
           </div>
           
-          <div className="flex gap-2">
+          <div className="flex flex-col sm:flex-row gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <Search className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
               <input 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
                 placeholder="E.g., What are the key policies for digital infrastructure?"
-                className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-12 pr-4 py-4 focus:outline-none focus:border-[#d4af37] transition-colors"
+                className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 text-sm sm:text-base focus:outline-none focus:border-[#d4af37] transition-colors"
               />
             </div>
             <button 
               onClick={handleAISearch}
               disabled={isSearching}
-              className="bg-[#d4af37] hover:bg-white text-[#022c22] px-8 py-4 rounded-xl font-bold transition-colors disabled:opacity-50 whitespace-nowrap"
+              className="bg-[#d4af37] hover:bg-white text-[#022c22] px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold transition-colors disabled:opacity-50 whitespace-nowrap w-full sm:w-auto"
             >
               {isSearching ? 'Searching...' : 'Search'}
             </button>
@@ -80,13 +80,13 @@ function KnowledgeVaultMain() {
             <motion.div 
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white/5 backdrop-blur-md rounded-xl p-6 border border-white/10 text-gray-200"
+              className="bg-white/5 backdrop-blur-md rounded-xl p-4 sm:p-6 border border-white/10 text-gray-200"
             >
-              <div className="flex items-center gap-2 mb-3 text-[#d4af37]">
-                <Sparkles className="w-4 h-4" />
-                <span className="font-bold text-sm uppercase tracking-wider">AI Synthesis</span>
+              <div className="flex items-center gap-2 mb-2 sm:mb-3 text-[#d4af37]">
+                <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
+                <span className="font-bold text-[10px] sm:text-sm uppercase tracking-wider">AI Synthesis</span>
               </div>
-              <div className="prose prose-invert max-w-none text-sm leading-relaxed">
+              <div className="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed">
                 {aiSummary}
               </div>
             </motion.div>
@@ -95,19 +95,19 @@ function KnowledgeVaultMain() {
       </div>
 
       {/* Resources Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 sm:gap-8">
         {/* Filters */}
-        <div className="space-y-6">
-          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-            <div className="flex items-center gap-2 mb-4 font-bold text-gray-900 dark:text-white">
-              <Filter className="w-5 h-5" /> Filters
+        <div className="space-y-4 sm:space-y-6">
+          <div className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-3 sm:mb-4 font-bold text-gray-900 dark:text-white">
+              <Filter className="w-4 h-4 sm:w-5 sm:h-5" /> Filters
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3 sm:space-y-4">
               <div>
-                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Resource Type</h4>
-                <div className="space-y-2">
+                <h4 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 sm:mb-2">Resource Type</h4>
+                <div className="space-y-1 sm:space-y-2">
                   {['All', 'Document', 'Video', 'Guide', 'Transcript'].map(type => (
-                    <label key={type} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <label key={type} className="flex items-center gap-2 text-xs sm:text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
                       <input type="checkbox" className="rounded border-gray-300 text-[#ff4e00] focus:ring-[#ff4e00]" defaultChecked={type === 'All'} />
                       {type}
                     </label>
@@ -115,10 +115,10 @@ function KnowledgeVaultMain() {
                 </div>
               </div>
               <div>
-                <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Topics</h4>
-                <div className="flex flex-wrap gap-2">
+                <h4 className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 sm:mb-2">Topics</h4>
+                <div className="flex flex-wrap gap-1 sm:gap-2">
                   {['Policy', 'Tech', 'AI', 'Healthcare', 'Funding'].map(topic => (
-                    <span key={topic} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md text-xs cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <span key={topic} className="px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-md text-[10px] sm:text-xs cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
                       {topic}
                     </span>
                   ))}
@@ -127,14 +127,14 @@ function KnowledgeVaultMain() {
             </div>
           </div>
 
-          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-500/20 p-6">
-            <div className="flex items-center gap-2 mb-2 text-purple-600 dark:text-purple-400 font-bold">
-              <Network className="w-5 h-5" /> Knowledge Graph
+          <div className="bg-gradient-to-br from-purple-500/10 to-blue-500/10 rounded-2xl border border-purple-500/20 p-4 sm:p-6">
+            <div className="flex items-center gap-2 mb-1 sm:mb-2 text-purple-600 dark:text-purple-400 font-bold text-sm sm:text-base">
+              <Network className="w-4 h-4 sm:w-5 sm:h-5" /> Knowledge Graph
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Explore connections between topics and resources visually.</p>
+            <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 mb-3 sm:mb-4">Explore connections between topics and resources visually.</p>
             <button 
               onClick={() => navigate('/knowledge/graph')}
-              className="w-full py-2 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition-colors"
+              className="w-full py-2 bg-purple-500 text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-purple-600 transition-colors"
             >
               Open Graph Explorer
             </button>
@@ -142,43 +142,43 @@ function KnowledgeVaultMain() {
         </div>
 
         {/* Results */}
-        <div className="lg:col-span-3 space-y-4">
-          <div className="flex items-center justify-between text-sm text-gray-500">
+        <div className="lg:col-span-3 space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500">
             <span>Showing {MOCK_RESOURCES.length} resources</span>
-            <select className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium text-gray-700 dark:text-gray-300">
+            <select className="bg-transparent border-none focus:ring-0 cursor-pointer font-medium text-gray-700 dark:text-gray-300 text-xs sm:text-sm">
               <option>Most Relevant</option>
               <option>Newest First</option>
               <option>Most Viewed</option>
             </select>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             {MOCK_RESOURCES.map(resource => (
               <div 
                 key={resource.id} 
                 onClick={() => navigate('/knowledge/doc/policy-framework-2026')}
-                className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-6 hover:border-[#ff4e00]/50 transition-colors group cursor-pointer"
+                className="bg-white dark:bg-[#141414] rounded-2xl border border-gray-200 dark:border-gray-800 p-4 sm:p-6 hover:border-[#ff4e00]/50 transition-colors group cursor-pointer"
               >
-                <div className="flex items-start justify-between mb-4">
+                <div className="flex items-start justify-between mb-3 sm:mb-4">
                   <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg text-gray-600 dark:text-gray-400 group-hover:bg-[#ff4e00]/10 group-hover:text-[#ff4e00] transition-colors">
-                    {resource.type === 'Document' && <FileText className="w-5 h-5" />}
-                    {resource.type === 'Video' && <Video className="w-5 h-5" />}
-                    {resource.type === 'Guide' && <Book className="w-5 h-5" />}
-                    {resource.type === 'Transcript' && <FileText className="w-5 h-5" />}
+                    {resource.type === 'Document' && <FileText className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    {resource.type === 'Video' && <Video className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    {resource.type === 'Guide' && <Book className="w-4 h-4 sm:w-5 sm:h-5" />}
+                    {resource.type === 'Transcript' && <FileText className="w-4 h-4 sm:w-5 sm:h-5" />}
                   </div>
-                  <span className="text-xs text-gray-500">{new Date(resource.date).toLocaleDateString()}</span>
+                  <span className="text-[10px] sm:text-xs text-gray-500">{new Date(resource.date).toLocaleDateString()}</span>
                 </div>
-                <h3 className="font-bold text-gray-900 dark:text-white mb-1 group-hover:text-[#ff4e00] transition-colors">{resource.title}</h3>
-                <p className="text-sm text-gray-500 mb-4">By {resource.author}</p>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <h3 className="font-bold text-sm sm:text-base text-gray-900 dark:text-white mb-1 group-hover:text-[#ff4e00] transition-colors">{resource.title}</h3>
+                <p className="text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">By {resource.author}</p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-3 sm:mb-4">
                   {resource.tags.map(tag => (
-                    <span key={tag} className="flex items-center gap-1 text-[10px] font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
-                      <Hash className="w-3 h-3" /> {tag}
+                    <span key={tag} className="flex items-center gap-1 text-[8px] sm:text-[10px] font-medium px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full">
+                      <Hash className="w-2 h-2 sm:w-3 sm:h-3" /> {tag}
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center text-sm font-medium text-[#ff4e00] opacity-0 group-hover:opacity-100 transition-opacity">
-                  View Resource <ChevronRight className="w-4 h-4 ml-1" />
+                <div className="flex items-center text-xs sm:text-sm font-medium text-[#ff4e00] opacity-0 group-hover:opacity-100 transition-opacity">
+                  View Resource <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1" />
                 </div>
               </div>
             ))}

@@ -11,6 +11,9 @@ interface UserProfile {
   avatar?: string;
   participationScore?: number;
   attendanceStreak?: number;
+  bio?: string;
+  skills?: string;
+  showBioAndSkills?: boolean;
 }
 
 interface AuthContextType {
