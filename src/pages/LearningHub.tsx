@@ -225,13 +225,21 @@ function LearningHubMain() {
     setIsGenerating(true);
     setAiSummary('');
     try {
+      const moduleContext = `
+        Context for Golden Minds Africa Fellowship courses:
+        - Module 1 (Leadership): Focuses on leadership vs authority vs influence. Ethics (Values-Based, Servant Leadership, Transformational, Authentic, Stakeholder-Centric). Self-assessment evaluates EQ, Decision-Making, Communication, Adaptability, Integrity.
+        - Module 2 (Governance): Governance refers to decision-making systems (Authority, Legitimacy, Accountability, Performance). Covers Democracy, Autocracy, Hybrid. Institutions include Legislature, Executive, Judiciary, Independent bodies.
+        - Module 3 (Ideologies & Power): Covers Liberalism, Socialism, Capitalism, African Governance (Ubuntu). Legitimacy from Traditional, Charismatic, Legal-Rational sources. Actors: State, Market, Civil Society.
+        - Module 4 (Public Service & Ethics): Public Servants handle policy, delivery, advisory, oversight. Ethics vs Corruption (bribery, fraud, nepotism). Accountability mechanisms like audits, oversight.
+        - Module 5 (Geopolitics): Geography shapes power. Hard, Soft, Economic, Technological powers. Africa shifting from resource exporter to value chain owner via AU/AfCFTA.
+        - Module 6 (Global Institutions): Roles of UN, AU, IMF, World Bank. Diplomacy involves bilateral/multilateral talks, BATNA, and shifting from Zero-Sum to Win-Win.
+        - Module 7 (Policy Formulation): Policy Cycle. Evidence-based policy making. McKinsey/Bloomberg style Policy Brief templates. Real-world African policy cases.
+        - Module 8 (Economics): Macroeconomic indicators (GDP, Inflation), Growth Framework (Y=C+I+G+(X-M)), and the Leadership Decision Framework for tradeoffs.
+      `;
+
       const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Provide a comprehensive summary and key takeaways for a learning material titled: "${materialTitle}". Focus on its relevance to the African tech and governance ecosystem.`,
-        config: {
-          tools: [{ googleSearch: {} }],
-          toolConfig: { includeServerSideToolInvocations: true }
-        }
+        model: 'gemini-3.1-flash-lite-preview',
+        contents: `${moduleContext}\n\nProvide a comprehensive summary and key takeaways for a learning material titled: "${materialTitle}". Focus on its relevance to the African context based on the provided module context. Keep it professional and educational.`,
       });
       setAiSummary(response.text || 'Summary could not be generated.');
     } catch (error) {

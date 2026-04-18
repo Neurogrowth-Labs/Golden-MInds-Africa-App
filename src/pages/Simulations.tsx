@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
-import { Cpu, AlertTriangle, ShieldAlert, Building2, Users, Play, CheckCircle2, Clock, BarChart3, ChevronRight } from 'lucide-react';
+import { Cpu, AlertTriangle, ShieldAlert, Building2, Users, Play, CheckCircle2, Clock, BarChart3, ChevronRight, Globe, Activity } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import GeopoliticalMap from '../components/simulations/GeopoliticalMap';
+import CrisisSimulator from '../components/simulations/CrisisSimulator';
+import CrisisXEngine from '../components/simulations/CrisisXEngine';
 
 export default function Simulations() {
   const { profile } = useAuth();
@@ -60,14 +63,14 @@ export default function Simulations() {
     },
     {
       id: 'sim-5',
-      title: 'Diplomatic Negotiation Table',
-      category: 'Geopolitics',
-      difficulty: 'Hard',
-      duration: '150 mins',
-      icon: ShieldAlert,
-      color: 'text-orange-600',
-      bg: 'bg-orange-50',
-      description: 'Mediate a cross-border conflict using trade dependency maps and military capacity indices.',
+      title: 'Global Resource & Climate Accord 2035',
+      category: 'Geopolitics & Diplomacy',
+      difficulty: 'Extreme',
+      duration: '4 Hours',
+      icon: Globe,
+      color: 'text-[#d4af37]',
+      bg: 'bg-yellow-900/10',
+      description: 'UN-Style Diplomatic Simulation: Negotiate climate financing, critical minerals, and trade frameworks under global power asymmetries.',
       completed: false,
     },
     {
@@ -153,6 +156,30 @@ export default function Simulations() {
       bg: 'bg-red-50',
       description: 'Manage the economy, security, diplomacy, and policy system simultaneously amidst dynamic shocks.',
       completed: false,
+    },
+    {
+      id: 'sim-13',
+      title: 'Crisis Resolution Engine: 3 Scenarios',
+      category: 'Crisis Management',
+      difficulty: 'Extreme',
+      duration: '45 mins',
+      icon: AlertTriangle,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+      description: 'Three high-stakes scenarios: Pandemic, Economic Collapse, and Border Conflict. Make irreversible decisions and get a personalized, AI-driven leadership debrief.',
+      completed: false,
+    },
+    {
+      id: 'sim-14',
+      title: 'CRISIS-X: Live Command Center',
+      category: 'Crisis Management',
+      difficulty: 'Platinum',
+      duration: 'Live Engine',
+      icon: Activity,
+      color: 'text-cyan-500',
+      bg: 'bg-cyan-900/10',
+      description: 'Enter the real-time AI-powered leadership simulation. Face dynamic, evolving scenarios where your decisions immediately impact the nation.',
+      completed: false,
     }
   ];
 
@@ -222,6 +249,33 @@ export default function Simulations() {
               </div>
             </div>
           ))}
+        </div>
+      ) : activeSimulation === 'sim-5' ? (
+        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-2xl relative">
+          <div className="absolute top-4 right-4 z-50">
+            <button onClick={() => setActiveSimulation(null)} className="p-2 bg-black/50 text-white hover:bg-black rounded-lg transition-colors shadow-lg backdrop-blur flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+               Exit Room
+            </button>
+          </div>
+          <GeopoliticalMap />
+        </div>
+      ) : activeSimulation === 'sim-13' ? (
+        <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-2xl relative">
+          <div className="absolute top-4 right-4 z-50">
+            <button onClick={() => setActiveSimulation(null)} className="p-2 bg-white/50 hover:bg-white text-gray-900 rounded-lg transition-colors shadow-sm backdrop-blur flex items-center gap-2 text-xs font-bold uppercase tracking-wider">
+               Exit Scenario
+            </button>
+          </div>
+          <CrisisSimulator />
+        </div>
+      ) : activeSimulation === 'sim-14' ? (
+        <div className="bg-black rounded-3xl border border-gray-800 overflow-hidden shadow-2xl relative">
+          <div className="absolute top-4 right-4 z-50">
+            <button onClick={() => setActiveSimulation(null)} className="p-2 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-colors shadow-sm backdrop-blur flex items-center gap-2 text-xs font-bold uppercase tracking-wider border border-white/10">
+               Abort Mission
+            </button>
+          </div>
+          <CrisisXEngine />
         </div>
       ) : (
         <div className="bg-white rounded-3xl border border-gray-200 overflow-hidden shadow-2xl">

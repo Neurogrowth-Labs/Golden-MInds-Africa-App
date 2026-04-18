@@ -3,6 +3,71 @@ import { motion, AnimatePresence } from 'motion/react';
 import { FileText, Upload, CheckCircle2, Clock, Award, PlayCircle, Mic, Link as LinkIcon, Sparkles, AlertCircle, Save, ChevronRight, MessageSquare, BrainCircuit, X, Check, ArrowUp, ArrowDown } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
+const policyBriefTemplate = `# Policy Brief: [Title - Bold, Outcome-Oriented]
+**Prepared by:** [Institution / Department] | **Date:** [Date]
+
+## Executive Summary (1 Page Max)
+- **Problem:** What is happening?
+- **Why it matters:** Economic/social impact
+- **Recommendation:** Clear policy action
+- **Expected Impact:** Quantified if possible
+
+## Problem Definition
+### 1. Context
+What is the issue? Who is affected? Why now?
+
+### 2. Scale (Data-Driven)
+Key statistics, Trends over time, Regional/global comparison
+
+## Root Cause Analysis
+- Institutional gaps
+- Market failures
+- Policy inefficiencies
+- Capacity constraints
+
+## Policy Landscape
+- Existing policies and regulations
+- Institutional roles (government, private sector, civil society)
+
+## Policy Options (Max 3)
+### Option 1: State-Led Approach
+- **Description:**
+- **Pros:**
+- **Risks:**
+
+### Option 2: Market-Led Approach
+- **Description:**
+- **Pros:**
+- **Risks:**
+
+### Option 3: Hybrid (Public-Private)
+- **Description:**
+- **Pros:**
+- **Risks:**
+
+## Recommended Option
+**“We recommend Option X because…”**
+- **Justification:** Evidence-based, feasibility, cost-effectiveness
+- **Strategic Fit:** National priorities, scalability
+
+## Implementation Roadmap
+- **Phase 1 (0–6 months):** Policy approval, pilots
+- **Phase 2 (6–24 months):** Scaling and partnerships
+- **Phase 3 (2–5 years):** Institutionalization
+
+## Financial Implications
+Estimated cost, Funding sources, ROI / economic impact
+
+## Risks & Mitigation
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Political resistance | High | Stakeholder engagement |
+| Budget constraints | Medium | PPP funding model |
+
+## Monitoring & Evaluation
+KPIs (measurable), Data collection methods, Review timeline
+`;
+
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function Assignments() {
@@ -96,10 +161,19 @@ export default function Assignments() {
   };
 
   const assignments = [
-    { id: 1, title: 'Policy Brief: Governance vs. HDI', status: 'pending', due: 'Tonight, 23:59 GMT', dueDate: new Date(Date.now() + 8 * 3600000).toISOString(), type: 'Document', points: 100 },
-    { id: 2, title: 'Leadership Reflection Video', status: 'submitted', due: 'Submitted 2 days ago', dueDate: new Date(Date.now() - 48 * 3600000).toISOString(), type: 'Video', points: 50 },
-    { id: 3, title: 'Pan-African Trade Analysis', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 100 * 3600000).toISOString(), type: 'Document', points: 100, score: 92 },
-    { id: 4, title: 'Startup Pitch Deck', status: 'pending', due: 'Tomorrow, 12:00 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Presentation', points: 150 },
+    { id: 1, title: 'Module 1: Leadership Self-Assessment & Personal Philosophy Workshop', status: 'pending', due: 'Tomorrow, 23:59 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Workshop', points: 100 },
+    { id: 2, title: 'Module 2: Simulated Government Formation', status: 'pending', due: 'In 3 Days', dueDate: new Date(Date.now() + 72 * 3600000).toISOString(), type: 'Simulation', points: 150 },
+    { id: 3, title: 'Module 3: Debate: Who Should Drive Development? (State vs Market vs Society)', status: 'submitted', due: 'Submitted yesterday', dueDate: new Date(Date.now() - 24 * 3600000).toISOString(), type: 'Debate', points: 100 },
+    { id: 4, title: 'Module 4: Ethics Tribunal Simulation', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 120 * 3600000).toISOString(), type: 'Simulation', points: 200, score: 95 },
+    { id: 5, title: 'Module 5: Geopolitical Positioning Strategy (Africa 2035)', status: 'pending', due: 'In 1 Week', dueDate: new Date(Date.now() + 168 * 3600000).toISOString(), type: 'Presentation', points: 150 },
+    { id: 6, title: 'Module 6: UN-Style Diplomatic Simulation (Global Climate Accord)', status: 'pending', due: 'In 2 Weeks', dueDate: new Date(Date.now() + 336 * 3600000).toISOString(), type: 'Simulation', points: 300 },
+    { id: 7, title: 'Module 7: McKinsey-Style Policy Brief (African Case Study)', status: 'pending', due: 'In 3 Weeks', dueDate: new Date(Date.now() + 504 * 3600000).toISOString(), type: 'Document', points: 200 },
+    { id: 8, title: 'Module 8: Budget War Room & Crisis Allocation', status: 'pending', due: 'In 4 Weeks', dueDate: new Date(Date.now() + 672 * 3600000).toISOString(), type: 'Simulation', points: 250 },
+    { id: 9, title: 'Module 9: Message Crafting Lab (Political Communication)', status: 'pending', due: 'In 5 Weeks', dueDate: new Date(Date.now() + 840 * 3600000).toISOString(), type: 'Assessment', points: 100 },
+    { id: 10, title: 'Module 10: Design a Digital Governance Solution', status: 'pending', due: 'In 6 Weeks', dueDate: new Date(Date.now() + 1008 * 3600000).toISOString(), type: 'Assignment', points: 150 },
+    { id: 11, title: 'Module 11: Crisis Leadership Doctrine', status: 'pending', due: 'In 7 Weeks', dueDate: new Date(Date.now() + 1176 * 3600000).toISOString(), type: 'Assignment', points: 100 },
+    { id: 12, title: 'Module 12: ALCL - National Crisis Day Response', status: 'pending', due: 'In 8 Weeks', dueDate: new Date(Date.now() + 1344 * 3600000).toISOString(), type: 'Simulation', points: 200 },
+    { id: 13, title: 'Module 13: Capstone Policy Lab & Leadership Summit', status: 'pending', due: 'In 9 Weeks', dueDate: new Date(Date.now() + 1512 * 3600000).toISOString(), type: 'Capstone', points: 500 }
   ];
 
   const sortedAssignments = [...assignments]
@@ -121,15 +195,30 @@ export default function Assignments() {
       const selectedAssignmentData = selectedAssignment;
       
       let prompt = `Act as a strict but encouraging mentor for an African leadership fellowship. 
-        Review the following assignment draft. Provide instant feedback on 3 areas: 
-        1. Clarity 2. Argument Strength 3. African Context Relevance. 
+        Review the following assignment draft for "${selectedAssignmentData?.title}". 
+        Provide instant feedback on 3 areas: 
+        1. Clarity 2. Argument Strength & Accuracy based on the course material 3. African Context Relevance. 
         Keep it concise, bulleted, and actionable.
         
+        If the assignment involves "Leadership Self-Assessment", evaluate their Emotional Intelligence (EQ), Decision-Making, Communication, Adaptability, and Integrity, as well as their core philosophy statement.
+        If the assignment involves "Government Formation", evaluate their handling of coalition building, institutional respect (judiciary/legislature), governance pillars (Authority, Legitimacy, Accountability, Performance), and dealing with a crisis.
+        If the assignment involves "Who Should Drive Development", evaluate their arguments on State vs Market vs Society, balancing state capacity, market efficiency, and societal legitimacy (avoiding Authoritarianism, Inequality, and Fragmentation).
+        If the assignment involves "Ethics Tribunal", evaluate their ethical reasoning (Utilitarianism vs Deontological), use of governance principles, argument clarity, consequences mapped to South African State Capture examples, and Horizontal/Vertical/Social accountability.
+        If the assignment involves "Geopolitical Positioning Strategy", evaluate their grasp of Africa's strategic assets (minerals, demographics, integration), institutional leverage (AU, AfCFTA), and whether they shift the paradigm from resource exporter to value chain owner.
+        If the assignment involves "UN-Style Diplomatic Simulation", evaluate their Strategic Thinking (25%), Negotiation Skill (25%), Coalition Building (20%), Realism & Adaptability (20%), and Communication (10%) navigating global power asymmetries, climate financing, and securing tech transfers.
+        If the assignment involves "Policy Brief", evaluate their adherence to the McKinsey/Bloomberg style structure (Exec Summary, Clear Problem, Max 3 Options, Recommendation, Implementation, Finances, Risks). Check analytical rigor, strategic clarity, and African-context realism.
+        If the assignment involves "Budget", evaluate their allocation against the macroeconomic framework (growth vs debt, inflation vs employment), and their justification using the Leadership Decision Framework (Impact, Efficiency, Political Feasibility, Sustainability).
+        If the assignment involves "Message Crafting Lab", evaluate their narrative control, emotional resonance, simplicity, use of strategic soundbites, and alignment with African leadership case studies.
+        If the assignment involves "Digital Governance Solution", evaluate the viability of the tech stack, balance of surveillance vs. freedom (transparency, consent), and realistic evaluation of impact on public services.
+        If the assignment involves "Crisis Leadership Doctrine", evaluate their application of the OODA loop or 40/70 rule, speed vs. accuracy tradeoffs, and strict adherence to the 4-part crisis messaging framework (what happened, what it means, what we are doing, what you should do).
+        If the assignment involves "ALCL", evaluate their message discipline, composure under pressure, ability to Acknowledge-Clarify-Pivot, and overall leadership presence during a crisis context.
+        If the assignment involves "Capstone Policy Lab", evaluate based on the 8 categories: Problem Clarity, Policy Innovation, Feasibility, Governance Strength, Leadership Clarity, Communication Delivery, Q&A Defense readiness, and Overall Impact. Ensure they cover Deliverables A (Policy), B (Governance), and C (Leadership Implementation).
+
         Draft: "${content}"`;
 
       if (selectedAssignmentData?.type === 'Presentation') {
         prompt = `Act as a professional pitch coach for an African leadership fellowship.
-        Review the following presentation draft. Provide "Presentation Intelligence" feedback on: 
+        Review the following presentation draft for "${selectedAssignmentData?.title}". Provide "Presentation Intelligence" feedback on: 
         1. Slide Clarity 2. Storytelling 3. Argument Strength 4. Visual Design. 
         Keep it concise, bulleted, and actionable.
         
@@ -147,6 +236,17 @@ export default function Assignments() {
     } finally {
       setIsAnalyzing(false);
     }
+  };
+
+  const downloadTemplate = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const element = document.createElement("a");
+    const file = new Blob([policyBriefTemplate], {type: 'text/markdown'});
+    element.href = URL.createObjectURL(file);
+    element.download = "McKinsey_Bloomberg_Policy_Brief_Template.md";
+    document.body.appendChild(element); // Required for this to work in FireFox
+    element.click();
+    document.body.removeChild(element);
   };
 
   return (
@@ -272,7 +372,7 @@ export default function Assignments() {
 
                 {selectedAssignment.status === 'pending' ? (
                   <div className="flex-1 flex flex-col p-4 md:p-6">
-                    {/* Multi-Format Upload Area */}
+                    {/* Multi-Format Upload Area & Template Button */}
                     <div className="flex gap-2 mb-4 sm:mb-6 overflow-x-auto hide-scrollbar pb-2">
                       <input 
                         type="file" 
@@ -291,6 +391,16 @@ export default function Assignments() {
                       >
                         <Upload className="w-3 h-3 sm:w-4 sm:h-4" /> {attachedFile ? attachedFile.name : 'Upload PDF/DOCX'}
                       </button>
+                      
+                      {selectedAssignment.title.includes('Policy Brief') && (
+                        <button 
+                          onClick={downloadTemplate}
+                          className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200"
+                        >
+                          <FileText className="w-3 h-3 sm:w-4 sm:h-4" /> Download Policy Brief Template
+                        </button>
+                      )}
+
                       <button 
                         onClick={() => setLinkInputType(linkInputType === 'video' ? null : 'video')}
                         className={`flex items-center gap-1 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-colors whitespace-nowrap ${linkInputType === 'video' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}
