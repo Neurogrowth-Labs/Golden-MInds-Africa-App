@@ -8,8 +8,7 @@ import {
   CheckCircle2, Clock, GraduationCap, Award, Mail, Trophy, Activity, Filter
 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
-import { collection, getDocs, query, orderBy } from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -37,9 +36,13 @@ export default function Admin() {
   const fetchUsers = async () => {
     setLoadingUsers(true);
     try {
-      const q = query(collection(db, 'users'), orderBy('name'));
-      const snapshot = await getDocs(q);
-      setUsers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('full_name', { ascending: true });
+        
+      if (error) throw error;
+      if (data) setUsers(data);
     } catch (error) {
       console.error("Error fetching users:", error);
     } finally {

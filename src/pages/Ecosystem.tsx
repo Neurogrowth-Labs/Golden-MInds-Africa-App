@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { BookOpen, Mic, Video, Users, MessageSquare, Plus, Search, Filter, ThumbsUp, MessageCircle, Share2, Swords, PlayCircle, FileText, Radio, Users2, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { collection, query, orderBy, getDocs, addDoc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 type ContentType = 'article' | 'podcast' | 'video' | 'debate' | 'community_post';
 

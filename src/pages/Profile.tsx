@@ -1,8 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Shield, Camera, Save, Loader2, AlertTriangle, X } from 'lucide-react';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 export default function Profile() {
   const { user, profile } = useAuth();
@@ -27,18 +26,41 @@ export default function Profile() {
     setMessage('');
     try {
       const updateData: any = {
-        name,
+        full_name: name,
         bio,
-        skills,
-        showBioAndSkills
+        skills: skills.split(',').map(s => s.trim()).filter(Boolean),
       };
+      
       if (avatarDataUrl) {
-        updateData.avatar = avatarDataUrl;
+        // Upload to Supabase Storage
+        const file = fileInputRef.current?.files?.[0];
+        if (file) {
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+          const { error: uploadError } = await supabase.storage
+            .from('avatars')
+            .upload(fileName, file);
+            
+          if (uploadError) throw uploadError;
+          
+          const { data: { publicUrl } } = supabase.storage
+            .from('avatars')
+            .getPublicUrl(fileName);
+            
+          updateData.avatar_url = publicUrl;
+        }
       }
-      await updateDoc(doc(db, 'users', user.uid), updateData);
+      
+      const { error } = await supabase
+        .from('profiles')
+        .update(updateData)
+        .eq('id', user.id);
+        
+      if (error) throw error;
+      
       setMessage('Profile updated successfully.');
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `users/${user.uid}`);
+    } catch (error: any) {
+      console.error('Error updating profile:', error);
       setMessage('Failed to update profile.');
     } finally {
       setIsSaving(false);

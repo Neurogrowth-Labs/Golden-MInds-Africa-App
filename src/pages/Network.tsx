@@ -3,8 +3,7 @@ import { motion } from 'motion/react';
 import { Globe, Users, Star, Search, MapPin, Briefcase, MessageSquare, Calendar, Award } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from 'react-router-dom';
-import { collection, getDocs, query, where } from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 function NetworkMain() {
   const { profile } = useAuth();
@@ -16,10 +15,13 @@ function NetworkMain() {
   useEffect(() => {
     const fetchFellows = async () => {
       try {
-        const q = query(collection(db, 'users'), where('role', '==', 'fellow'));
-        const snapshot = await getDocs(q);
-        const fellowsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setFellows(fellowsData);
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('role', 'fellow');
+          
+        if (error) throw error;
+        if (data) setFellows(data);
       } catch (error) {
         console.error("Error fetching fellows:", error);
       } finally {

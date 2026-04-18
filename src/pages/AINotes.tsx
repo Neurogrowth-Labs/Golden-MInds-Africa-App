@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'motion/react';
-import { Mic, Square, Play, Loader2, FileText, Sparkles } from 'lucide-react';
+import { Mic, Square, Play, Loader2, FileText, Sparkles, Clock, Trash2 } from 'lucide-react';
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
-import { collection, addDoc } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -14,6 +13,9 @@ export default function AINotes() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [transcript, setTranscript] = useState<string[]>([]);
   const [summary, setSummary] = useState('');
+  const [savedNotes, setSavedNotes] = useState<any[]>([]);
+  const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   
   const sessionRef = useRef<any>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
@@ -21,6 +23,45 @@ export default function AINotes() {
   const processorRef = useRef<ScriptProcessorNode | null>(null);
   const playbackQueueRef = useRef<Float32Array[]>([]);
   const isPlayingRef = useRef(false);
+
+  useEffect(() => {
+    if (user) {
+      fetchSavedNotes();
+    }
+  }, [user]);
+
+  const fetchSavedNotes = async () => {
+    setIsLoadingNotes(true);
+    try {
+      const { data, error } = await supabase
+        .from('ai_notes')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      setSavedNotes(data || []);
+    } catch (error) {
+      console.error('Error fetching notes:', error);
+    } finally {
+      setIsLoadingNotes(false);
+    }
+  };
+
+  const deleteNote = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_notes')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      setSavedNotes(prev => prev.filter(note => note.id !== id));
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      alert('Failed to delete note.');
+    }
+  };
 
   const startRecording = async () => {
     setIsConnecting(true);
@@ -143,19 +184,31 @@ export default function AINotes() {
   };
 
   const saveNote = async () => {
-    if (!user || !summary) return;
+    if (!user || !summary || isSaving) return;
+    setIsSaving(true);
     try {
-      await addDoc(collection(db, 'ai_notes'), {
-        userId: user.uid,
-        sessionId: 'live-session',
+      const newNote = {
+        user_id: user.id,
+        session_id: 'live-session-' + Date.now(),
         content: summary,
         summary: summary,
         tags: ['live-note'],
-        createdAt: new Date().toISOString()
-      });
+      };
+      
+      const { data, error } = await supabase.from('ai_notes').insert([newNote]).select();
+      if (error) throw error;
+      
+      if (data && data.length > 0) {
+        setSavedNotes(prev => [data[0], ...prev]);
+      }
+      
+      setSummary(''); // Clear after saving
       alert('Note saved successfully!');
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'ai_notes');
+    } catch (error: any) {
+      console.error('Error saving note:', error);
+      alert('Failed to save note.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -239,15 +292,16 @@ export default function AINotes() {
             {summary && (
               <button 
                 onClick={saveNote}
-                className="px-4 py-2 bg-[#f5f5f0] text-gray-900 rounded-xl font-medium hover:bg-[#e5e5e0] transition-colors flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto"
+                disabled={isSaving}
+                className="px-4 py-2 bg-[#f5f5f0] text-gray-900 rounded-xl font-medium hover:bg-[#e5e5e0] transition-colors flex items-center justify-center gap-2 text-sm sm:text-base w-full sm:w-auto disabled:opacity-50"
               >
-                <FileText className="w-4 h-4" />
-                Save Note
+                {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileText className="w-4 h-4" />}
+                {isSaving ? 'Saving...' : 'Save Note'}
               </button>
             )}
           </div>
 
-          <div className="flex-1 bg-[#f5f5f0] rounded-2xl p-4 sm:p-6 overflow-y-auto border border-gray-200">
+          <div className="flex-1 bg-[#f5f5f0] rounded-2xl p-4 sm:p-6 overflow-y-auto border border-gray-200 mb-6">
             {summary ? (
               <div className="prose prose-sm sm:prose-base max-w-none text-gray-700 whitespace-pre-wrap">
                 {summary}
@@ -257,6 +311,46 @@ export default function AINotes() {
                 <FileText className="w-10 h-10 sm:w-12 sm:h-12 mb-3 sm:mb-4 opacity-50" />
                 <p className="text-sm sm:text-base">Your AI-generated summary will appear here...</p>
               </div>
+            )}
+          </div>
+
+          {/* Saved Notes Section */}
+          <div className="mt-4 border-t border-gray-100 pt-6">
+            <h3 className="text-lg font-bold font-serif text-gray-900 mb-4 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-gray-500" />
+              Saved Notes
+            </h3>
+            
+            {isLoadingNotes ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+              </div>
+            ) : savedNotes.length > 0 ? (
+              <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2">
+                {savedNotes.map((note) => (
+                  <div key={note.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200 group">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-xs font-medium text-gray-500">
+                        {new Date(note.created_at).toLocaleDateString()} at {new Date(note.created_at).toLocaleTimeString()}
+                      </span>
+                      <button 
+                        onClick={() => deleteNote(note.id)}
+                        className="text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Delete note"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="text-sm text-gray-700 whitespace-pre-wrap line-clamp-4 group-hover:line-clamp-none transition-all">
+                      {note.summary}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-gray-500 text-center py-6 bg-gray-50 rounded-xl border border-dashed border-gray-200">
+                No saved notes yet. Start recording to generate and save notes.
+              </p>
             )}
           </div>
         </div>

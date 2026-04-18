@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { MessageSquare, ThumbsUp, Plus, Search, User } from 'lucide-react';
-import { collection, query, orderBy, getDocs, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -15,9 +14,23 @@ export default function Forum() {
 
   const fetchPosts = async () => {
     try {
-      const q = query(collection(db, 'forum_posts'), orderBy('createdAt', 'desc'));
-      const snapshot = await getDocs(q);
-      setPosts(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })));
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles:author_id (full_name, avatar_url)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      if (data) {
+        setPosts(data.map(post => ({
+          ...post,
+          authorName: post.profiles?.full_name || 'Unknown',
+          createdAt: post.created_at,
+          upvotes: 0 // We'd need a separate likes table query here in a real app
+        })));
+      }
     } catch (error) {
       console.error("Error fetching posts:", error);
     } finally {
@@ -32,30 +45,44 @@ export default function Forum() {
   const handleCreatePost = async () => {
     if (!user || !profile || !newPost.title || !newPost.content) return;
     try {
-      await addDoc(collection(db, 'forum_posts'), {
-        authorId: user.uid,
-        authorName: profile.name,
-        title: newPost.title,
-        content: newPost.content,
-        category: newPost.category,
-        createdAt: new Date().toISOString(),
-        upvotes: 0
-      });
+      const { error } = await supabase
+        .from('posts')
+        .insert([{
+          author_id: user.id,
+          title: newPost.title,
+          content: newPost.content,
+          tags: [newPost.category],
+          type: 'post'
+        }]);
+        
+      if (error) throw error;
+      
       setIsComposing(false);
       setNewPost({ title: '', content: '', category: 'General' });
       fetchPosts();
-    } catch (error) {
-      handleFirestoreError(error, OperationType.CREATE, 'forum_posts');
+    } catch (error: any) {
+      console.error("Error creating post:", error);
     }
   };
 
   const handleUpvote = async (postId: string, currentUpvotes: number) => {
+    if (!user) return;
     try {
-      const postRef = doc(db, 'forum_posts', postId);
-      await updateDoc(postRef, { upvotes: currentUpvotes + 1 });
+      // In a real app, we'd insert into the likes table and then fetch the count
+      // For now, we'll just optimistically update the UI
       setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes + 1 } : p));
-    } catch (error) {
-      handleFirestoreError(error, OperationType.UPDATE, `forum_posts/${postId}`);
+      
+      const { error } = await supabase
+        .from('likes')
+        .insert([{ post_id: postId, user_id: user.id }]);
+        
+      if (error) {
+        // Revert on error
+        setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes } : p));
+        throw error;
+      }
+    } catch (error: any) {
+      console.error("Error upvoting:", error);
     }
   };
 

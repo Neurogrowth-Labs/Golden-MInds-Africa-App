@@ -5,8 +5,7 @@ import { motion } from 'motion/react';
 import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
-import { db } from '../firebase';
+import { supabase } from '../lib/supabase';
 import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -23,12 +22,21 @@ export default function Dashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const sessionsRef = collection(db, 'sessions');
-        const q = query(sessionsRef, where('date', '>=', new Date().toISOString().split('T')[0]), orderBy('date', 'asc'), limit(1));
-        const snapshot = await getDocs(q);
-        
-        if (!snapshot.empty) {
-          setNextSession({ id: snapshot.docs[0].id, ...snapshot.docs[0].data() });
+        // Fetch Next Session (using debates as a proxy since sessions table isn't in schema)
+        const { data: sessionData, error: sessionError } = await supabase
+          .from('debates')
+          .select('*')
+          .gte('scheduled_for', new Date().toISOString())
+          .order('scheduled_for', { ascending: true })
+          .limit(1);
+          
+        if (sessionData && sessionData.length > 0) {
+          setNextSession({ 
+            id: sessionData[0].id, 
+            title: sessionData[0].topic,
+            date: sessionData[0].scheduled_for,
+            type: "debate"
+          });
         } else {
           setNextSession({
             title: "W1A: Leadership in the Modern World (Theory)",
@@ -41,11 +49,15 @@ export default function Dashboard() {
         }
 
         // Fetch Leaderboard
-        const usersRef = collection(db, 'users');
-        const leaderboardQuery = query(usersRef, orderBy('participationScore', 'desc'), limit(5));
-        const leaderboardSnapshot = await getDocs(leaderboardQuery);
-        const leaderboardData = leaderboardSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setLeaderboard(leaderboardData);
+        const { data: leaderboardData, error: leaderboardError } = await supabase
+          .from('profiles')
+          .select('*')
+          .order('participationScore', { ascending: false, nullsFirst: false })
+          .limit(5);
+          
+        if (leaderboardData) {
+          setLeaderboard(leaderboardData);
+        }
       } catch (error) {
         console.error("Error fetching dashboard data:", error);
       } finally {

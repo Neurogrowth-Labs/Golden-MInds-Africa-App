@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Routes, Route, useNavigate, useParams } from 'react-router-dom';
 import { 
@@ -12,6 +12,8 @@ import {
   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
 } from 'recharts';
 import QRCode from 'react-qr-code';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -58,6 +60,39 @@ function CertificationsMain() {
   const [showExplanation, setShowExplanation] = useState(false);
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [isGeneratingExplanation, setIsGeneratingExplanation] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const certificateRef = useRef<HTMLDivElement>(null);
+
+  const handleDownloadPDF = async () => {
+    if (!certificateRef.current) return;
+    setIsDownloading(true);
+    
+    try {
+      const canvas = await html2canvas(certificateRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      const imgData = canvas.toDataURL('image/png');
+      
+      // Calculate PDF dimensions (landscape)
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'px',
+        format: [canvas.width, canvas.height]
+      });
+      
+      pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+      pdf.save(`GMAF_Certificate_${FELLOW_DATA.id}.pdf`);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const handleExplainScore = async () => {
     setShowExplanation(true);
@@ -179,46 +214,51 @@ function CertificationsMain() {
               className="space-y-6"
             >
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-500 font-medium mr-2">Share:</span>
+                <div className="flex items-center gap-2 bg-white dark:bg-[#1a1a1a] p-2 rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm">
+                  <span className="text-sm text-gray-500 font-bold px-2">Share Achievement:</span>
                   <button 
                     onClick={() => window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.origin + '/verify/' + FELLOW_DATA.id)}`, '_blank')}
-                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-[#0077b5] rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#0077b5]/10 text-[#0077b5] rounded-lg hover:bg-[#0077b5]/20 transition-colors font-medium text-sm"
                     title="Share on LinkedIn"
                   >
-                    <Linkedin className="w-4 h-4" />
+                    <Linkedin className="w-4 h-4" /> LinkedIn
                   </button>
                   <button 
                     onClick={() => window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.origin + '/verify/' + FELLOW_DATA.id)}&text=I just earned my Golden Minds Africa Fellowship certificate!`, '_blank')}
-                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-[#1DA1F2] rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-[#1DA1F2]/10 text-[#1DA1F2] rounded-lg hover:bg-[#1DA1F2]/20 transition-colors font-medium text-sm"
                     title="Share on Twitter"
                   >
-                    <Twitter className="w-4 h-4" />
+                    <Twitter className="w-4 h-4" /> Twitter
                   </button>
                   <button 
                     onClick={() => window.location.href = `mailto:?subject=My Golden Minds Africa Fellowship Certificate&body=Check out my certificate here: ${window.location.origin}/verify/${FELLOW_DATA.id}`}
-                    className="p-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                    className="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors font-medium text-sm"
                     title="Share via Email"
                   >
-                    <Mail className="w-4 h-4" />
+                    <Mail className="w-4 h-4" /> Email
                   </button>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                  <button className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto">
-                    <Download className="w-4 h-4" /> Download PDF
+                  <button 
+                    onClick={handleDownloadPDF}
+                    disabled={isDownloading}
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#0A1F44] text-white rounded-xl text-sm font-bold hover:bg-[#071530] transition-colors shadow-md w-full sm:w-auto disabled:opacity-70"
+                  >
+                    {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />} 
+                    {isDownloading ? 'Generating PDF...' : 'Download PDF'}
                   </button>
                   <button 
                     onClick={() => navigate('/verify/' + FELLOW_DATA.id)}
-                    className="flex items-center justify-center gap-2 px-4 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-gray-800 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors w-full sm:w-auto"
+                    className="flex items-center justify-center gap-2 px-6 py-2.5 bg-[#C9A646] text-[#0A1F44] rounded-xl text-sm font-bold hover:bg-[#b5953f] transition-colors shadow-md w-full sm:w-auto"
                   >
-                    <QrCodeIcon className="w-4 h-4" /> View Verification Portal
+                    <ShieldCheck className="w-4 h-4" /> Verify Certificate
                   </button>
                 </div>
               </div>
 
               {/* The Certificate Visual */}
-              <div className="bg-white p-2 md:p-4 shadow-2xl rounded-sm border border-gray-200 max-w-5xl mx-auto">
-                <div className="border-[12px] border-double border-[#C9A646] p-8 md:p-16 relative bg-[#faf9f6] overflow-hidden">
+              <div className="bg-white p-2 md:p-4 shadow-2xl rounded-sm border border-gray-200 max-w-5xl mx-auto overflow-x-auto">
+                <div ref={certificateRef} className="border-[12px] border-double border-[#C9A646] p-8 md:p-16 relative bg-[#faf9f6] overflow-hidden min-w-[800px]">
                   {/* Watermark */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
                     <ShieldCheck className="w-[32rem] h-[32rem] text-[#C9A646]" />

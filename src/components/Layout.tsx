@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { loginWithGoogle, logout, loginWithEmail, registerWithEmail } from '../firebase';
+import { supabase } from '../lib/supabase';
 import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu } from 'lucide-react';
 import QuickAIHelper from './QuickAIHelper';
 
@@ -17,26 +17,65 @@ export default function Layout() {
   const [name, setName] = useState('');
   const [authError, setAuthError] = useState('');
 
+  const [authSuccess, setAuthSuccess] = useState('');
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (isLoggingIn) return;
+    
+    // Basic client-side email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+
     setIsLoggingIn(true);
     setAuthError('');
+    setAuthSuccess('');
     
     try {
       if (authMode === 'signup') {
-        // Note: The name will be updated in the AuthContext when the profile is created
-        sessionStorage.setItem('temp_name', name);
-        await registerWithEmail(email, password);
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name,
+            }
+          }
+        });
+        if (error) throw error;
+        
+        if (data.user && !data.session) {
+          setAuthSuccess('Registration successful! Please check your email to confirm your account.');
+          setAuthMode('login');
+        }
       } else {
-        await loginWithEmail(email, password);
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
       }
     } catch (error: any) {
-      console.error("Auth failed", error);
-      setAuthError(error.message || `Failed to ${authMode === 'signup' ? 'sign up' : 'sign in'}`);
+      // Provide more user-friendly error messages for common Supabase errors
+      let errorMessage = error?.message || error?.error_description || (typeof error === 'string' ? error : 'Unknown error');
+      const lowerError = errorMessage.toLowerCase();
+      
+      if (lowerError.includes('rate limit') || lowerError.includes('too many requests')) {
+        errorMessage = 'Too many attempts. Supabase limits email signups to prevent spam. Please wait a few minutes or check your Supabase dashboard settings to disable email confirmations for testing.';
+      } else if (lowerError.includes('invalid claim') || lowerError.includes('invalid login credentials')) {
+        errorMessage = 'Invalid email or password.';
+      } else if (lowerError.includes('email address') && lowerError.includes('invalid')) {
+        errorMessage = 'Please enter a valid email address.';
+      }
+      
+      console.error("Auth failed:", errorMessage, error);
+      setAuthError(errorMessage || `Failed to ${authMode === 'signup' ? 'sign up' : 'sign in'}`);
     } finally {
       setIsLoggingIn(false);
     }
@@ -47,13 +86,20 @@ export default function Layout() {
     setIsLoggingIn(true);
     setAuthError('');
     try {
-      await loginWithGoogle();
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+      });
+      if (error) throw error;
     } catch (error: any) {
       console.error("Google login failed", error);
       setAuthError(error.message || 'Failed to sign in with Google');
     } finally {
       setIsLoggingIn(false);
     }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
   };
 
   useEffect(() => {
@@ -71,6 +117,11 @@ export default function Layout() {
       }
     }
   }, [user, profile, navigate, location]);
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center bg-[#0a0502] text-white">Loading...</div>;
@@ -107,6 +158,12 @@ export default function Layout() {
           {authError && (
             <div className="mb-6 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
               {authError}
+            </div>
+          )}
+
+          {authSuccess && (
+            <div className="mb-6 p-3 bg-green-500/10 border border-green-500/20 rounded-xl text-green-400 text-sm text-center">
+              {authSuccess}
             </div>
           )}
 
@@ -210,11 +267,6 @@ export default function Layout() {
 
   const currentNavItems = fellowNavItems;
 
-  // Close mobile menu when route changes
-  useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [location.pathname]);
-
   return (
     <div className="min-h-screen bg-[#f5f5f0] text-gray-900 flex">
       {/* Mobile Menu Overlay */}
@@ -291,7 +343,7 @@ export default function Layout() {
               <span className="text-sm font-medium">Settings</span>
             </button>
             <button 
-              onClick={logout}
+              onClick={handleLogout}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
             >
               <LogOut className="w-4 h-4" />

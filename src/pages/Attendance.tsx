@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'motion/react';
 import { MapPin, CheckCircle2, AlertCircle, Fingerprint } from 'lucide-react';
-import { collection, addDoc, query, where, getDocs, serverTimestamp } from 'firebase/firestore';
-import { db, handleFirestoreError, OperationType } from '../firebase';
+import { supabase } from '../lib/supabase';
 
 export default function Attendance() {
   const { user, profile } = useAuth();
@@ -19,15 +18,23 @@ export default function Attendance() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        const q = query(
-          collection(db, 'attendance'),
-          where('userId', '==', user.uid),
-          where('timestamp', '>=', today.toISOString())
-        );
+        const { data, error } = await supabase
+          .from('attendance')
+          .select('*')
+          .eq('user_id', user.id)
+          .gte('created_at', today.toISOString())
+          .limit(1);
+          
+        if (error) {
+          // If table doesn't exist yet, just ignore
+          if (error.code !== '42P01') {
+            console.error("Error checking attendance:", error);
+          }
+          return;
+        }
         
-        const snapshot = await getDocs(q);
-        if (!snapshot.empty) {
-          setTodayAttendance(snapshot.docs[0].data());
+        if (data && data.length > 0) {
+          setTodayAttendance(data[0]);
           setStatus('success');
         }
       } catch (error) {
@@ -53,21 +60,26 @@ export default function Attendance() {
           // In a real app, we would verify the coordinates against the session location
           const { latitude, longitude } = position.coords;
           
-          // Write to Firestore
+          // Write to Supabase
           const attendanceData = {
-            sessionId: 'current-session-id', // Mocked for now
-            userId: user?.uid,
-            timestamp: new Date().toISOString(),
+            session_id: 'current-session-id', // Mocked for now
+            user_id: user?.id,
             status: 'present',
-            geoVerified: true,
-            location: { lat: latitude, lng: longitude }
+            geo_verified: true,
+            latitude,
+            longitude
           };
 
-          await addDoc(collection(db, 'attendance'), attendanceData);
+          const { error } = await supabase
+            .from('attendance')
+            .insert([attendanceData]);
+            
+          if (error) throw error;
+          
           setTodayAttendance(attendanceData);
           setStatus('success');
-        } catch (error) {
-          handleFirestoreError(error, OperationType.CREATE, 'attendance');
+        } catch (error: any) {
+          console.error("Error recording attendance:", error);
           setErrorMessage('Failed to record attendance. Please try again.');
           setStatus('error');
         }

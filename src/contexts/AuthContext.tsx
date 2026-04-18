@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db, handleFirestoreError, OperationType } from '../firebase';
+import { User } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 
 interface UserProfile {
-  uid: string;
+  id: string; // Supabase uses id instead of uid
+  uid: string; // Keep for backward compatibility
   name: string;
   email: string;
-  role: 'fellow' | 'admin' | 'moderator';
+  role: 'fellow' | 'admin' | 'moderator' | 'student' | 'mentor';
   avatar?: string;
   participationScore?: number;
   attendanceStreak?: number;
@@ -32,42 +32,87 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      setUser(currentUser);
-      if (currentUser) {
-        try {
-          const userDocRef = doc(db, 'users', currentUser.uid);
-          const userDoc = await getDoc(userDocRef);
-          
-          if (userDoc.exists()) {
-            setProfile(userDoc.data() as UserProfile);
-          } else {
-            // Create new fellow profile
-            const tempName = sessionStorage.getItem('temp_name');
-            const newProfile: UserProfile = {
-              uid: currentUser.uid,
-              name: tempName || currentUser.displayName || 'Fellow',
-              email: currentUser.email || '',
-              role: 'fellow',
-              avatar: currentUser.photoURL || '',
-              participationScore: 0,
-              attendanceStreak: 0
-            };
-            await setDoc(userDocRef, newProfile);
-            sessionStorage.removeItem('temp_name');
-            setProfile(newProfile);
-          }
-        } catch (error) {
-          handleFirestoreError(error, OperationType.GET, `users/${currentUser.uid}`);
-        }
-      } else {
-        setProfile(null);
+    let mounted = true;
+
+    async function getSession() {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error getting session:', error);
       }
-      setLoading(false);
+      
+      if (mounted) {
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    }
+
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (mounted) {
+        if (session?.user) {
+          setUser(session.user);
+          await fetchProfile(session.user);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
+
+  const fetchProfile = async (currentUser: User) => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', currentUser.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error fetching profile:', error);
+      }
+
+      if (data) {
+        setProfile({
+          id: data.id,
+          uid: data.id,
+          name: data.full_name || currentUser.user_metadata?.full_name || 'Fellow',
+          email: currentUser.email || '',
+          role: data.role || 'fellow',
+          avatar: data.avatar_url || currentUser.user_metadata?.avatar_url || '',
+          bio: data.bio,
+          skills: data.skills?.join(', ') || '',
+        });
+      } else {
+        // Profile doesn't exist, it should be created by the trigger, but we can set a default
+        setProfile({
+          id: currentUser.id,
+          uid: currentUser.id,
+          name: currentUser.user_metadata?.full_name || 'Fellow',
+          email: currentUser.email || '',
+          role: 'fellow',
+          avatar: currentUser.user_metadata?.avatar_url || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error in fetchProfile:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <AuthContext.Provider value={{ user, profile, loading }}>
