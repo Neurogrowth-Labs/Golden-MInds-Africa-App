@@ -1,6 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User } from '@supabase/supabase-js';
+import { User, onAuthStateChanged } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { supabase } from '../lib/supabase';
+
+interface CustomUser extends User {
+  id: string;
+}
 
 interface UserProfile {
   id: string; // Supabase uses id instead of uid
@@ -17,7 +22,7 @@ interface UserProfile {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: CustomUser | null;
   profile: UserProfile | null;
   loading: boolean;
 }
@@ -27,38 +32,22 @@ const AuthContext = createContext<AuthContextType>({ user: null, profile: null, 
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<CustomUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let mounted = true;
 
-    async function getSession() {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error getting session:', error);
-      }
-      
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (mounted) {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user);
-        } else {
-          setUser(null);
-          setProfile(null);
-          setLoading(false);
-        }
-      }
-    }
-
-    getSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (mounted) {
-        if (session?.user) {
-          setUser(session.user);
-          await fetchProfile(session.user);
+        if (currentUser) {
+          const customUser = Object.assign({}, currentUser, { id: currentUser.uid }) as CustomUser;
+          // Note: using currentUser for Firebase methods, object.assign will copy properties
+          // but we can just add a getter for id to the currentUser object itself:
+          (currentUser as any).id = currentUser.uid;
+          setUser(currentUser as CustomUser);
+          await fetchProfile(currentUser as CustomUser);
         } else {
           setUser(null);
           setProfile(null);
@@ -69,16 +58,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      unsubscribe();
     };
   }, []);
 
-  const fetchProfile = async (currentUser: User) => {
+  const fetchProfile = async (currentUser: CustomUser) => {
     try {
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', currentUser.id)
+        .eq('id', currentUser.uid)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -89,22 +78,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setProfile({
           id: data.id,
           uid: data.id,
-          name: data.full_name || currentUser.user_metadata?.full_name || 'Fellow',
+          name: data.full_name || currentUser.displayName || 'Fellow',
           email: currentUser.email || '',
           role: data.role || 'fellow',
-          avatar: data.avatar_url || currentUser.user_metadata?.avatar_url || '',
+          avatar: data.avatar_url || currentUser.photoURL || '',
           bio: data.bio,
           skills: data.skills?.join(', ') || '',
         });
       } else {
-        // Profile doesn't exist, it should be created by the trigger, but we can set a default
+        // Create profile in Supabase for the new Firebase user
+        const newProfile = {
+          id: currentUser.uid,
+          full_name: currentUser.displayName || 'Fellow',
+          avatar_url: currentUser.photoURL || '',
+          role: 'fellow',
+        };
+        await supabase.from('profiles').insert([newProfile]);
+
         setProfile({
-          id: currentUser.id,
-          uid: currentUser.id,
-          name: currentUser.user_metadata?.full_name || 'Fellow',
+          id: currentUser.uid,
+          uid: currentUser.uid,
+          name: currentUser.displayName || 'Fellow',
           email: currentUser.email || '',
           role: 'fellow',
-          avatar: currentUser.user_metadata?.avatar_url || '',
+          avatar: currentUser.photoURL || '',
         });
       }
     } catch (error) {

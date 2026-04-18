@@ -3,6 +3,8 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu } from 'lucide-react';
+import { auth, googleProvider } from '../lib/firebase';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from 'firebase/auth';
 import QuickAIHelper from './QuickAIHelper';
 
 export default function Layout() {
@@ -39,43 +41,30 @@ export default function Layout() {
     
     try {
       if (authMode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: name,
-            }
-          }
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        await updateProfile(userCredential.user, {
+          displayName: name
         });
-        if (error) throw error;
-        
-        if (data.user && !data.session) {
-          setAuthSuccess('Registration successful! Please check your email to confirm your account.');
-          setAuthMode('login');
-        }
+        setAuthSuccess('Registration successful!');
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        if (error) throw error;
+        await signInWithEmailAndPassword(auth, email, password);
       }
     } catch (error: any) {
-      // Provide more user-friendly error messages for common Supabase errors
-      let errorMessage = error?.message || error?.error_description || (typeof error === 'string' ? error : 'Unknown error');
+      let errorMessage = error?.message || 'Unknown error';
       const lowerError = errorMessage.toLowerCase();
       
-      if (lowerError.includes('rate limit') || lowerError.includes('too many requests')) {
-        errorMessage = 'Too many attempts. Supabase limits email signups to prevent spam. Please wait a few minutes or check your Supabase dashboard settings to disable email confirmations for testing.';
-      } else if (lowerError.includes('invalid claim') || lowerError.includes('invalid login credentials')) {
+      if (lowerError.includes('auth/too-many-requests')) {
+        errorMessage = 'Too many attempts. Please wait a few minutes.';
+      } else if (lowerError.includes('auth/invalid-credential') || lowerError.includes('auth/user-not-found') || lowerError.includes('auth/wrong-password')) {
         errorMessage = 'Invalid email or password.';
-      } else if (lowerError.includes('email address') && lowerError.includes('invalid')) {
+      } else if (lowerError.includes('auth/invalid-email')) {
         errorMessage = 'Please enter a valid email address.';
+      } else if (lowerError.includes('auth/email-already-in-use')) {
+        errorMessage = 'An account with this email already exists.';
       }
       
       console.error("Auth failed:", errorMessage, error);
-      setAuthError(errorMessage || `Failed to ${authMode === 'signup' ? 'sign up' : 'sign in'}`);
+      setAuthError(errorMessage);
     } finally {
       setIsLoggingIn(false);
     }
@@ -86,10 +75,7 @@ export default function Layout() {
     setIsLoggingIn(true);
     setAuthError('');
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-      });
-      if (error) throw error;
+      await signInWithPopup(auth, googleProvider);
     } catch (error: any) {
       console.error("Google login failed", error);
       setAuthError(error.message || 'Failed to sign in with Google');
@@ -99,7 +85,7 @@ export default function Layout() {
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut(auth);
   };
 
   useEffect(() => {
