@@ -4,7 +4,8 @@ import { auth } from '../lib/firebase';
 import { supabase } from '../lib/supabase';
 
 interface CustomUser extends User {
-  id: string;
+  id: string; // The UUID generated from Firebase UID
+  firebaseUid: string; // The original Firebase UID
 }
 
 interface UserProfile {
@@ -19,6 +20,16 @@ interface UserProfile {
   bio?: string;
   skills?: string;
   showBioAndSkills?: boolean;
+}
+
+// Generate a deterministic UUID from a Firebase UID
+async function getUuidFromFirebaseUid(uid: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(uid);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-4${hex.substring(13, 16)}-a${hex.substring(17, 20)}-${hex.substring(20, 32)}`;
 }
 
 interface AuthContextType {
@@ -42,12 +53,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (mounted) {
         if (currentUser) {
-          const customUser = Object.assign({}, currentUser, { id: currentUser.uid }) as CustomUser;
-          // Note: using currentUser for Firebase methods, object.assign will copy properties
-          // but we can just add a getter for id to the currentUser object itself:
-          (currentUser as any).id = currentUser.uid;
-          setUser(currentUser as CustomUser);
-          await fetchProfile(currentUser as CustomUser);
+          const supabaseUuid = await getUuidFromFirebaseUid(currentUser.uid);
+          const customUser = Object.assign({}, currentUser, { id: supabaseUuid, firebaseUid: currentUser.uid }) as CustomUser;
+          (currentUser as any).id = supabaseUuid;
+          (currentUser as any).firebaseUid = currentUser.uid;
+          setUser(customUser);
+          await fetchProfile(customUser);
         } else {
           setUser(null);
           setProfile(null);
@@ -67,7 +78,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', currentUser.uid)
+        .eq('id', currentUser.id)
         .single();
 
       if (error && error.code !== 'PGRST116') {
@@ -88,19 +99,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         // Create profile in Supabase for the new Firebase user
         const newProfile = {
-          id: currentUser.uid,
-          full_name: currentUser.displayName || 'Fellow',
+          id: currentUser.id,
+          full_name: currentUser.displayName || 'Student',
           avatar_url: currentUser.photoURL || '',
-          role: 'fellow',
+          role: 'student', // Changed from 'fellow' to match valid enum
         };
-        await supabase.from('profiles').insert([newProfile]);
+        const { error: insertError } = await supabase.from('profiles').insert([newProfile]);
+        if (insertError) {
+           console.error("Profile creation error:", insertError);
+        }
 
         setProfile({
-          id: currentUser.uid,
-          uid: currentUser.uid,
-          name: currentUser.displayName || 'Fellow',
+          id: currentUser.id,
+          uid: currentUser.id,
+          name: currentUser.displayName || 'Student',
           email: currentUser.email || '',
-          role: 'fellow',
+          role: 'student',
           avatar: currentUser.photoURL || '',
         });
       }

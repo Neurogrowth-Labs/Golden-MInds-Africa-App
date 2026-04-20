@@ -162,18 +162,17 @@ export default function Assignments() {
 
   const assignments = [
     { id: 1, title: 'Module 1: Leadership Self-Assessment & Personal Philosophy Workshop', status: 'pending', due: 'Tomorrow, 23:59 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Workshop', points: 100 },
-    { id: 2, title: 'Module 2: Simulated Government Formation', status: 'pending', due: 'In 3 Days', dueDate: new Date(Date.now() + 72 * 3600000).toISOString(), type: 'Simulation', points: 150 },
-    { id: 3, title: 'Module 3: Debate: Who Should Drive Development? (State vs Market vs Society)', status: 'submitted', due: 'Submitted yesterday', dueDate: new Date(Date.now() - 24 * 3600000).toISOString(), type: 'Debate', points: 100 },
+    { id: 2, title: 'Module 2: Simulation: Government Formation', status: 'pending', due: 'In 3 Days', dueDate: new Date(Date.now() + 72 * 3600000).toISOString(), type: 'Simulation', points: 150 },
+    { id: 3, title: 'Module 3: State vs Market vs Society Debate', status: 'submitted', due: 'Submitted yesterday', dueDate: new Date(Date.now() - 24 * 3600000).toISOString(), type: 'Debate', points: 100 },
     { id: 4, title: 'Module 4: Ethics Tribunal Simulation', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 120 * 3600000).toISOString(), type: 'Simulation', points: 200, score: 95 },
-    { id: 5, title: 'Module 5: Geopolitical Positioning Strategy (Africa 2035)', status: 'pending', due: 'In 1 Week', dueDate: new Date(Date.now() + 168 * 3600000).toISOString(), type: 'Presentation', points: 150 },
-    { id: 6, title: 'Module 6: UN-Style Diplomatic Simulation (Global Climate Accord)', status: 'pending', due: 'In 2 Weeks', dueDate: new Date(Date.now() + 336 * 3600000).toISOString(), type: 'Simulation', points: 300 },
-    { id: 7, title: 'Module 7: McKinsey-Style Policy Brief (African Case Study)', status: 'pending', due: 'In 3 Weeks', dueDate: new Date(Date.now() + 504 * 3600000).toISOString(), type: 'Document', points: 200 },
-    { id: 8, title: 'Module 8: Budget War Room & Crisis Allocation', status: 'pending', due: 'In 4 Weeks', dueDate: new Date(Date.now() + 672 * 3600000).toISOString(), type: 'Simulation', points: 250 },
-    { id: 9, title: 'Module 9: Message Crafting Lab (Political Communication)', status: 'pending', due: 'In 5 Weeks', dueDate: new Date(Date.now() + 840 * 3600000).toISOString(), type: 'Assessment', points: 100 },
-    { id: 10, title: 'Module 10: Design a Digital Governance Solution', status: 'pending', due: 'In 6 Weeks', dueDate: new Date(Date.now() + 1008 * 3600000).toISOString(), type: 'Assignment', points: 150 },
-    { id: 11, title: 'Module 11: Crisis Leadership Doctrine', status: 'pending', due: 'In 7 Weeks', dueDate: new Date(Date.now() + 1176 * 3600000).toISOString(), type: 'Assignment', points: 100 },
-    { id: 12, title: 'Module 12: ALCL - National Crisis Day Response', status: 'pending', due: 'In 8 Weeks', dueDate: new Date(Date.now() + 1344 * 3600000).toISOString(), type: 'Simulation', points: 200 },
-    { id: 13, title: 'Module 13: Capstone Policy Lab & Leadership Summit', status: 'pending', due: 'In 9 Weeks', dueDate: new Date(Date.now() + 1512 * 3600000).toISOString(), type: 'Capstone', points: 500 }
+    { id: 5, title: 'Module 5: Geopolitical Simulation', status: 'pending', due: 'In 1 Week', dueDate: new Date(Date.now() + 168 * 3600000).toISOString(), type: 'Simulation', points: 150 },
+    { id: 6, title: 'Module 6: Diplomatic Role-Play (Climate/Trade)', status: 'pending', due: 'In 2 Weeks', dueDate: new Date(Date.now() + 336 * 3600000).toISOString(), type: 'Simulation', points: 300 },
+    { id: 7, title: 'Module 7: Draft an Executive Policy Brief', status: 'pending', due: 'In 3 Weeks', dueDate: new Date(Date.now() + 504 * 3600000).toISOString(), type: 'Document', points: 200 },
+    { id: 8, title: 'Module 8: Budget Simulator & Crisis Allocation', status: 'pending', due: 'In 4 Weeks', dueDate: new Date(Date.now() + 672 * 3600000).toISOString(), type: 'Simulation', points: 250 },
+    { id: 9, title: 'Module 9: Design a Digital Governance Solution', status: 'pending', due: 'In 5 Weeks', dueDate: new Date(Date.now() + 840 * 3600000).toISOString(), type: 'Design', points: 150 },
+    { id: 10, title: 'Module 10: Press Conference & Parliamentary Debate', status: 'pending', due: 'In 6 Weeks', dueDate: new Date(Date.now() + 1008 * 3600000).toISOString(), type: 'Assessment', points: 150 },
+    { id: 11, title: 'Module 11: Crisis Leadership Simulation', status: 'pending', due: 'In 7 Weeks', dueDate: new Date(Date.now() + 1176 * 3600000).toISOString(), type: 'Simulation', points: 200 },
+    { id: 12, title: 'Module 12: Final Capstone Submission', status: 'pending', due: 'In 8 Weeks', dueDate: new Date(Date.now() + 1344 * 3600000).toISOString(), type: 'Capstone', points: 500 }
   ];
 
   const sortedAssignments = [...assignments]
@@ -202,17 +201,16 @@ export default function Assignments() {
         
         If the assignment involves "Leadership Self-Assessment", evaluate their Emotional Intelligence (EQ), Decision-Making, Communication, Adaptability, and Integrity, as well as their core philosophy statement.
         If the assignment involves "Government Formation", evaluate their handling of coalition building, institutional respect (judiciary/legislature), governance pillars (Authority, Legitimacy, Accountability, Performance), and dealing with a crisis.
-        If the assignment involves "Who Should Drive Development", evaluate their arguments on State vs Market vs Society, balancing state capacity, market efficiency, and societal legitimacy (avoiding Authoritarianism, Inequality, and Fragmentation).
-        If the assignment involves "Ethics Tribunal", evaluate their ethical reasoning (Utilitarianism vs Deontological), use of governance principles, argument clarity, consequences mapped to South African State Capture examples, and Horizontal/Vertical/Social accountability.
-        If the assignment involves "Geopolitical Positioning Strategy", evaluate their grasp of Africa's strategic assets (minerals, demographics, integration), institutional leverage (AU, AfCFTA), and whether they shift the paradigm from resource exporter to value chain owner.
-        If the assignment involves "UN-Style Diplomatic Simulation", evaluate their Strategic Thinking (25%), Negotiation Skill (25%), Coalition Building (20%), Realism & Adaptability (20%), and Communication (10%) navigating global power asymmetries, climate financing, and securing tech transfers.
-        If the assignment involves "Policy Brief", evaluate their adherence to the McKinsey/Bloomberg style structure (Exec Summary, Clear Problem, Max 3 Options, Recommendation, Implementation, Finances, Risks). Check analytical rigor, strategic clarity, and African-context realism.
+        If the assignment involves "State vs Market vs Society", evaluate their arguments on balancing state capacity, market efficiency, and societal legitimacy (avoiding Authoritarianism, Inequality, and Fragmentation).
+        If the assignment involves "Ethics Tribunal", evaluate their ethical reasoning (Utilitarianism vs Deontological), use of governance principles, argument clarity, consequences mapped to State Capture examples, and Horizontal/Vertical/Social accountability.
+        If the assignment involves "Geopolitical Simulation", evaluate their grasp of Africa's strategic assets (minerals, demographics, integration), institutional leverage (AU, AfCFTA), and navigation of global power dynamics (Hard vs Soft power).
+        If the assignment involves "Diplomatic Role-Play", evaluate their Strategic Thinking, Negotiation Skill (Interests vs Positions, BATNA, Zero-Sum vs Win-Win), Coalition Building, and Realism managing UN/IMF dynamics.
+        If the assignment involves "Policy Brief", evaluate their adherence to the Executive Standard structure (Exec Summary, Clear Problem, Max 3 Options, Recommendation, Implementation, Finances, Risks). Check analytical rigor, evidence-based data, and African-context realism.
         If the assignment involves "Budget", evaluate their allocation against the macroeconomic framework (growth vs debt, inflation vs employment), and their justification using the Leadership Decision Framework (Impact, Efficiency, Political Feasibility, Sustainability).
-        If the assignment involves "Message Crafting Lab", evaluate their narrative control, emotional resonance, simplicity, use of strategic soundbites, and alignment with African leadership case studies.
-        If the assignment involves "Digital Governance Solution", evaluate the viability of the tech stack, balance of surveillance vs. freedom (transparency, consent), and realistic evaluation of impact on public services.
-        If the assignment involves "Crisis Leadership Doctrine", evaluate their application of the OODA loop or 40/70 rule, speed vs. accuracy tradeoffs, and strict adherence to the 4-part crisis messaging framework (what happened, what it means, what we are doing, what you should do).
-        If the assignment involves "ALCL", evaluate their message discipline, composure under pressure, ability to Acknowledge-Clarify-Pivot, and overall leadership presence during a crisis context.
-        If the assignment involves "Capstone Policy Lab", evaluate based on the 8 categories: Problem Clarity, Policy Innovation, Feasibility, Governance Strength, Leadership Clarity, Communication Delivery, Q&A Defense readiness, and Overall Impact. Ensure they cover Deliverables A (Policy), B (Governance), and C (Leadership Implementation).
+        If the assignment involves "Digital Governance Solution", evaluate the conceptual tech stack for corruption/service delivery, balance of surveillance vs. freedom (Transparency, Consent, Limits), and realistic evaluation of impact on public services.
+        If the assignment involves "Press Conference & Parliamentary Debate", evaluate their narrative control (4 Pillars: Clarity, Consistency, Credibility, Emotional Resonance), use of strategic soundbites/bridging, and argument structure (Claim -> Evidence -> Impact).
+        If the assignment involves "Crisis Simulation", evaluate their application of the OODA loop or 40/70 rule, speed vs. accuracy tradeoffs, and strict adherence to the crisis messaging framework (What happened, what it means, what we're doing, what you should do) amidst pandemic/economic shocks.
+        If the assignment involves "Capstone Policy Lab", evaluate based on the 8 categories: Problem Clarity, Policy Innovation, Feasibility, Governance Strength, Leadership Clarity, Communication Delivery, Q&A Defense readiness, and Overall Impact. Ensure they cover the comprehensive Policy Proposal, Governance Strategy, and Leadership Implementation Plan.
 
         Draft: "${content}"`;
 

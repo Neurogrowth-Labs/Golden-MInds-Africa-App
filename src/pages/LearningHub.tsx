@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock, Download, PenTool } from 'lucide-react';
 import { GoogleGenAI, Type } from '@google/genai';
 import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from 'react-router-dom';
+import Markdown from 'react-markdown';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -11,127 +12,121 @@ const MOCK_MODULES = [
     id: 1,
     title: "Week 1: Leadership in the Modern World",
     materials: [
-      { id: 'm1', title: "Handbook Introduction & Overview", type: "pdf", url: "#", description: "This handbook is designed as a world-class intellectual and practical guide for emerging leaders, policymakers, and innovators across Africa and globally." },
-      { id: 'm2', title: "1.1 Understanding Leadership", type: "article", url: "#", description: "Leadership is the ability to influence direction, behavior, and outcomes toward a defined vision." },
-      { id: 'm3', title: "1.2 Evolution of Leadership", type: "video", url: "#", description: "From Ancient to Digital Leadership." },
-      { id: 'm4', title: "1.3 Leadership Models Explained", type: "article", url: "#", description: "Transformational, Transactional, Adaptive, and Systems Leadership." },
-      { id: 'm5', title: "1.4 Ethical Leadership", type: "article", url: "#", description: "Utilitarian, Deontological, Virtue Ethics, and Ubuntu Philosophy." },
-      { id: 'm6', title: "1.5 Practical Lab: Leadership Self-Assessment", type: "assignment", url: "#", description: "Evaluate decision-making patterns, emotional intelligence, and leadership philosophy." },
+      { id: 'm1', title: "Introduction: Evolution of Leadership", type: "article", url: "#", description: "Tracing leadership from command-and-control in the industrial era to today's focus on adaptability, emotional intelligence, and inclusivity." },
+      { id: 'm2', title: "Leadership vs. Authority vs. Influence", type: "article", url: "#", description: "Understanding why modern leadership is less about formal authority and more about influence, trust, and credibility." },
+      { id: 'm3', title: "Ethical Leadership Frameworks", type: "pdf", url: "#", description: "Values-based, Servant, Transformational, Authentic, and Stakeholder-centric leadership models." },
+      { id: 'm4', title: "African Leadership & Ubuntu Framework", type: "video", url: "#", description: "Comparing Western 'heroic' traits with the Ubuntu/collectivist approach focusing on shared responsibility and distributed leadership." },
+      { id: 'm5', title: "Practical Lab: Leadership Self-Assessment", type: "assignment", url: "#", description: "Evaluate your EQ, decision-making, and draft a personal philosophy statement based on Strategy, Culture, and Technology." },
     ]
   },
   {
     id: 2,
-    title: "Week 2: Governance Systems",
+    title: "Week 2: Introduction to Governance Systems",
     materials: [
-      { id: 'm7', title: "2.1 What is Governance?", type: "article", url: "#", description: "Systems, processes, and institutions through which decisions are made and implemented." },
-      { id: 'm8', title: "2.2 Types of Governance Systems", type: "article", url: "#", description: "Democracy, Autocracy, and Hybrid Systems." },
-      { id: 'm9', title: "2.3 Role of Institutions", type: "video", url: "#", description: "Judiciary, Legislature, Executive, Regulatory bodies." },
-      { id: 'm10', title: "2.4 State Capacity", type: "article", url: "#", description: "Implement policies, collect taxes, maintain order, deliver services." },
-      { id: 'm11', title: "2.5 Practical Simulation: Government Formation", type: "assignment", url: "#", description: "Form political groups, negotiate power, and build a functioning government." },
+      { id: 'm6', title: "What is Governance?", type: "article", url: "#", description: "Balancing Authority, Legitimacy, Accountability, and Performance beyond just 'who holds power'." },
+      { id: 'm7', title: "Types of Governance Systems", type: "article", url: "#", description: "Comparing Democracy, Autocracy, and Hybrid Regimes. Assessing African case studies like Botswana and Rwanda." },
+      { id: 'm8', title: "Role of Institutions", type: "video", url: "#", description: "Legislature, Executive, Judiciary, and Independent Institutions acting as safeguards." },
+      { id: 'm9', title: "Key Dynamics Shaping African Governance", type: "pdf", url: "#", description: "Colonial legacies, corruption & civil society, youth & gender demographics, and global interactions." },
+      { id: 'm10', title: "Simulation: Government Formation", type: "assignment", url: "#", description: "Form political coalitions, agree on leadership, and handle an accountability challenge crisis." },
     ]
   },
   {
     id: 3,
-    title: "Week 3: Political Ideologies & Power",
+    title: "Week 3: Political Ideologies & Public Power",
     materials: [
-      { id: 'm12', title: "3.1 Understanding Ideology", type: "article", url: "#", description: "A set of beliefs about how society should be organized and governed." },
-      { id: 'm13', title: "3.2 Major Ideologies", type: "article", url: "#", description: "Liberalism, Socialism, Capitalism, and African Governance Models." },
-      { id: 'm14', title: "3.3 Power and Legitimacy", type: "video", url: "#", description: "Traditional, Charismatic, and Legal-rational legitimacy." },
-      { id: 'm15', title: "3.4 Practical Debate: State vs Market vs Society", type: "assignment", url: "#", description: "Engage in structured debate representing different ideological positions." },
+      { id: 'm11', title: "Understanding Political Ideologies", type: "article", url: "#", description: "Liberalism, Socialism, Capitalism, and hybrid African Governance models blending tradition with modern states." },
+      { id: 'm12', title: "Power Structures & Legitimacy", type: "article", url: "#", description: "Traditional, Charismatic, and Legal-Rational sources of legitimacy in maintaining stability." },
+      { id: 'm13', title: "Practical Exercise: State vs Market vs Society", type: "assignment", url: "#", description: "Debate resource allocation and structural priorities across State, Market, and Civil Society advocates." },
+      { id: 'm14', title: "Case Study: African Policy Casebook", type: "case study", url: "#", description: "Energy in South Africa, Fintech in Kenya, and Post-conflict Governance in Rwanda." },
     ]
   },
   {
     id: 4,
-    title: "Week 4: Public Service & Ethics",
+    title: "Week 4: Public Service & Civic Leadership",
     materials: [
-      { id: 'm16', title: "4.1 Role of Public Servants", type: "article", url: "#", description: "Implement policies and deliver services to citizens." },
-      { id: 'm17', title: "4.2 Ethics and Accountability", type: "article", url: "#", description: "Audits, Oversight bodies, Public reporting." },
-      { id: 'm18', title: "4.3 Corruption Explained", type: "video", url: "#", description: "Bribery, Embezzlement, Nepotism, and their causes." },
-      { id: 'm19', title: "4.4 Practical Simulation: Ethics Tribunal", type: "assignment", url: "#", description: "Analyze a corruption case and deliver judgment based on evidence and ethical reasoning." },
-      { id: 'm20', title: "4.5 Case Study Analysis", type: "article", url: "#", description: "Compare a failed public system with a successful governance model." },
-      { id: 'm21', title: "Final Note: Transformation", type: "pdf", url: "#", description: "Leadership is not a concept. It is a responsibility. Governance is not theory. It is power in action." },
+      { id: 'm15', title: "The Role of Public Servants", type: "article", url: "#", description: "Translating policy into outcomes: Policy Implementation, Service Delivery, Advisory, and Oversight." },
+      { id: 'm16', title: "Ethics, Accountability & Corruption", type: "pdf", url: "#", description: "Analyzing Horizontal/Vertical/Social accountability, and confronting forms of corruption like State Capture." },
+      { id: 'm17', title: "Case Study: Public Sector Failure vs. Success", type: "video", url: "#", description: "Comparing governance breakdown (opaque systems, political interference) vs. effective digital service delivery." },
+      { id: 'm18', title: "Simulation: Ethics Tribunal", type: "assignment", url: "#", description: "Role-play evaluating evidence and issuing rulings on a public official accused of misconduct." },
     ]
   },
   {
     id: 5,
     title: "Week 5: Fundamentals of Geopolitics",
     materials: [
-      { id: 'm22', title: "5.1 Power, Geography, and Global Influence", type: "article", url: "#", description: "Hard Power, Soft Power, and Strategic Geography." },
-      { id: 'm23', title: "5.2 Regional Blocs and Alliances", type: "article", url: "#", description: "African regional integration systems, European unions, and BRICS." },
-      { id: 'm24', title: "5.3 Global Power Dynamics", type: "video", url: "#", description: "Rising vs declining powers, strategic rivalries, and regional tensions." },
-      { id: 'm25', title: "5.4 Practical Exercise: Map-Based Geopolitical Simulation", type: "assignment", url: "#", description: "Analyze global regions, identify strategic interests, and predict conflicts." },
+      { id: 'm19', title: "Power, Geography, and Global Influence", type: "article", url: "#", description: "Analyzing Hard Power, Soft Power, Economic Power, and Technological Power in the 21st century." },
+      { id: 'm20', title: "Regional Blocs & Global Influence", type: "pdf", url: "#", description: "Strategic focus of the African Union (AfCFTA), EU, BRICS, ASEAN, and NATO." },
+      { id: 'm21', title: "How to Analyze Any Geopolitical Situation", type: "video", url: "#", description: "The Who, Where, What, Why, and How analytical framework for global relations." },
+      { id: 'm22', title: "Geopolitical Simulation", type: "assignment", url: "#", description: "Secure resources, negotiate alliances, and adapt to a global crisis disruption." },
     ]
   },
   {
     id: 6,
     title: "Week 6: Global Institutions & Diplomacy",
     materials: [
-      { id: 'm26', title: "6.1 Major Global Institutions", type: "article", url: "#", description: "United Nations System, African Union, IMF, and World Bank." },
-      { id: 'm27', title: "6.2 Diplomacy and Negotiation Theory", type: "article", url: "#", description: "Interest-based negotiation, power balance awareness, and cultural intelligence." },
-      { id: 'm28', title: "6.3 Strategic Diplomacy", type: "video", url: "#", description: "Building alliances, managing conflicts, and influencing global agendas." },
-      { id: 'm29', title: "6.4 Practical Exercise: Diplomatic Negotiation Role-Play", type: "assignment", url: "#", description: "Simulate international negotiations involving trade, conflict, or climate." },
+      { id: 'm23', title: "The Architecture of Global Governance", type: "article", url: "#", description: "Comparing the mandates of the UN, African Union, IMF, and World Bank." },
+      { id: 'm24', title: "Diplomacy & Negotiation Theory", type: "article", url: "#", description: "Understanding Interests vs. Positions, BATNA, and shifting from Zero-Sum to Win-Win integrative outcomes." },
+      { id: 'm25', title: "Diplomatic Role-Play", type: "assignment", url: "#", description: "Multinational negotiation over climate financing, trade, or critical minerals in Africa." },
     ]
   },
   {
     id: 7,
     title: "Week 7: Policy Formulation & Analysis",
     materials: [
-      { id: 'm30', title: "7.1 The Policy Cycle", type: "article", url: "#", description: "Agenda Setting, Policy Formulation, Implementation, and Evaluation." },
-      { id: 'm31', title: "7.2 Evidence-Based Policy Making", type: "article", url: "#", description: "Quantitative data, qualitative insights, and comparative analysis." },
-      { id: 'm32', title: "7.3 Policy Analysis Tools", type: "video", url: "#", description: "Cost-benefit analysis, impact assessment, and scenario planning." },
-      { id: 'm33', title: "7.4 Practical Exercise: Policy Brief Development", type: "assignment", url: "#", description: "Draft a professional policy brief addressing a real-world issue." },
+      { id: 'm26', title: "The Policy Cycle", type: "article", url: "#", description: "Agenda Setting, Policy Formulation, Implementation, and Evaluation as a continuous, iterative process." },
+      { id: 'm27', title: "Evidence-Based Policy Making", type: "video", url: "#", description: "Relying on statistical data and benchmarks while avoiding data manipulation and political interference." },
+      { id: 'm28', title: "Case Study: Scaling Digital Employment", type: "case study", url: "#", description: "A public-private accelerator solving youth unemployment skills mismatch." },
+      { id: 'm29', title: "Draft a Policy Brief", type: "assignment", url: "#", description: "Use the Executive Standard template to articulate a problem, evaluate options, and propose risk-mitigated implementations." },
     ]
   },
   {
     id: 8,
     title: "Week 8: Economics for Public Leaders",
     materials: [
-      { id: 'm34', title: "8.1 Macroeconomics Basics", type: "article", url: "#", description: "GDP, Inflation, Unemployment, Monetary and Fiscal policy." },
-      { id: 'm35', title: "8.2 Public Budgeting", type: "article", url: "#", description: "Revenue, Expenditure, and Deficit/surplus management." },
-      { id: 'm36', title: "8.3 Fiscal Policy and Economic Stability", type: "video", url: "#", description: "Stimulating growth, controlling inflation, and investing in development." },
-      { id: 'm37', title: "8.4 Practical Exercise: National Budget Simulation", type: "assignment", url: "#", description: "Design a national budget by allocating resources and balancing priorities." },
-      { id: 'm38', title: "8.5 Practical Exercise: Crisis Allocation", type: "assignment", url: "#", description: "Respond to an economic crisis by reallocating limited resources." },
+      { id: 'm30', title: "Core Macroeconomic Indicators", type: "article", url: "#", description: "GDP, Inflation, Unemployment, Fiscal Balance, and Exchange Rates." },
+      { id: 'm31', title: "Public Budgeting & Fiscal Policy", type: "pdf", url: "#", description: "Expansionary vs. Contractionary policies and the trade-offs of growth vs debt sustainability." },
+      { id: 'm32', title: "Leadership Decision Framework", type: "video", url: "#", description: "Evaluating decisions through Impact, Efficiency, Political Feasibility, and Sustainability." },
+      { id: 'm33', title: "National Budget & Crisis Allocation Exercises", type: "assignment", url: "#", description: "Simulate distributing a ZAR 2 trillion budget, then handle an unexpected rapid funding reallocation." },
     ]
   },
   {
     id: 9,
-    title: "Week 9: Crisis Leadership & Decision Making",
+    title: "Week 9: Governance & Technology in the Digital Age",
     materials: [
-      { id: 'm39', title: "9.1 Leading in Uncertainty", type: "article", url: "#", description: "Making decisions with imperfect data and prioritizing speed." },
-      { id: 'm40', title: "9.2 Risk Management", type: "article", url: "#", description: "Risk Identification, Assessment, and Mitigation." },
-      { id: 'm41', title: "9.3 Resilience Building", type: "video", url: "#", description: "Creating adaptive systems and empowering decentralized decision-making." },
-      { id: 'm42', title: "9.4 Practical Exercise: Crisis Simulation", type: "assignment", url: "#", description: "High-intensity simulation involving a pandemic, economic collapse, or conflict." },
+      { id: 'm34', title: "AI & Digital Governance", type: "article", url: "#", description: "Opportunities in scalable governance vs. risks of algorithmic bias, 'black box' decisions, and data misuse." },
+      { id: 'm35', title: "Surveillance vs Freedom: The Core Tension", type: "article", url: "#", description: "Balancing efficiency with Accountability, Transparency, Consent, and Limits." },
+      { id: 'm36', title: "Innovation in Public Systems", type: "video", url: "#", description: "Digital Identity, E-Government platforms, Open Data, and Blockchain in reducing bureaucracy." },
+      { id: 'm37', title: "Design a Digital Governance Solution", type: "assignment", url: "#", description: "Build a conceptual tech stack to target corruption, slow service, or urban management." },
     ]
   },
   {
     id: 10,
-    title: "Week 10: Governance & Technology",
+    title: "Week 10: Public Speaking & Influence",
     materials: [
-      { id: 'm43', title: "10.1 AI and Digital Governance", type: "article", url: "#", description: "Smart cities, digital identity systems, and AI-driven policy analysis." },
-      { id: 'm44', title: "10.2 Surveillance vs Freedom", type: "article", url: "#", description: "Balancing security and civil liberties, data control, and preventing misuse." },
-      { id: 'm45', title: "10.3 Innovation in Public Systems", type: "video", url: "#", description: "E-government platforms, blockchain for transparency, and AI in public services." },
-      { id: 'm46', title: "10.4 Practical Exercise: Digital Governance Solution", type: "assignment", url: "#", description: "Design a scalable digital governance system addressing a public service challenge." },
+      { id: 'm38', title: "Speaking as Power. The 4 Pillars", type: "article", url: "#", description: "Clarity, Consistency, Credibility, and Emotional Resonance." },
+      { id: 'm39', title: "Political Messaging & Media Handling", type: "video", url: "#", description: "Mastering framing, soundbites, bridging techniques, and message discipline." },
+      { id: 'm40', title: "Advanced Influence Techniques", type: "article", url: "#", description: "The Rule of Three, Contrast Framing, Authority Positioning, and Silence as Power." },
+      { id: 'm41', title: "Press Conference & Parliamentary Debate", type: "assignment", url: "#", description: "Deliver opening statements, manage tough Q&A, and run Claim->Evidence->Impact rebuttals." },
     ]
   },
   {
     id: 11,
-    title: "Week 11: Public Speaking & Influence",
+    title: "Week 11: Crisis Leadership & Decision-Making",
     materials: [
-      { id: 'm47', title: "11.1 Strategic Communication", type: "article", url: "#", description: "Audience analysis, message framing, and emotional intelligence." },
-      { id: 'm48', title: "11.2 Political Messaging & Media Handling", type: "video", url: "#", description: "Crafting clear messages, handling difficult questions, and controlling narratives." },
-      { id: 'm49', title: "11.3 Influence and Persuasion", type: "article", url: "#", description: "Building credibility, logic, and emotional connection with the audience." },
-      { id: 'm50', title: "11.4 Practical Exercise: Press Conference", type: "assignment", url: "#", description: "Conduct a live press briefing and respond to media questions." },
-      { id: 'm51', title: "11.5 Practical Exercise: Parliamentary Debate", type: "assignment", url: "#", description: "Engage in structured debates, present policy arguments, and defend positions." },
+      { id: 'm42', title: "Leading in Uncertainty", type: "article", url: "#", description: "Clarity over certainty, speed over perfection, and presence over panic." },
+      { id: 'm43', title: "Risk Management & Resilience", type: "article", url: "#", description: "Pre-building capacity to absorb Operational, Financial, Reputational, and Geopolitical shocks." },
+      { id: 'm44', title: "Crisis Decision-Making Models", type: "video", url: "#", description: "Utilizing the OODA Loop, the 40/70 Rule, and Red Teaming." },
+      { id: 'm45', title: "Communication in Crisis", type: "pdf", url: "#", description: "The Crisis Messaging Framework: What happened, What it means, What we're doing, What you should do." },
+      { id: 'm46', title: "Crisis Simulation Simulation", type: "assignment", url: "#", description: "Navigate Pandemic Outbreaks, Economic Collapses, or Civil Conflict in high-speed escalation rounds." },
     ]
   },
   {
     id: 12,
-    title: "Week 12: Capstone Policy Lab & Leadership Summit",
+    title: "Week 12: African Case Studies & Capstone Prep",
     materials: [
-      { id: 'm52', title: "12.1 Policy Proposal", type: "pdf", url: "#", description: "A comprehensive policy addressing a critical societal issue." },
-      { id: 'm53', title: "12.2 Governance Strategy", type: "pdf", url: "#", description: "A strategic framework outlining institutional structures and risk management." },
-      { id: 'm54', title: "12.3 Leadership Implementation Plan", type: "pdf", url: "#", description: "A practical roadmap detailing execution strategy and resource allocation." },
-      { id: 'm55', title: "12.4 Final Presentation: Leadership Summit", type: "assignment", url: "#", description: "Present to an expert panel in a high-level summit environment." },
+      { id: 'm47', title: "4 Models of African Governance", type: "case study", url: "#", description: "Botswana (Stable Democracy), Rwanda (Developmental Autocracy), Ghana (Democratic Model), Nigeria (Size & Complexity)." },
+      { id: 'm48', title: "Synthesizing Lessons for the Capstone", type: "article", url: "#", description: "Applying leadership strategies, tech platforms, and fiscal logic to your final submission." },
+      { id: 'm49', title: "Final Capstone Submission", type: "assignment", url: "#", description: "Present the integrated Policy Brief with robust economic and governance evidence." },
     ]
   }
 ];
@@ -250,6 +245,33 @@ function LearningHubMain() {
     }
   };
 
+  const handleDownload = () => {
+    if (!selectedMaterial) return;
+    const content = `# ${selectedMaterial.title}\n\n${selectedMaterial.description}\n\n[Simulated Material Document Content]\n`;
+    const blob = new Blob([content], { type: 'text/markdown' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${selectedMaterial.title.replace(/[\s\W]+/g, '_')}.${selectedMaterial.type === 'pdf' ? 'pdf' : 'md'}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleOpenMaterial = () => {
+    if (!selectedMaterial) return;
+    if (selectedMaterial.type === 'assignment') {
+      navigate('/assignments');
+    } else if (selectedMaterial.type === 'video') {
+      navigate(`/learning-hub/watch/${selectedMaterial.id}`);
+    } else if (selectedMaterial.type === 'article' || selectedMaterial.type === 'case study') {
+      navigate(`/learning-hub/read/${selectedMaterial.id}`);
+    } else {
+      handleDownload();
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-8">
       {/* Left Column - Modules */}
@@ -337,7 +359,16 @@ function LearningHubMain() {
                           setSelectedMaterial(mat);
                           setAiSummary('');
                         }}
-                        className={`w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
+                        onDoubleClick={() => {
+                           if (mat.type === 'assignment') {
+                             navigate('/assignments');
+                           } else if (mat.type === 'video') {
+                             navigate(`/learning-hub/watch/${mat.id}`);
+                           } else if (mat.type === 'article' || mat.type === 'case study') {
+                             navigate(`/learning-hub/read/${mat.id}`);
+                           }
+                        }}
+                        className={`group w-full flex items-center justify-between p-4 rounded-xl transition-colors ${
                           selectedMaterial?.id === mat.id 
                             ? 'bg-[#5A5A40] text-white' 
                             : 'bg-[#f5f5f0] hover:bg-[#e5e5e0] text-gray-900'
@@ -347,7 +378,10 @@ function LearningHubMain() {
                           {getIconForType(mat.type)}
                           <span className="font-medium text-left">{mat.title}</span>
                         </div>
-                        <span className="text-xs uppercase tracking-wider font-bold opacity-70 shrink-0 ml-4">{mat.type}</span>
+                        <div className="flex items-center gap-4">
+                           <span className="text-[10px] uppercase font-bold opacity-0 group-hover:opacity-70 transition-opacity">Double click to open</span>
+                           <span className="text-xs uppercase tracking-wider font-bold opacity-70 shrink-0 ml-4">{mat.type}</span>
+                        </div>
                       </button>
                     ))}
                   </div>
@@ -375,23 +409,45 @@ function LearningHubMain() {
                 </div>
               ) : (
                 smartFeed.map((item) => (
-                  <div key={item.id} className="bg-white p-4 sm:p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer">
+                  <div 
+                    key={item.id} 
+                    onClick={() => {
+                      setSelectedMaterial({...item, description: `Recommended for you. ${item.match}.`, type: item.type.toLowerCase()});
+                      setAiSummary('');
+                    }}
+                    onDoubleClick={() => {
+                       const itemType = item.type.toLowerCase();
+                       if (itemType === 'assignment') {
+                         navigate('/assignments');
+                       } else if (itemType === 'video') {
+                         navigate(`/learning-hub/watch/${item.id}`);
+                       } else {
+                         navigate(`/learning-hub/read/${item.id}`);
+                       }
+                    }}
+                    className="group bg-white p-4 sm:p-6 rounded-3xl border border-gray-200 hover:shadow-md transition-shadow flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer"
+                  >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-orange-50 text-[#ff4e00] rounded-xl flex items-center justify-center shrink-0">
                         {item.type === 'Video' ? <PlayCircle className="w-6 h-6" /> : <FileText className="w-6 h-6" />}
                       </div>
                       <div>
-                        <h3 className="font-bold text-gray-900 text-lg leading-tight">{item.title}</h3>
-                        <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
-                          <span className="uppercase tracking-wider font-bold">{item.type}</span>
-                          <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
-                          <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {item.time}</span>
+                            <h3 className="font-bold text-gray-900 text-lg leading-tight group-hover:text-[#ff4e00] transition-colors">{item.title}</h3>
+                            <div className="flex items-center gap-3 text-sm text-gray-500 mt-1">
+                              <span className="uppercase tracking-wider font-bold">{item.type}</span>
+                              <span className="w-1 h-1 bg-gray-300 rounded-full"></span>
+                              <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {item.time}</span>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                    <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center justify-center gap-1 shrink-0 sm:ml-4 self-start sm:self-auto">
-                      <TrendingUp className="w-3 h-3" /> {item.match}
-                    </div>
+                        <div className="flex flex-col sm:items-end gap-2 shrink-0 sm:ml-4">
+                          <div className="bg-green-50 text-green-600 px-3 py-1 rounded-full text-xs font-bold flex items-center justify-center gap-1 w-fit">
+                            <TrendingUp className="w-3 h-3" /> {item.match}
+                          </div>
+                          <span className="text-[10px] uppercase font-bold text-gray-300 opacity-0 group-hover:opacity-100 transition-opacity">
+                            Double click to open
+                          </span>
+                        </div>
                   </div>
                 ))
               )}
@@ -420,16 +476,19 @@ function LearningHubMain() {
             )}
             
             <div className="flex gap-3 mb-8">
-              <button className="flex-1 py-3 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-black transition-colors">
-                Open Material
+              <button 
+                onClick={handleOpenMaterial}
+                className="flex-1 py-3 bg-[#1a1a1a] text-white rounded-xl font-medium hover:bg-black transition-colors shadow-sm active:scale-95 flex items-center justify-center gap-2"
+                title={selectedMaterial.type === 'assignment' ? 'Go to Assignment' : 'Open Material'}
+              >
+                {selectedMaterial.type === 'assignment' ? 'View Assignment' : 
+                 selectedMaterial.type.toLowerCase() === 'video' ? 'Play Video' : 
+                 'Read Document'}
               </button>
               {selectedMaterial.type === 'pdf' && (
                 <button 
-                  onClick={() => {
-                    // In a real app, this would trigger a download
-                    alert('Downloading ' + selectedMaterial.title);
-                  }}
-                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center"
+                  onClick={handleDownload}
+                  className="px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors flex items-center justify-center active:scale-95"
                   title="Download PDF"
                 >
                   <Download className="w-5 h-5" />
@@ -483,6 +542,272 @@ function LearningHubMain() {
   );
 }
 
+const MASTER_CONTENT_PROMPT = `📌 ROLE
+You are an elite curriculum designer, political science professor, governance strategist, and instructional designer specializing in:
+- Leadership & Political Systems
+- African Governance & Development
+- Public Policy & Public Administration
+- Geopolitics & Global Institutions
+- Digital Governance & AI in Government
+- Public Speaking, Influence & Crisis Leadership
+
+You are designing content for a world-class African Leadership, Governance, and Public Policy program.
+Your output must match the quality of institutions such as Harvard Kennedy School, Oxford Blavatnik School of Government, UN Leadership Training Programs, and African Union leadership initiatives.
+
+🎯 OBJECTIVE
+For the topic provided below, you must generate high-impact learning content that is:
+- Deep, structured, and intellectually rigorous
+- Africa-relevant (real examples, institutions, and challenges)
+- Practical and applied (not just theory)
+- Suitable for emerging leaders, policymakers, and executives
+- Clear, engaging, and professionally formatted in Markdown
+
+📚 OUTPUT FORMAT (VERY IMPORTANT)
+Generate content in the following structure:
+1. # (Title) (Clear, academic, and engaging)
+2. ## Learning Objectives (3–5 bullet points explaining what learners will master)
+3. ## Core Content (comprehensive explanation including concepts, theories, real-world examples, critical thinking insights)
+4. ## African Context Lens (IMPORTANT: explain application in African governance systems, key challenges, real case references)
+5. ## Practical Application (explain how leaders use this in Govt, NGOs, Private sector)
+6. ## Discussion Questions (3–5 high-level critical thinking questions)
+7. ## Practical Exercise / Assignment (design a real-world task, simulation, policy design, debate, case analysis with instructions, expected outcome, evaluation criteria)
+
+🎥 SPECIAL CONTENT RULES
+Format the content according to this type rule:
+- ARTICLE: Deep explanation (800–1500 words equivalent), structured academic tone.
+- VIDEO: Convert into a script format. Include opening hook, teaching sections, real-world storytelling, and closing reflection.
+- PDF / Document: Structured like a professional policy paper or lecture notes. Include frameworks, text-based tables, and summaries.
+- CASE STUDY: Must include Background context, Key problem, Stakeholders, Decision points, Lessons learned, and Alternative outcomes.
+- ASSIGNMENT: Must be practical, simulation-based, and decision-oriented.
+
+🧠 STYLE REQUIREMENTS
+- Use clear, authoritative, executive-level tone (avoid fluff).
+- Be insight-driven and analytical.
+- Always connect theory -> practice -> Africa -> global relevance. Think like a policy advisor to a head of state.
+
+🚀 FINAL INSTRUCTION
+👉 Focus on transforming learners into real-world leaders, not just students
+👉 Every lesson must build decision-making power, analytical thinking, and leadership judgment
+👉 Formatting MUST be pure Markdown so a React Markdown renderer displays it beautifully.`;
+
+function LearningHubReader() {
+  const { materialId } = useParams();
+  const navigate = useNavigate();
+  const [content, setContent] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let matObj = null;
+    for (const mod of MOCK_MODULES) {
+      const mat = mod.materials.find((m: any) => m.id === materialId);
+      if (mat) {
+        matObj = mat;
+        break;
+      }
+    }
+
+    if (matObj) {
+      generateContent(matObj);
+    } else {
+      setContent("# Post Not Found\nThe material you are looking for does not exist.");
+      setIsLoading(false);
+    }
+  }, [materialId]);
+
+  const generateContent = async (item: any) => {
+    setIsLoading(true);
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: `${MASTER_CONTENT_PROMPT}\n\nHere is the topic you must generate your elite content for. Apply your full expertise:\n\nTOPIC TITLE: ${item.title}\nTOPIC DESCRIPTION: ${item.description}\nCONTENT TYPE RULE TO APPLY: ${item.type.toUpperCase()}`
+      });
+      setContent(response.text || 'Content generation returned empty.');
+    } catch (e) {
+      console.error(e);
+      setContent("# Error generating content\nPlease check your network connection and API limits.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto pb-12 p-4 md:p-8 space-y-6">
+      <button 
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 font-medium active:scale-95"
+      >
+        &larr; Back to Learning Hub
+      </button>
+
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden min-h-[50vh] relative">
+        {isLoading && (
+           <div className="absolute inset-0 z-10 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center">
+             <Loader2 className="w-12 h-12 text-[#ff4e00] animate-spin mb-4" />
+             <p className="text-gray-500 font-medium">Generating Elite Level Content...</p>
+             <p className="text-gray-400 text-sm mt-1">Applying African Governance Context & Academic Rigor</p>
+           </div>
+        )}
+
+        <div className="p-8 md:p-12">
+          <div className="flex items-center gap-3 text-sm text-gray-500 mb-6 border-b border-gray-100 pb-6 uppercase font-bold tracking-widest">
+            <BookOpen className="w-4 h-4 text-[#ff4e00]" /> Reading Mode
+            <span className="w-1 h-1 bg-gray-300 rounded-full mx-2"></span>
+            <Clock className="w-4 h-4" /> 5-10 MIN READ
+          </div>
+
+          <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed mb-12 min-h-[40vh]">
+            <Markdown>
+              {content}
+            </Markdown>
+          </div>
+
+          <div className="border-t border-gray-100 pt-8 mt-12 bg-gray-50/50 -mx-8 md:-mx-12 -mb-8 md:-mb-12 p-8 md:p-12">
+            <h4 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4">Engagement Tools</h4>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => alert('Saved to notes.')}
+                className="px-6 py-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 rounded-xl font-medium transition-all shadow-sm"
+               >
+                Take Notes
+              </button>
+              <button 
+                onClick={() => alert(`Tracking metric updated: Read Completion logged for ${materialId}`)}
+                className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
+               >
+                Log Read Completion
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LearningHubVideoPlayer() {
+  const { materialId } = useParams();
+  const navigate = useNavigate();
+  const [title, setTitle] = useState('Video Lesson');
+  const [description, setDescription] = useState('');
+  const [scriptContent, setScriptContent] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let matObj = null;
+    for (const mod of MOCK_MODULES) {
+      const mat = mod.materials.find((m: any) => m.id === materialId);
+      if (mat) {
+        matObj = mat;
+        setTitle(mat.title);
+        setDescription(mat.description);
+        break;
+      }
+    }
+
+    if (matObj) {
+      generateScript(matObj);
+    } else {
+      setScriptContent("# Video Not Found\nThe material you are looking for does not exist.");
+      setIsLoading(false);
+    }
+  }, [materialId]);
+
+  const generateScript = async (item: any) => {
+    setIsLoading(true);
+    try {
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-pro-preview',
+        contents: `${MASTER_CONTENT_PROMPT}\n\nHere is the topic you must generate your elite content for. Apply your full expertise:\n\nTOPIC TITLE: ${item.title}\nTOPIC DESCRIPTION: ${item.description}\nCONTENT TYPE RULE TO APPLY: VIDEO SCRIPT`
+      });
+      setScriptContent(response.text || 'Video script generation returned empty.');
+    } catch (e) {
+      console.error(e);
+      setScriptContent("# Error generating script\nPlease check your network connection and API limits.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className="max-w-5xl mx-auto pb-12 p-4 md:p-8 space-y-6">
+      <button 
+        onClick={() => navigate(-1)}
+        className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100 font-medium active:scale-95"
+      >
+        &larr; Back to Learning Hub
+      </button>
+
+      <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden group relative">
+        {isLoading && (
+           <div className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center min-h-[400px]">
+             <Loader2 className="w-12 h-12 text-[#ff4e00] animate-spin mb-4" />
+             <p className="text-gray-500 font-medium">Generating Video Transcript & Script...</p>
+             <p className="text-gray-400 text-sm mt-1">Applying African Governance Context & Academic Rigor</p>
+           </div>
+        )}
+
+        <div className="aspect-video bg-[#1a1a1a] relative flex items-center justify-center">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+          <button 
+             onClick={() => alert(`Tracking event: [Video Started] for ${title}`)}
+             className="w-20 h-20 text-[#ff4e00] absolute z-10 cursor-pointer hover:scale-110 active:scale-95 transition-all shadow-2xl rounded-full focus:outline-none focus:ring-4 focus:ring-orange-500/50"
+             title="Open In App"
+          >
+             <PlayCircle className="w-full h-full" />
+          </button>
+          <p className="absolute bottom-6 left-6 text-2xl font-bold text-white z-10">{title}</p>
+          <div className="absolute top-6 right-6 flex gap-3 z-10">
+            <button 
+              onClick={() => {
+                alert(`Tracking event: [Redirect to YouTube] for ${title}`);
+                window.open('https://youtube.com', '_blank');
+              }}
+              className="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-4 py-2 rounded-lg font-bold text-sm tracking-wide transition-all shadow-md flex items-center gap-2"
+            >
+              <PlayCircle className="w-4 h-4" /> Watch on YouTube
+            </button>
+          </div>
+        </div>
+        <div className="p-8 md:p-12">
+          <h2 className="text-2xl font-bold mb-4 font-serif group-hover:text-[#ff4e00] transition-colors">{title}</h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            {description}
+          </p>
+
+          <div className="mt-12 bg-gray-50 rounded-2xl p-8 border border-gray-100">
+            <div className="flex items-center gap-3 text-sm text-gray-500 mb-6 border-b border-gray-200 pb-6 uppercase font-bold tracking-widest">
+              <FileText className="w-4 h-4 text-[#ff4e00]" /> Full Video Script & Curriculum
+            </div>
+            <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed">
+              <Markdown>
+                {scriptContent}
+              </Markdown>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-100 pt-8 mt-12 bg-gray-50/50 -mx-8 md:-mx-12 -mb-8 md:-mb-12 p-8 md:p-12">
+            <h4 className="font-bold text-sm uppercase tracking-wider text-gray-400 mb-4">Engagement Tools</h4>
+            <div className="flex flex-wrap gap-4">
+              <button 
+                onClick={() => alert('Saved to notes.')}
+                className="px-6 py-3 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 active:scale-95 rounded-xl font-medium transition-all shadow-sm"
+               >
+                Take Notes
+              </button>
+              <button 
+                onClick={() => alert(`Tracking metric updated: Video Completion logged for ${materialId}`)}
+                className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
+               >
+                Mark Completed
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function LearningHub() {
   return (
     <Routes>
@@ -495,6 +820,8 @@ export default function LearningHub() {
       <Route path="resource/:weekId/:slug/:type" element={<LearningHubMain />} />
       <Route path="ai-summary/:materialId" element={<LearningHubMain />} />
       <Route path="ai/:contentId/insights" element={<LearningHubMain />} />
+      <Route path="read/:materialId" element={<LearningHubReader />} />
+      <Route path="watch/:materialId" element={<LearningHubVideoPlayer />} />
     </Routes>
   );
 }
