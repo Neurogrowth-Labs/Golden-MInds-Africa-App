@@ -14,12 +14,13 @@ import {
 import QRCode from 'react-qr-code';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { toast } from 'sonner';
+import { useAuth } from '../contexts/AuthContext';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Mock Data for the Fellow's Performance & Credentials
-const FELLOW_DATA = {
-  name: "Lusima Dio",
+const MOCK_DATA = {
   track: "Public Policy & Tech Governance",
   duration: "Jan 2026 - Dec 2026",
   classification: "Distinction",
@@ -39,6 +40,12 @@ const FELLOW_DATA = {
     { subject: 'Analysis', A: 98, fullMark: 100 },
     { subject: 'Participation', A: 94, fullMark: 100 },
   ],
+  modules: [
+    { name: 'Public Policy & Tech Governance', code: 'POL-101', grade: 'A', score: 95 },
+    { name: 'Crisis Management in Digital Era', code: 'SIM-201', grade: 'A-', score: 92 },
+    { name: 'Leadership & Ethical Analysis', code: 'LEA-301', grade: 'A+', score: 98 },
+    { name: 'Academic & Applied Assessments', code: 'ACA-401', grade: 'A', score: 94 },
+  ],
   portfolio: [
     { id: 1, title: "AI Sovereignty in East Africa", type: "Policy Brief", date: "Oct 2026" },
     { id: 2, title: "Digital Identity Systems & Privacy", type: "Case Study", date: "Aug 2026" },
@@ -48,8 +55,17 @@ const FELLOW_DATA = {
 };
 
 function CertificationsMain() {
+  const { profile } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams();
+  
+  const fellowName = profile?.name || "Lusima Dio";
+  
+  const FELLOW_DATA = {
+    ...MOCK_DATA,
+    name: fellowName
+  };
+
   const [activeTab, setActiveTab] = useState<'certificate' | 'performance' | 'portfolio' | 'recommendation'>('certificate');
   
   // AI Recommendation State
@@ -88,7 +104,7 @@ function CertificationsMain() {
       pdf.save(`GMAF_Certificate_${FELLOW_DATA.id}.pdf`);
     } catch (error) {
       console.error('Error generating PDF:', error);
-      alert('Failed to generate PDF. Please try again.');
+      toast.error('Failed to generate PDF. Please try again.');
     } finally {
       setIsDownloading(false);
     }
@@ -288,12 +304,40 @@ function CertificationsMain() {
                       </p>
                       <p className="text-3xl font-serif font-bold text-[#0A1F44]">{FELLOW_DATA.track}</p>
                       
-                      <div className="pt-8">
+                      <div className="pt-8 pb-4">
                         <p className="text-gray-600 italic font-serif text-lg mb-2">Awarded with the classification of</p>
-                        <div className="inline-block px-8 py-3 border-2 border-[#C9A646] bg-[#C9A646]/10">
+                        <div className="inline-block px-8 py-3 border-2 border-[#C9A646] bg-[#C9A646]/10 mb-8">
                           <p className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-widest">
                             {FELLOW_DATA.classification}
                           </p>
+                        </div>
+
+                        <div className="max-w-3xl mx-auto bg-white border border-[#C9A646]/30 p-6 shadow-sm overflow-hidden text-left relative before:absolute before:inset-0 before:border-[4px] before:border-double before:border-[#C9A646]/10 before:pointer-events-none">
+                          <h3 className="text-[#0A1F44] font-serif font-bold text-center border-b border-[#C9A646]/20 pb-3 mb-4 tracking-widest uppercase text-sm">Academic Modules & Performance</h3>
+                          <table className="w-full text-sm">
+                            <thead>
+                              <tr className="text-gray-500 font-serif border-b border-gray-100">
+                                <th className="py-2 text-left font-medium">Module Name</th>
+                                <th className="py-2 text-center font-medium">Code</th>
+                                <th className="py-2 text-right font-medium">Score</th>
+                                <th className="py-2 text-right font-medium">Grade</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {FELLOW_DATA.modules.map((mod, i) => (
+                                <tr key={i} className="border-b border-gray-50 last:border-0 font-serif">
+                                  <td className="py-2.5 text-gray-800 font-medium">{mod.name}</td>
+                                  <td className="py-2.5 text-gray-500 text-center font-mono text-xs">{mod.code}</td>
+                                  <td className="py-2.5 text-gray-600 text-right">{mod.score}%</td>
+                                  <td className="py-2.5 text-gray-800 text-right font-bold">{mod.grade}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          <div className="mt-4 pt-3 border-t border-[#C9A646]/20 flex justify-between font-serif text-[#0A1F44] font-bold text-sm">
+                            <span>Total Cumulative Average:</span>
+                            <span>{FELLOW_DATA.scores.overall}%</span>
+                          </div>
                         </div>
                       </div>
                     </div>

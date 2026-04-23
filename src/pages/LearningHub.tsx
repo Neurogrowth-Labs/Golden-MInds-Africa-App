@@ -4,6 +4,8 @@ import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit
 import { GoogleGenAI, Type } from '@google/genai';
 import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import { toast } from 'sonner';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -14,7 +16,7 @@ const MOCK_MODULES = [
     materials: [
       { id: 'm1', title: "Introduction: Evolution of Leadership", type: "article", url: "#", description: "Tracing leadership from command-and-control in the industrial era to today's focus on adaptability, emotional intelligence, and inclusivity." },
       { id: 'm2', title: "Leadership vs. Authority vs. Influence", type: "article", url: "#", description: "Understanding why modern leadership is less about formal authority and more about influence, trust, and credibility." },
-      { id: 'm3', title: "Ethical Leadership Frameworks", type: "pdf", url: "#", description: "Values-based, Servant, Transformational, Authentic, and Stakeholder-centric leadership models." },
+      { id: 'm3', title: "Ethical Leadership Frameworks", type: "Article", url: "#", description: "Values-based, Servant, Transformational, Authentic, and Stakeholder-centric leadership models." },
       { id: 'm4', title: "African Leadership & Ubuntu Framework", type: "video", url: "#", description: "Comparing Western 'heroic' traits with the Ubuntu/collectivist approach focusing on shared responsibility and distributed leadership." },
       { id: 'm5', title: "Practical Lab: Leadership Self-Assessment", type: "assignment", url: "#", description: "Evaluate your EQ, decision-making, and draft a personal philosophy statement based on Strategy, Culture, and Technology." },
     ]
@@ -26,7 +28,7 @@ const MOCK_MODULES = [
       { id: 'm6', title: "What is Governance?", type: "article", url: "#", description: "Balancing Authority, Legitimacy, Accountability, and Performance beyond just 'who holds power'." },
       { id: 'm7', title: "Types of Governance Systems", type: "article", url: "#", description: "Comparing Democracy, Autocracy, and Hybrid Regimes. Assessing African case studies like Botswana and Rwanda." },
       { id: 'm8', title: "Role of Institutions", type: "video", url: "#", description: "Legislature, Executive, Judiciary, and Independent Institutions acting as safeguards." },
-      { id: 'm9', title: "Key Dynamics Shaping African Governance", type: "pdf", url: "#", description: "Colonial legacies, corruption & civil society, youth & gender demographics, and global interactions." },
+      { id: 'm9', title: "Key Dynamics Shaping African Governance", type: "Article", url: "#", description: "Colonial legacies, corruption & civil society, youth & gender demographics, and global interactions." },
       { id: 'm10', title: "Simulation: Government Formation", type: "assignment", url: "#", description: "Form political coalitions, agree on leadership, and handle an accountability challenge crisis." },
     ]
   },
@@ -45,7 +47,7 @@ const MOCK_MODULES = [
     title: "Week 4: Public Service & Civic Leadership",
     materials: [
       { id: 'm15', title: "The Role of Public Servants", type: "article", url: "#", description: "Translating policy into outcomes: Policy Implementation, Service Delivery, Advisory, and Oversight." },
-      { id: 'm16', title: "Ethics, Accountability & Corruption", type: "pdf", url: "#", description: "Analyzing Horizontal/Vertical/Social accountability, and confronting forms of corruption like State Capture." },
+      { id: 'm16', title: "Ethics, Accountability & Corruption", type: "Article", url: "#", description: "Analyzing Horizontal/Vertical/Social accountability, and confronting forms of corruption like State Capture." },
       { id: 'm17', title: "Case Study: Public Sector Failure vs. Success", type: "video", url: "#", description: "Comparing governance breakdown (opaque systems, political interference) vs. effective digital service delivery." },
       { id: 'm18', title: "Simulation: Ethics Tribunal", type: "assignment", url: "#", description: "Role-play evaluating evidence and issuing rulings on a public official accused of misconduct." },
     ]
@@ -55,7 +57,7 @@ const MOCK_MODULES = [
     title: "Week 5: Fundamentals of Geopolitics",
     materials: [
       { id: 'm19', title: "Power, Geography, and Global Influence", type: "article", url: "#", description: "Analyzing Hard Power, Soft Power, Economic Power, and Technological Power in the 21st century." },
-      { id: 'm20', title: "Regional Blocs & Global Influence", type: "pdf", url: "#", description: "Strategic focus of the African Union (AfCFTA), EU, BRICS, ASEAN, and NATO." },
+      { id: 'm20', title: "Regional Blocs & Global Influence", type: "Article", url: "#", description: "Strategic focus of the African Union (AfCFTA), EU, BRICS, ASEAN, and NATO." },
       { id: 'm21', title: "How to Analyze Any Geopolitical Situation", type: "video", url: "#", description: "The Who, Where, What, Why, and How analytical framework for global relations." },
       { id: 'm22', title: "Geopolitical Simulation", type: "assignment", url: "#", description: "Secure resources, negotiate alliances, and adapt to a global crisis disruption." },
     ]
@@ -84,7 +86,7 @@ const MOCK_MODULES = [
     title: "Week 8: Economics for Public Leaders",
     materials: [
       { id: 'm30', title: "Core Macroeconomic Indicators", type: "article", url: "#", description: "GDP, Inflation, Unemployment, Fiscal Balance, and Exchange Rates." },
-      { id: 'm31', title: "Public Budgeting & Fiscal Policy", type: "pdf", url: "#", description: "Expansionary vs. Contractionary policies and the trade-offs of growth vs debt sustainability." },
+      { id: 'm31', title: "Public Budgeting & Fiscal Policy", type: "Article", url: "#", description: "Expansionary vs. Contractionary policies and the trade-offs of growth vs debt sustainability." },
       { id: 'm32', title: "Leadership Decision Framework", type: "video", url: "#", description: "Evaluating decisions through Impact, Efficiency, Political Feasibility, and Sustainability." },
       { id: 'm33', title: "National Budget & Crisis Allocation Exercises", type: "assignment", url: "#", description: "Simulate distributing a ZAR 2 trillion budget, then handle an unexpected rapid funding reallocation." },
     ]
@@ -116,7 +118,7 @@ const MOCK_MODULES = [
       { id: 'm42', title: "Leading in Uncertainty", type: "article", url: "#", description: "Clarity over certainty, speed over perfection, and presence over panic." },
       { id: 'm43', title: "Risk Management & Resilience", type: "article", url: "#", description: "Pre-building capacity to absorb Operational, Financial, Reputational, and Geopolitical shocks." },
       { id: 'm44', title: "Crisis Decision-Making Models", type: "video", url: "#", description: "Utilizing the OODA Loop, the 40/70 Rule, and Red Teaming." },
-      { id: 'm45', title: "Communication in Crisis", type: "pdf", url: "#", description: "The Crisis Messaging Framework: What happened, What it means, What we're doing, What you should do." },
+      { id: 'm45', title: "Communication in Crisis", type: "Article", url: "#", description: "The Crisis Messaging Framework: What happened, What it means, What we're doing, What you should do." },
       { id: 'm46', title: "Crisis Simulation Simulation", type: "assignment", url: "#", description: "Navigate Pandemic Outbreaks, Economic Collapses, or Civil Conflict in high-speed escalation rounds." },
     ]
   },
@@ -261,11 +263,13 @@ function LearningHubMain() {
 
   const handleOpenMaterial = () => {
     if (!selectedMaterial) return;
-    if (selectedMaterial.type === 'assignment') {
+    const type = (selectedMaterial.type || '').toLowerCase();
+    
+    if (type === 'assignment') {
       navigate('/assignments');
-    } else if (selectedMaterial.type === 'video') {
+    } else if (type === 'video') {
       navigate(`/learning-hub/watch/${selectedMaterial.id}`);
-    } else if (selectedMaterial.type === 'article' || selectedMaterial.type === 'case study') {
+    } else if (type === 'article' || type === 'case study' || type === 'pdf') {
       navigate(`/learning-hub/read/${selectedMaterial.id}`);
     } else {
       handleDownload();
@@ -560,30 +564,59 @@ For the topic provided below, you must generate high-impact learning content tha
 - Africa-relevant (real examples, institutions, and challenges)
 - Practical and applied (not just theory)
 - Suitable for emerging leaders, policymakers, and executives
-- Clear, engaging, and professionally formatted in Markdown
+- Clear, engaging, and professionally formatted in pure Markdown
 
-📚 OUTPUT FORMAT (VERY IMPORTANT)
-Generate content in the following structure:
-1. # (Title) (Clear, academic, and engaging)
-2. ## Learning Objectives (3–5 bullet points explaining what learners will master)
-3. ## Core Content (comprehensive explanation including concepts, theories, real-world examples, critical thinking insights)
-4. ## African Context Lens (IMPORTANT: explain application in African governance systems, key challenges, real case references)
-5. ## Practical Application (explain how leaders use this in Govt, NGOs, Private sector)
-6. ## Discussion Questions (3–5 high-level critical thinking questions)
-7. ## Practical Exercise / Assignment (design a real-world task, simulation, policy design, debate, case analysis with instructions, expected outcome, evaluation criteria)
+📚 PROFESSIONAL ARTICLE FORMAT STRUCTURE (CRITICAL FOR ARTICLES & PDFs)
+If the content type is ARTICLE or PDF/DOCUMENT, you MUST strictly generate the content using this 12-point structure:
 
-🎥 SPECIAL CONTENT RULES
+1. # TITLE
+   Format: [Core Theme]: [Insight or Tension or Application]
+   Make it a strong, precise, and intellectually engaging title.
+2. ## EXECUTIVE SUMMARY
+   A short overview (100–150 words) covering what it's about, why it matters, and the key insight.
+3. ## INTRODUCTION
+   Set the stage: real-world problem, global/African relevance, leading tension, and brief framing.
+4. ## CORE CONCEPTS & THEORETICAL FRAMEWORKS
+   Break down the intellectual foundation. Include key definitions, major theories, models, and foundational thinkers.
+5. ## MAIN ANALYSIS
+   The heart of the material. Structure into subsections:
+   - Key Dynamics / Systems / Structures
+   - How It Works in Practice
+   - Strengths and Limitations
+   - Comparative Perspectives (Global vs African context)
+6. ## AFRICAN CONTEXT LENS 🌍
+   How the concept applies in African governance systems, structural challenges, success stories, and specific country examples.
+7. ## PRACTICAL APPLICATION (FROM THEORY TO ACTION)
+   Show how leaders actually use this in Govt, Policy design, Diplomacy, NGOs, and Private sector.
+8. ## CASE INSIGHT / REAL-WORLD EXAMPLE
+   A short embedded case study: Situation, problem faced, decision made, outcome, key lesson.
+9. ## KEY INSIGHTS / TAKEAWAYS
+   Bullet-point summary of core lessons (5-8 points) for strategic decision-making.
+10. ## DISCUSSION QUESTIONS
+    3-5 high-level reflective questions promoting debate and policy reasoning.
+11. ## PRACTICAL EXERCISE / APPLICATION TASK
+    A real-world assignment (e.g. policy design, simulation) with instructions, context, deliverables, and evaluation criteria.
+12. ## CONCLUSION
+    End with a strategic reflection, future implications, or leadership call to action.
+
+🎥 SPECIAL CONTENT RULES (OVERRIDES FOR SPECIFIC FORMATS)
 Format the content according to this type rule:
-- ARTICLE: Deep explanation (800–1500 words equivalent), structured academic tone.
-- VIDEO: Convert into a script format. Include opening hook, teaching sections, real-world storytelling, and closing reflection.
-- PDF / Document: Structured like a professional policy paper or lecture notes. Include frameworks, text-based tables, and summaries.
+- ARTICLE: Deep explanation (800–1500 words equivalent), structured academic tone using the 12-point structure above.
+- VIDEO SCRIPT: Convert the core insights into a script format. Include an opening hook, teaching sections, real-world storytelling, and closing reflection.
+- PDF / Document: Structured like a professional policy paper using the 12-point structure. Include text-based frameworks and tables.
 - CASE STUDY: Must include Background context, Key problem, Stakeholders, Decision points, Lessons learned, and Alternative outcomes.
-- ASSIGNMENT: Must be practical, simulation-based, and decision-oriented.
+- ASSIGNMENT: Emphasize practical, simulation-based, and decision-oriented tasks.
 
-🧠 STYLE REQUIREMENTS
-- Use clear, authoritative, executive-level tone (avoid fluff).
-- Be insight-driven and analytical.
-- Always connect theory -> practice -> Africa -> global relevance. Think like a policy advisor to a head of state.
+🧠 STYLE GUIDELINES
+- Write in an executive, academic tone. Be clear, structured, and analytical. Avoid fluff or motivational clichés.
+- EXPLICIT CONNECTIONS: You MUST explicitly map the journey from Theory → Systems → Africa → Practice → Leadership Decision-Making in your prose.
+- Think like a Policy advisor to a head of state or a UN strategist.
+
+✨ MANDATORY ENHANCEMENTS (MUST INCLUDE IN ALL ARTICLES & PDFs)
+You MUST include all of the following in your generated markdown:
+1. **Insight Boxes:** Use blockquotes (e.g., > **Insight:** or > **Critical Definition:**) to highlight key concepts, critical definitions, or actionable advice.
+2. **Comparative Tables:** Include at least one Markdown table comparing different governance models, leadership frameworks, or policy approaches.
+3. **Text-Described Diagrams:** Include at least one visual framework described in text (e.g., using ASCII art, mermaid.js syntax blocks, or clear structured textual hierarchies representing a visual flow).
 
 🚀 FINAL INSTRUCTION
 👉 Focus on transforming learners into real-world leaders, not just students
@@ -655,8 +688,8 @@ function LearningHubReader() {
             <Clock className="w-4 h-4" /> 5-10 MIN READ
           </div>
 
-          <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed mb-12 min-h-[40vh]">
-            <Markdown>
+          <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed mb-12 min-h-[40vh] space-y-6 [&>p]:mb-6">
+            <Markdown remarkPlugins={[remarkGfm]}>
               {content}
             </Markdown>
           </div>
@@ -671,7 +704,7 @@ function LearningHubReader() {
                 Take Notes
               </button>
               <button 
-                onClick={() => alert(`Tracking metric updated: Read Completion logged for ${materialId}`)}
+                onClick={() => toast.success(`Tracking metric updated: Read Completion logged for ${materialId}`)}
                 className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
                >
                 Log Read Completion
@@ -749,7 +782,7 @@ function LearningHubVideoPlayer() {
         <div className="aspect-video bg-[#1a1a1a] relative flex items-center justify-center">
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
           <button 
-             onClick={() => alert(`Tracking event: [Video Started] for ${title}`)}
+             onClick={() => toast.success(`Tracking event: [Video Started] for ${title}`)}
              className="w-20 h-20 text-[#ff4e00] absolute z-10 cursor-pointer hover:scale-110 active:scale-95 transition-all shadow-2xl rounded-full focus:outline-none focus:ring-4 focus:ring-orange-500/50"
              title="Open In App"
           >
@@ -759,7 +792,7 @@ function LearningHubVideoPlayer() {
           <div className="absolute top-6 right-6 flex gap-3 z-10">
             <button 
               onClick={() => {
-                alert(`Tracking event: [Redirect to YouTube] for ${title}`);
+                toast.info(`Tracking event: [Redirect to YouTube] for ${title}`);
                 window.open('https://youtube.com', '_blank');
               }}
               className="bg-red-600 hover:bg-red-700 active:scale-95 text-white px-4 py-2 rounded-lg font-bold text-sm tracking-wide transition-all shadow-md flex items-center gap-2"
@@ -778,8 +811,8 @@ function LearningHubVideoPlayer() {
             <div className="flex items-center gap-3 text-sm text-gray-500 mb-6 border-b border-gray-200 pb-6 uppercase font-bold tracking-widest">
               <FileText className="w-4 h-4 text-[#ff4e00]" /> Full Video Script & Curriculum
             </div>
-            <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed">
-              <Markdown>
+            <div className="prose prose-lg max-w-none text-gray-800 font-serif leading-relaxed space-y-6 [&>p]:mb-6">
+              <Markdown remarkPlugins={[remarkGfm]}>
                 {scriptContent}
               </Markdown>
             </div>
@@ -795,7 +828,7 @@ function LearningHubVideoPlayer() {
                 Take Notes
               </button>
               <button 
-                onClick={() => alert(`Tracking metric updated: Video Completion logged for ${materialId}`)}
+                onClick={() => toast.success(`Tracking metric updated: Video Completion logged for ${materialId}`)}
                 className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
                >
                 Mark Completed
