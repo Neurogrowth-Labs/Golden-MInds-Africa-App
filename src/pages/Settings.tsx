@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { Bell, Lock, Eye, Globe, Moon, Sun, Monitor, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Settings() {
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState('');
 
   const handleSave = async () => {
     setIsSaving(true);
-    setMessage('');
     // Mock save operation
     setTimeout(() => {
       setIsSaving(false);
-      setMessage('Settings saved successfully.');
+      toast.success('Settings saved successfully.');
     }, 1000);
   };
 
@@ -98,12 +97,6 @@ export default function Settings() {
               </button>
             </div>
           </div>
-
-          {message && (
-            <div className={`p-4 rounded-xl text-sm ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-              {message}
-            </div>
-          )}
 
           <div className="flex justify-end">
             <button 

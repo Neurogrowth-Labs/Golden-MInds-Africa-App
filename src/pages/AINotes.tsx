@@ -4,6 +4,7 @@ import { Mic, Square, Play, Loader2, FileText, Sparkles, Clock, Trash2 } from 'l
 import { GoogleGenAI, LiveServerMessage, Modality } from '@google/genai';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { toast } from 'sonner';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -57,9 +58,10 @@ export default function AINotes() {
         
       if (error) throw error;
       setSavedNotes(prev => prev.filter(note => note.id !== id));
+      toast.success('Note deleted.');
     } catch (error) {
       console.error('Error deleting note:', error);
-      alert('Failed to delete note.');
+      toast.error('Failed to delete note.');
     }
   };
 
@@ -203,10 +205,10 @@ export default function AINotes() {
       }
       
       setSummary(''); // Clear after saving
-      alert('Note saved successfully!');
+      toast.success('Note saved successfully!');
     } catch (error: any) {
       console.error('Error saving note:', error);
-      alert('Failed to save note.');
+      toast.error('Failed to save note.');
     } finally {
       setIsSaving(false);
     }

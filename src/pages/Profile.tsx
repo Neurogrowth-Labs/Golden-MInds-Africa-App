@@ -2,15 +2,15 @@ import React, { useState, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Mail, Shield, Camera, Save, Loader2, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { toast } from 'sonner';
 
 export default function Profile() {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
   const [name, setName] = useState(profile?.name || '');
   const [bio, setBio] = useState(profile?.bio || '');
   const [skills, setSkills] = useState(profile?.skills || '');
   const [showBioAndSkills, setShowBioAndSkills] = useState(profile?.showBioAndSkills ?? true);
   const [isSaving, setIsSaving] = useState(false);
-  const [message, setMessage] = useState('');
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [avatarDataUrl, setAvatarDataUrl] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -23,7 +23,6 @@ export default function Profile() {
     setShowConfirmDialog(false);
     if (!user) return;
     setIsSaving(true);
-    setMessage('');
     try {
       const updateData: any = {
         full_name: name,
@@ -58,10 +57,11 @@ export default function Profile() {
         
       if (error) throw error;
       
-      setMessage('Profile updated successfully.');
+      await refreshProfile();
+      toast.success('Profile updated successfully.');
     } catch (error: any) {
       console.error('Error updating profile:', error);
-      setMessage('Failed to update profile.');
+      toast.error('Failed to update profile.');
     } finally {
       setIsSaving(false);
     }
@@ -70,9 +70,8 @@ export default function Profile() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (e.g., max 500KB to avoid Firestore document limits)
       if (file.size > 500 * 1024) {
-        setMessage('Image must be smaller than 500KB.');
+        toast.error('Image must be smaller than 500KB.');
         return;
       }
       const reader = new FileReader();
@@ -189,12 +188,6 @@ export default function Profile() {
                 <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-[#5A5A40]/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#5A5A40]"></div>
               </label>
             </div>
-
-            {message && (
-              <div className={`p-4 rounded-xl text-sm ${message.includes('success') ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
-                {message}
-              </div>
-            )}
 
             <div className="flex justify-end pt-4 border-t border-gray-100">
               <button 
