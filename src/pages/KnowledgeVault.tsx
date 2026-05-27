@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { Search, Book, FileText, Video, Network, Sparkles, Filter, ChevronRight, Hash } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
+import Markdown from 'react-markdown';
 import KnowledgeGraph from './KnowledgeGraph';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -21,18 +22,51 @@ function KnowledgeVaultMain() {
   const [searchQuery, setSearchQuery] = useState('');
   const [aiSummary, setAiSummary] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [searchMode, setSearchMode] = useState<'internal' | 'web'>('internal');
 
   const handleAISearch = async () => {
     if (!searchQuery.trim()) return;
     setIsSearching(true);
+    setAiSummary(null);
     try {
-      const response = await ai.models.generateContent({
-        model: 'gemini-3-flash-preview',
-        contents: `Based on the following resources: ${JSON.stringify(MOCK_RESOURCES)}. Answer the user's query: "${searchQuery}". Provide a concise summary and recommend which resources to look at.`
-      });
-      setAiSummary(response.text);
-    } catch (error) {
-      console.error('AI Error:', error);
+      if (searchMode === 'internal') {
+        const response = await ai.models.generateContent({
+          model: 'gemini-3-flash-preview',
+          contents: `Based on the following resources: ${JSON.stringify(MOCK_RESOURCES)}. Answer the user's query: "${searchQuery}". Provide a concise summary and recommend which resources to look at.`
+        });
+        setAiSummary(response.text);
+      } else {
+        // Live Web Search using Perplexity RapidAPI
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-rapidapi-host': 'perplexity2.p.rapidapi.com',
+            'x-rapidapi-key': 'cd707cd18emsha46a78d1c51103cp11a3eajsn047d42571f12'
+          },
+          body: JSON.stringify({ content: searchQuery })
+        };
+        const res = await fetch('https://perplexity2.p.rapidapi.com/', options);
+        if (!res.ok) throw new Error('Failed to fetch from live web API.');
+        const data = await res.json();
+        
+        // Extract text depending on exact API payload shape (usually Gemini-like choices[0].content.parts[0].text for this specific RapidAPI endpoint)
+        let text = "No content returned.";
+        if (data.choices && data.choices[0] && data.choices[0].content && data.choices[0].content.parts) {
+            text = data.choices[0].content.parts[0].text;
+        } else if (data.text) {
+            text = data.text; // Fallback
+        } else if (typeof data === 'string') {
+            text = data;
+        } else {
+            text = JSON.stringify(data, null, 2);
+        }
+        
+        setAiSummary(text);
+      }
+    } catch (error: any) {
+      console.error('Search Error:', error);
+      setAiSummary(`Error generating response: ${error.message || 'Unknown error'}`);
     } finally {
       setIsSearching(false);
     }
@@ -51,10 +85,27 @@ function KnowledgeVaultMain() {
       <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl relative overflow-hidden">
         <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-[#d4af37]/10 rounded-full blur-3xl" />
         
-        <div className="relative z-10 max-w-3xl mx-auto space-y-4 sm:space-y-6">
-          <div className="flex items-center gap-2 sm:gap-3 text-[#d4af37] mb-1 sm:mb-2">
-            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
-            <h2 className="text-lg sm:text-xl font-bold">Ask the Vault</h2>
+        <div className="relative z-10 max-w-3xl mx-auto space-y-5 sm:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#d4af37] mb-1 sm:mb-2">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6" />
+              <h2 className="text-lg sm:text-xl font-bold">Ask the Vault</h2>
+            </div>
+            
+            <div className="flex bg-black/30 p-1 rounded-xl border border-white/10 w-max">
+              <button
+                onClick={() => setSearchMode('internal')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors ${searchMode === 'internal' ? 'bg-[#d4af37] text-[#011a14]' : 'text-gray-400 hover:text-white'}`}
+              >
+                Internal Vault
+              </button>
+              <button
+                onClick={() => setSearchMode('web')}
+                className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors flex items-center gap-2 ${searchMode === 'web' ? 'bg-[#d4af37] text-[#011a14]' : 'text-gray-400 hover:text-white'}`}
+              >
+                <Search className="w-3 h-3" /> Live Web
+              </button>
+            </div>
           </div>
           
           <div className="flex flex-col sm:flex-row gap-2">
@@ -65,7 +116,7 @@ function KnowledgeVaultMain() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAISearch()}
-                placeholder="E.g., What are the key policies for digital infrastructure?"
+                placeholder={searchMode === 'internal' ? "E.g., What are the key policies for digital infrastructure?" : "Search the web (Perplexity AI) for live news..."}
                 className="w-full bg-white/10 border border-white/20 text-white placeholder-gray-400 rounded-xl pl-10 sm:pl-12 pr-3 sm:pr-4 py-3 sm:py-4 text-sm sm:text-base focus:outline-none focus:border-[#d4af37] transition-colors"
               />
             </div>
@@ -86,10 +137,10 @@ function KnowledgeVaultMain() {
             >
               <div className="flex items-center gap-2 mb-2 sm:mb-3 text-[#d4af37]">
                 <Sparkles className="w-3 h-3 sm:w-4 sm:h-4" />
-                <span className="font-bold text-[10px] sm:text-sm uppercase tracking-wider">AI Synthesis</span>
+                <span className="font-bold text-[10px] sm:text-sm uppercase tracking-wider">{searchMode === 'web' ? 'Live Web Summary (Perplexity)' : 'AI Synthesis (Local Vault)'}</span>
               </div>
-              <div className="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed">
-                {aiSummary}
+              <div className="prose prose-invert max-w-none text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">
+                <Markdown>{aiSummary}</Markdown>
               </div>
             </motion.div>
           )}
