@@ -7,4 +7,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables. Please check your .env file.');
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Custom fetch to prevent network errors if using the unconfigured dummy instance
+const customFetch = async (url: RequestInfo | URL, options?: RequestInit) => {
+  if (supabaseUrl === 'https://xstbuiishcldznuusshw.supabase.co') {
+    return new Response(JSON.stringify([]), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' }
+    });
+  }
+  return fetch(url, options);
+};
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  global: {
+    fetch: customFetch
+  }
+});

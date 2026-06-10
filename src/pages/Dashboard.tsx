@@ -35,19 +35,13 @@ export default function Dashboard() {
             id: sessionData[0].id, 
             title: sessionData[0].topic,
             date: sessionData[0].scheduled_for,
+            startTime: new Date(sessionData[0].scheduled_for).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            endTime: "TBD",
             type: "debate"
           });
-        } else {
-          setNextSession({
-            title: "W1A: Leadership in the Modern World (Theory)",
-            date: new Date().toISOString(),
-            startTime: "14:00",
-            endTime: "16:00",
-            type: "lecture",
-            location: { lat: -1.2921, lng: 36.8219 }
-          });
         }
-
+        // Removed else branch with mock static data
+        
         // Fetch Leaderboard
         const { data: leaderboardData, error: leaderboardError } = await supabase
           .from('profiles')
@@ -177,17 +171,17 @@ export default function Dashboard() {
               </div>
               
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-serif mb-3 sm:mb-4">
-                {nextSession?.title || "Loading..."}
+                {nextSession?.title || "No Upcoming Sessions"}
               </h2>
               
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-6 text-gray-300 text-xs sm:text-sm">
                 <div className="flex items-center gap-2">
                   <Clock className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                  <span>{nextSession?.startTime} - {nextSession?.endTime}</span>
+                  <span>{nextSession ? `${nextSession?.startTime || 'TBD'} - ${nextSession?.endTime || 'TBD'}` : 'TBD'}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="w-3 h-3 sm:w-4 sm:h-4 shrink-0" />
-                  <span className="capitalize">{nextSession?.type} Room</span>
+                  <span className="capitalize">{nextSession?.type ? `${nextSession.type} Room` : 'TBD'}</span>
                 </div>
               </div>
             </div>

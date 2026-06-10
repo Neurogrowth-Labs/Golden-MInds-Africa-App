@@ -13,12 +13,8 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_TRANSCRIPT = [
-  { time: '14:00:05', speaker: 'Dr. Amina Mensah', text: 'Welcome everyone to today\'s session on Policy and Tech Ecosystems.' },
-  { time: '14:00:15', speaker: 'Dr. Amina Mensah', text: 'We will be discussing the impact of AI sovereignty in African nations.' },
-  { time: '14:00:30', speaker: 'Dr. Amina Mensah', text: 'As we saw in the recent summit, the reliance on foreign models presents both opportunities and significant risks.' },
-  { time: '14:01:00', speaker: 'Dr. Amina Mensah', text: 'Let me share my screen to show you the latest data from the African Union report.' },
-];
+const MOCK_TRANSCRIPT = [];
+
 
 const LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -29,12 +25,8 @@ const LANGUAGES = [
   { code: 'ar', name: 'Arabic' }
 ];
 
-const MOCK_PARTICIPANTS = [
-  { id: 'p1', name: 'Dr. Amina Mensah', role: 'Facilitator', isMe: false },
-  { id: 'p2', name: 'You', role: 'Fellow', isMe: true },
-  { id: 'p3', name: 'Kwame Osei', role: 'Fellow', isMe: false, handRaised: true },
-  { id: 'p4', name: 'Fatima Diallo', role: 'Fellow', isMe: false },
-];
+const MOCK_PARTICIPANTS = [];
+
 
 export default function LectureRoom() {
   const { roomId } = useParams();
@@ -64,34 +56,18 @@ export default function LectureRoom() {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
 
   // AI Q&A State
-  const [qaMessages, setQaMessages] = useState([
-    { id: 1, sender: 'AI Assistant', text: 'Hello! I am your AI assistant for this lecture. Ask me anything about the content being discussed.', time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }
-  ]);
+  const [qaMessages, setQaMessages] = useState<any[]>([]);
   const [newQaMessage, setNewQaMessage] = useState('');
   const [isGeneratingQa, setIsGeneratingQa] = useState(false);
   const qaRef = useRef<HTMLDivElement>(null);
 
   // Chat State
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'Dr. Amina Mensah', text: 'Welcome to the chat!', recipient: 'Everyone', time: '14:00' }
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [chatRecipient, setChatRecipient] = useState('Everyone');
 
   // Polls State
-  const [polls, setPolls] = useState([
-    {
-      id: 1,
-      question: 'Which AI model approach is most viable for African startups?',
-      options: [
-        { text: 'Open Source (Llama, Mistral)', votes: 12 },
-        { text: 'Proprietary (Gemini, GPT)', votes: 8 },
-        { text: 'Custom Local Models', votes: 4 }
-      ],
-      totalVotes: 24,
-      isActive: true
-    }
-  ]);
+  const [polls, setPolls] = useState<any[]>([]);
   const [isCreatingPoll, setIsCreatingPoll] = useState(false);
   const [newPollQuestion, setNewPollQuestion] = useState('');
   const [newPollOptions, setNewPollOptions] = useState(['', '']);

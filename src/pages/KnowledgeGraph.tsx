@@ -4,41 +4,11 @@ import { Network, ArrowLeft, ZoomIn, ZoomOut, Maximize, Search, Filter } from 'l
 import { useNavigate } from 'react-router-dom';
 
 // Mock data for the graph
-const MOCK_NODES = [
-  { id: 'policy', label: 'Public Policy', group: 1, size: 40 },
-  { id: 'tech', label: 'Technology', group: 2, size: 35 },
-  { id: 'health', label: 'Healthcare', group: 3, size: 30 },
-  { id: 'edu', label: 'Education', group: 4, size: 30 },
-  { id: 'econ', label: 'Economy', group: 5, size: 35 },
-  
-  // Sub-nodes
-  { id: 'ai', label: 'Artificial Intelligence', group: 2, size: 20 },
-  { id: 'data', label: 'Data Sovereignty', group: 1, size: 25 },
-  { id: 'infra', label: 'Digital Infrastructure', group: 2, size: 25 },
-  { id: 'telemed', label: 'Telemedicine', group: 3, size: 20 },
-  { id: 'edtech', label: 'EdTech', group: 4, size: 20 },
-  { id: 'fintech', label: 'FinTech', group: 5, size: 25 },
-  { id: 'startup', label: 'Startups', group: 5, size: 20 },
-];
+const MOCK_NODES = [];
 
-const MOCK_LINKS = [
-  { source: 'policy', target: 'data', value: 3 },
-  { source: 'policy', target: 'infra', value: 2 },
-  { source: 'tech', target: 'ai', value: 4 },
-  { source: 'tech', target: 'infra', value: 3 },
-  { source: 'health', target: 'telemed', value: 2 },
-  { source: 'edu', target: 'edtech', value: 2 },
-  { source: 'econ', target: 'fintech', value: 3 },
-  { source: 'econ', target: 'startup', value: 2 },
-  
-  // Cross-connections
-  { source: 'ai', target: 'policy', value: 2 },
-  { source: 'ai', target: 'health', value: 1 },
-  { source: 'infra', target: 'econ', value: 3 },
-  { source: 'fintech', target: 'tech', value: 2 },
-  { source: 'edtech', target: 'tech', value: 2 },
-  { source: 'telemed', target: 'tech', value: 2 },
-];
+
+const MOCK_LINKS = [];
+
 
 export default function KnowledgeGraph() {
   const navigate = useNavigate();

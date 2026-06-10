@@ -6,21 +6,23 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_ROOMS = [
-  { id: 1, name: 'Project Alpha Team', type: 'project', members: 4, unread: 2 },
-  { id: 2, name: 'Policy Debate Prep', type: 'study', members: 12, unread: 0 },
-  { id: 3, name: 'General Chat', type: 'social', members: 150, unread: 5 },
-];
+const MOCK_ROOMS = [];
+
 
 export default function CollaborationRooms() {
   const [activeRoom, setActiveRoom] = useState(MOCK_ROOMS[0]);
   const [activeTab, setActiveTab] = useState('chat');
   const [message, setMessage] = useState('');
-  const [messages, setMessages] = useState([
-    { id: 1, sender: 'Dr. Amina Mensah', text: 'Welcome to the project room! Let\'s start by outlining our goals.', time: '10:00 AM' },
-    { id: 2, sender: 'Kwame Osei', text: 'I have created a draft document in the Docs tab.', time: '10:05 AM' },
-  ]);
+  const [messages, setMessages] = useState<any[]>([]);
   const [isGenerating, setIsGenerating] = useState(false);
+
+  if (!activeRoom) {
+    return (
+      <div className="flex-1 flex items-center justify-center h-[calc(100vh-4rem)] text-gray-500 bg-white dark:bg-[#0a0a0a]">
+        No active rooms available.
+      </div>
+    );
+  }
 
   const handleSendMessage = () => {
     if (!message.trim()) return;

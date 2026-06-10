@@ -16,13 +16,7 @@ interface Message {
 import { Routes, Route } from 'react-router-dom';
 
 function DebatesMain() {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'moderator',
-      content: "Welcome to the Debate Engine. Today's topic: 'Strongman vs. Democracy: Does economic growth justify limited political freedoms? (Rwanda vs. Nigeria/Ghana)'. Team A (Pro-Strongman/Growth) vs Team B (Pro-Democracy/Freedoms). Please submit your opening arguments."
-    }
-  ]);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [team, setTeam] = useState<'A' | 'B'>('A');
   const [isTyping, setIsTyping] = useState(false);

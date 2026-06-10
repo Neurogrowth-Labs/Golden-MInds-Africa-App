@@ -37,9 +37,18 @@ interface AuthContextType {
   profile: UserProfile | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  accessToken: string | null;
+  setAccessToken: (token: string | null) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({ user: null, profile: null, loading: true, refreshProfile: async () => {} });
+const AuthContext = createContext<AuthContextType>({ 
+  user: null, 
+  profile: null, 
+  loading: true, 
+  refreshProfile: async () => {},
+  accessToken: null,
+  setAccessToken: () => {}
+});
 
 export const useAuth = () => useContext(AuthContext);
 
@@ -47,6 +56,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<CustomUser | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -63,6 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           setUser(null);
           setProfile(null);
+          setAccessToken(null);
           setLoading(false);
         }
       }
@@ -83,7 +94,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching profile:', error);
+        if (error.message !== 'TypeError: Failed to fetch' && !error.message.includes('Failed to fetch')) {
+          console.error('Error fetching profile:', error);
+        }
       }
 
       if (data) {
@@ -107,7 +120,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         const { error: insertError } = await supabase.from('profiles').insert([newProfile]);
         if (insertError) {
-           console.error("Profile creation error:", insertError);
+          if (insertError.message !== 'TypeError: Failed to fetch' && !insertError.message.includes('Failed to fetch')) {
+             console.error("Profile creation error:", insertError);
+          }
         }
 
         setProfile({
@@ -133,7 +148,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, accessToken, setAccessToken }}>
       {children}
     </AuthContext.Provider>
   );

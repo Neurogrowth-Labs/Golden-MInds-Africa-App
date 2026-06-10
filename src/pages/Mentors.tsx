@@ -7,11 +7,8 @@ import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_MENTORS = [
-  { id: 1, name: 'Dr. Amina Yusuf', role: 'Former Minister of Tech, Nigeria', industry: 'Public Policy & Tech', match: 98, avatar: 'https://ui-avatars.com/api/?name=Amina+Yusuf&background=022c22&color=fff', slug: 'amina-yusuf' },
-  { id: 2, name: 'Kwame Osei', role: 'Founder, AgriTech Africa', industry: 'Entrepreneurship', match: 85, avatar: 'https://ui-avatars.com/api/?name=Kwame+Osei&background=d4af37&color=fff', slug: 'kwame-osei' },
-  { id: 3, name: 'Sarah Ndlovu', role: 'Director, Pan-African Trade Board', industry: 'Economics', match: 92, avatar: 'https://ui-avatars.com/api/?name=Sarah+Ndlovu&background=5A5A40&color=fff', slug: 'sarah-ndlovu' },
-];
+const MOCK_MENTORS = [];
+
 
 function MentorsMain() {
   const { profile } = useAuth();

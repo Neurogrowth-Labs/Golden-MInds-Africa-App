@@ -6,41 +6,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-const ROOMS = [
-  {
-    id: 'alpha',
-    name: 'Room Alpha',
-    topic: 'Policy & Tech Ecosystems',
-    facilitator: 'Dr. Amina Mensah',
-    participants: 42,
-    maxCapacity: 50,
-    status: 'live',
-    color: 'bg-[#ff4e00]',
-    textColor: 'text-[#ff4e00]'
-  },
-  {
-    id: 'beta',
-    name: 'Room Beta',
-    topic: 'Sustainable Infrastructure',
-    facilitator: 'Prof. David Osei',
-    participants: 28,
-    maxCapacity: 50,
-    status: 'live',
-    color: 'bg-[#5A5A40]',
-    textColor: 'text-[#5A5A40]'
-  },
-  {
-    id: 'gamma',
-    name: 'Room Gamma',
-    topic: 'Open Forum & Networking',
-    facilitator: 'Sarah Kiptoo',
-    participants: 15,
-    maxCapacity: 50,
-    status: 'waiting',
-    color: 'bg-blue-600',
-    textColor: 'text-blue-600'
-  }
-];
+const ROOMS = [];
+
 
 export default function VirtualRooms() {
   const navigate = useNavigate();
@@ -81,9 +48,16 @@ export default function VirtualRooms() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-        {ROOMS.map((room) => (
-          <motion.div
-            key={room.id}
+        {ROOMS.length === 0 ? (
+          <div className="col-span-1 md:col-span-2 lg:col-span-3 py-12 text-center bg-gray-50 rounded-3xl border border-gray-100">
+            <Video className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-bold font-serif mb-2 text-gray-700">No Active Rooms</h3>
+            <p className="text-gray-500">There are currently no active virtual lecture rooms available.</p>
+          </div>
+        ) : (
+          ROOMS.map((room) => (
+            <motion.div
+              key={room.id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100 flex flex-col h-full relative overflow-hidden"
@@ -132,7 +106,8 @@ export default function VirtualRooms() {
               <ArrowRight className="w-4 h-4" />
             </button>
           </motion.div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Access Code Modal */}

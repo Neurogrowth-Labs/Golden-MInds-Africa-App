@@ -3,41 +3,8 @@ import { motion } from 'motion/react';
 import { Search, Filter, Globe, ExternalLink, Award, Users, Star, ArrowRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-const MOCK_SHOWCASE = [
-  {
-    id: 1,
-    title: 'AgriTech Supply Chain',
-    author: 'Lusima Dio',
-    track: 'Public Policy & Tech Governance',
-    description: 'A blockchain-based solution for tracking agricultural produce from farm to market in East Africa.',
-    tags: ['Blockchain', 'Agriculture', 'Supply Chain'],
-    image: 'https://picsum.photos/seed/agritech/600/400',
-    likes: 124,
-    views: 892,
-  },
-  {
-    id: 2,
-    title: 'Digital Identity Systems',
-    author: 'Amina Mensah',
-    track: 'Digital Economy',
-    description: 'A comprehensive framework for implementing secure and privacy-preserving digital identity systems in developing nations.',
-    tags: ['Identity', 'Privacy', 'Policy'],
-    image: 'https://picsum.photos/seed/identity/600/400',
-    likes: 89,
-    views: 456,
-  },
-  {
-    id: 3,
-    title: 'Smart City Infrastructure',
-    author: 'Kwame Osei',
-    track: 'Urban Development',
-    description: 'An analysis of IoT integration in urban planning to optimize resource allocation and improve citizen services.',
-    tags: ['Smart Cities', 'IoT', 'Infrastructure'],
-    image: 'https://picsum.photos/seed/smartcity/600/400',
-    likes: 210,
-    views: 1205,
-  }
-];
+const MOCK_SHOWCASE = [];
+
 
 export default function Showcase() {
   const navigate = useNavigate();

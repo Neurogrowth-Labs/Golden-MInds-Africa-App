@@ -6,13 +6,8 @@ import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_OPPORTUNITIES = [
-  { id: 1, type: 'scholarship', title: 'Oxford Africa Scholarship', org: 'Oxford University', deadline: '2026-05-15', tags: ['Education', 'UK', 'Fully Funded'], match: 95 },
-  { id: 2, type: 'grant', title: 'Innovation Seed Fund', org: 'Tony Elumelu Foundation', deadline: '2026-04-30', tags: ['Entrepreneurship', 'Funding', 'Seed'], match: 88 },
-  { id: 3, type: 'internship', title: 'Public Policy Intern', org: 'African Union', deadline: '2026-06-01', tags: ['Policy', 'Governance', 'Addis Ababa'], match: 92 },
-  { id: 4, type: 'speaking', title: 'Youth Leadership Summit', org: 'UN Youth', deadline: '2026-04-10', tags: ['Speaking', 'Leadership', 'Global'], match: 75 },
-  { id: 5, type: 'startup', title: 'Techstars Africa Accelerator', org: 'Techstars', deadline: '2026-07-20', tags: ['Startup', 'Tech', 'Accelerator'], match: 85 },
-];
+const MOCK_OPPORTUNITIES = [];
+
 
 function OpportunitiesMain() {
   const navigate = useNavigate();

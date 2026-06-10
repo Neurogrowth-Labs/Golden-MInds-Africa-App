@@ -24,34 +24,16 @@ const MOCK_DATA = {
   track: "Public Policy & Tech Governance",
   duration: "Jan 2026 - Dec 2026",
   classification: "Distinction",
-  percentile: "Top 10%",
-  id: "GMF-2026-000123",
-  issueDate: "December 15, 2026",
   scores: {
-    projects: 95,
-    simulations: 92,
-    participation: 98,
-    assessments: 94,
-    overall: 94.75
+    overall: 0,
+    academic: 0,
+    portfolio: 0,
+    engagement: 0
   },
-  radarData: [
-    { subject: 'Leadership', A: 95, fullMark: 100 },
-    { subject: 'Policy', A: 92, fullMark: 100 },
-    { subject: 'Analysis', A: 98, fullMark: 100 },
-    { subject: 'Participation', A: 94, fullMark: 100 },
-  ],
-  modules: [
-    { name: 'Public Policy & Tech Governance', code: 'POL-101', grade: 'A', score: 95 },
-    { name: 'Crisis Management in Digital Era', code: 'SIM-201', grade: 'A-', score: 92 },
-    { name: 'Leadership & Ethical Analysis', code: 'LEA-301', grade: 'A+', score: 98 },
-    { name: 'Academic & Applied Assessments', code: 'ACA-401', grade: 'A', score: 94 },
-  ],
-  portfolio: [
-    { id: 1, title: "AI Sovereignty in East Africa", type: "Policy Brief", date: "Oct 2026" },
-    { id: 2, title: "Digital Identity Systems & Privacy", type: "Case Study", date: "Aug 2026" },
-    { id: 3, title: "Crisis Management: Tech Infrastructure", type: "Simulation Output", date: "Nov 2026" },
-    { id: 4, title: "The Future of African Smart Cities", type: "Research Paper", date: "Dec 2026" }
-  ]
+  detailedScores: [],
+  modules: [],
+  portfolio: [],
+  recommendationToken: ""
 };
 
 function CertificationsMain() {

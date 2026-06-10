@@ -8,14 +8,8 @@ import KnowledgeGraph from './KnowledgeGraph';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_RESOURCES = [
-  { id: 1, title: 'AU Agenda 2063 Framework', type: 'Document', author: 'African Union', tags: ['Policy', 'Governance', 'Integration'], date: '2023-05-10' },
-  { id: 2, title: 'Citizen and Subject: Contemporary Africa', type: 'Guide', author: 'Mahmood Mamdani', tags: ['Leadership', 'Colonial Legacy', 'Sociology'], date: '1996-01-15' },
-  { id: 3, title: 'AfDB African Economic Outlook 2025', type: 'Document', author: 'African Development Bank', tags: ['Economics', 'Funding', 'Macroeconomics'], date: '2025-02-05' },
-  { id: 4, title: 'Wangari Maathai: Environment and Democracy', type: 'Video', author: 'TED Archive', tags: ['Democracy', 'Environment', 'Civic Action'], date: '2010-03-10' },
-  { id: 5, title: 'Transparency International CPI 2024', type: 'Document', author: 'TI Global', tags: ['Accountability', 'Corruption', 'Index'], date: '2024-11-20' },
-  { id: 6, title: 'Getting to Yes: Negotiating Agreement Without Giving In', type: 'Guide', author: 'Fisher & Ury', tags: ['Negotiation', 'Diplomacy', 'BATNA'], date: '2011-05-03' },
-];
+const MOCK_RESOURCES = [];
+
 
 function KnowledgeVaultMain() {
   const navigate = useNavigate();

@@ -43,17 +43,11 @@ export default function Ecosystem() {
   const [articleSummaries, setArticleSummaries] = useState<Record<number, string>>({});
   const [loadingSummaries, setLoadingSummaries] = useState<Record<number, boolean>>({});
 
-  const MOCK_DEBATE_ROOMS = [
-    { id: 1, topic: 'Universal Basic Income in Africa', status: 'live', proTeam: ['Amina M.'], conTeam: ['Kwame O.'], aiScore: { pro: 85, con: 82 } },
-    { id: 2, topic: 'AI Regulation vs Innovation', status: 'upcoming', proTeam: [], conTeam: [], aiScore: null },
-    { id: 3, topic: 'Data Sovereignty Laws', status: 'completed', proTeam: ['Sarah N.'], conTeam: ['Lusima D.'], aiScore: { pro: 92, con: 88 } },
-  ];
+  const MOCK_DEBATE_ROOMS = [];
 
-  const MOCK_COMMUNITIES = [
-    { id: 1, name: 'Policy Innovators', members: 145, description: 'Discussing public policy and governance.', rules: 'Be respectful.' },
-    { id: 2, name: 'AgriTech Frontier', members: 89, description: 'Innovations in agriculture and food security.', rules: 'Share relevant research.' },
-    { id: 3, name: 'Women in Tech Africa', members: 210, description: 'Empowering female leaders in the tech space.', rules: 'Supportive environment.' }
-  ];
+
+  const MOCK_COMMUNITIES = [];
+
 
   useEffect(() => {
     // Initialize with mock data, but in a real app this would fetch from Firestore
@@ -179,52 +173,8 @@ export default function Ecosystem() {
     }
   };
 
-  const MOCK_FEED = [
-    {
-      id: 1,
-      type: 'article',
-      author: 'Dr. Amina Mensah',
-      title: 'The Future of Digital Infrastructure in East Africa',
-      summary: 'An in-depth analysis of broadband penetration and its impact on local economies...',
-      likes: 124,
-      comments: 32,
-      tags: ['Policy', 'Infrastructure'],
-      time: '2 hours ago'
-    },
-    {
-      id: 2,
-      type: 'podcast',
-      author: 'Kwame Osei',
-      title: 'Tech Innovators Podcast: Ep 12 - AI in Agriculture',
-      summary: 'Discussing how machine learning models are predicting crop yields with 90% accuracy.',
-      likes: 89,
-      comments: 15,
-      tags: ['Podcast', 'AgriTech', 'AI'],
-      time: '5 hours ago'
-    },
-    {
-      id: 3,
-      type: 'debate',
-      author: 'Sarah Ndlovu',
-      title: 'Challenge: Data Sovereignty vs. Global Integration',
-      summary: 'I am challenging the recent whitepaper on open data borders. We need to discuss local data protection.',
-      likes: 210,
-      comments: 84,
-      tags: ['Debate', 'Data Privacy'],
-      time: '1 day ago'
-    },
-    {
-      id: 4,
-      type: 'video',
-      author: 'Lusima Dio',
-      title: 'Webinar Recording: Smart City Planning',
-      summary: 'Catch up on yesterday\'s live session about integrating IoT into urban development.',
-      likes: 156,
-      comments: 45,
-      tags: ['Video', 'Urban Planning'],
-      time: '2 days ago'
-    }
-  ];
+  const MOCK_FEED = [];
+
 
   const tabs = [
     { id: 'feed', label: 'My Feed', icon: MessageSquare },

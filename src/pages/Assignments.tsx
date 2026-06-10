@@ -160,20 +160,7 @@ export default function Assignments() {
     return `${m}:${s}`;
   };
 
-  const assignments = [
-    { id: 1, title: 'Module 1: Leadership Self-Assessment & Personal Philosophy Workshop', status: 'pending', due: 'Tomorrow, 23:59 GMT', dueDate: new Date(Date.now() + 24 * 3600000).toISOString(), type: 'Workshop', points: 100 },
-    { id: 2, title: 'Module 2: Simulation: Government Formation', status: 'pending', due: 'In 3 Days', dueDate: new Date(Date.now() + 72 * 3600000).toISOString(), type: 'Simulation', points: 150 },
-    { id: 3, title: 'Module 3: State vs Market vs Society Debate', status: 'submitted', due: 'Submitted yesterday', dueDate: new Date(Date.now() - 24 * 3600000).toISOString(), type: 'Debate', points: 100 },
-    { id: 4, title: 'Module 4: Ethics Tribunal Simulation', status: 'reviewed', due: 'Graded', dueDate: new Date(Date.now() - 120 * 3600000).toISOString(), type: 'Simulation', points: 200, score: 95 },
-    { id: 5, title: 'Module 5: Geopolitical Simulation', status: 'pending', due: 'In 1 Week', dueDate: new Date(Date.now() + 168 * 3600000).toISOString(), type: 'Simulation', points: 150 },
-    { id: 6, title: 'Module 6: Diplomatic Role-Play (Climate/Trade)', status: 'pending', due: 'In 2 Weeks', dueDate: new Date(Date.now() + 336 * 3600000).toISOString(), type: 'Simulation', points: 300 },
-    { id: 7, title: 'Module 7: Draft an Executive Policy Brief', status: 'pending', due: 'In 3 Weeks', dueDate: new Date(Date.now() + 504 * 3600000).toISOString(), type: 'Document', points: 200 },
-    { id: 8, title: 'Module 8: Budget Simulator & Crisis Allocation', status: 'pending', due: 'In 4 Weeks', dueDate: new Date(Date.now() + 672 * 3600000).toISOString(), type: 'Simulation', points: 250 },
-    { id: 9, title: 'Module 9: Design a Digital Governance Solution', status: 'pending', due: 'In 5 Weeks', dueDate: new Date(Date.now() + 840 * 3600000).toISOString(), type: 'Design', points: 150 },
-    { id: 10, title: 'Module 10: Press Conference & Parliamentary Debate', status: 'pending', due: 'In 6 Weeks', dueDate: new Date(Date.now() + 1008 * 3600000).toISOString(), type: 'Assessment', points: 150 },
-    { id: 11, title: 'Module 11: Crisis Leadership Simulation', status: 'pending', due: 'In 7 Weeks', dueDate: new Date(Date.now() + 1176 * 3600000).toISOString(), type: 'Simulation', points: 200 },
-    { id: 12, title: 'Module 12: Final Capstone Submission', status: 'pending', due: 'In 8 Weeks', dueDate: new Date(Date.now() + 1344 * 3600000).toISOString(), type: 'Capstone', points: 500 }
-  ];
+  const assignments: any[] = [];
 
   const sortedAssignments = [...assignments]
     .filter(a => a.status === activeTab)

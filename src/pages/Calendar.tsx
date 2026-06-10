@@ -6,37 +6,8 @@ import { Badge } from '@/components/ui/badge';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
-const MOCK_EVENTS = [
-  // Phase 1: Foundations (Weeks 1-4)
-  { id: 1, title: 'W1A: Leadership in the Modern World (Theory)', type: 'Lecture', date: '2026-03-31', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 2, title: 'W1B: Leadership in the Modern World (Practice)', type: 'Lab', date: '2026-04-02', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 3, title: 'W2A: Intro to Governance Systems (Theory)', type: 'Lecture', date: '2026-04-07', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 4, title: 'W2B: Intro to Governance Systems (Practice)', type: 'Simulation', date: '2026-04-09', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 5, title: 'W3A: Political Ideologies & Public Power (Theory)', type: 'Lecture', date: '2026-04-14', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 6, title: 'W3B: Political Ideologies & Public Power (Practice)', type: 'Debate', date: '2026-04-16', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 7, title: 'W4A: Public Service & Civic Leadership (Theory)', type: 'Lecture', date: '2026-04-21', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 8, title: 'W4B: Public Service & Civic Leadership (Practice)', type: 'Simulation', date: '2026-04-23', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  
-  // Phase 2: Systems & Strategy (Weeks 5-8)
-  { id: 9, title: 'W5A: Fundamentals of Geopolitics (Theory)', type: 'Lecture', date: '2026-04-28', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 10, title: 'W5B: Fundamentals of Geopolitics (Practice)', type: 'Simulation', date: '2026-04-30', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 11, title: 'W6A: Global Institutions & Diplomacy (Theory)', type: 'Lecture', date: '2026-05-05', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 12, title: 'W6B: Global Institutions & Diplomacy (Practice)', type: 'Role-play', date: '2026-05-07', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 13, title: 'W7A: Policy Formulation & Analysis (Theory)', type: 'Lecture', date: '2026-05-12', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 14, title: 'W7B: Policy Formulation & Analysis (Practice)', type: 'Lab', date: '2026-05-14', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 15, title: 'W8A: Economics for Public Leaders (Theory)', type: 'Lecture', date: '2026-05-19', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 16, title: 'W8B: Economics for Public Leaders (Practice)', type: 'Simulation', date: '2026-05-21', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  
-  // Phase 3: Application & Public Leadership (Weeks 9-12)
-  { id: 17, title: 'W9A: Crisis Leadership & Decision Making (Theory)', type: 'Lecture', date: '2026-05-26', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 18, title: 'W9B: Crisis Leadership & Decision Making (Practice)', type: 'Simulation', date: '2026-05-28', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 19, title: 'W10A: Governance & Technology (Theory)', type: 'Lecture', date: '2026-06-02', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 20, title: 'W10B: Governance & Technology (Practice)', type: 'Lab', date: '2026-06-04', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 21, title: 'W11A: Public Speaking & Influence (Theory)', type: 'Lecture', date: '2026-06-09', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 22, title: 'W11B: Public Speaking & Influence (Practice)', type: 'Simulation', date: '2026-06-11', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 23, title: 'W12A: Capstone Policy Lab & Summit (Theory)', type: 'Lecture', date: '2026-06-16', time: '14:00 - 16:00 GMT', location: 'Hybrid', attendees: 50 },
-  { id: 24, title: 'W12B: Capstone Policy Lab & Summit (Practice)', type: 'Capstone', date: '2026-06-18', time: '14:00 - 17:00 GMT', location: 'Hybrid', attendees: 50 },
-];
+const MOCK_EVENTS = [];
+
 
 export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 30)); // March 30, 2026
