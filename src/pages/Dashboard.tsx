@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'motion/react';
-import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle } from 'lucide-react';
+import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle, Smile, Send } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '../lib/supabase';
 import { GoogleGenAI } from '@google/genai';
+import { toast } from 'sonner';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -18,6 +19,13 @@ export default function Dashboard() {
   const [nearbyHubs, setNearbyHubs] = useState('');
   const [findingHubs, setFindingHubs] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+
+  // Daily Check-in state
+  const [checkInText, setCheckInText] = useState('');
+  const [checkInEmoji, setCheckInEmoji] = useState('🌟');
+  const [hasCheckedIn, setHasCheckedIn] = useState(false);
+  const [checkInGreeting, setCheckInGreeting] = useState('');
+  const EMOJI_OPTIONS = ['🌟', '🔥', '💡', '🚀', '🧠', '❤️'];
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -103,6 +111,14 @@ export default function Dashboard() {
     }
   };
 
+  const handleCheckIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkInText.trim()) return;
+    setHasCheckedIn(true);
+    setCheckInGreeting(`Thanks for checking in, ${profile?.name?.split(' ')[0] || 'Fellow'}! Stay focused on your goal: "${checkInText}" ${checkInEmoji}`);
+    toast.success("Daily check-in completed!");
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8 p-4 md:p-8">
       {/* Header */}
@@ -125,9 +141,56 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Daily Check-in */}
+      <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100 flex flex-col md:flex-row items-center gap-6 justify-between">
+        <div className="flex flex-col gap-2">
+          <div className="flex items-center gap-2 text-[#ff4e00] font-medium uppercase tracking-wider text-sm">
+            <Smile className="w-5 h-5" />
+            <span>Daily Check-in</span>
+          </div>
+          {hasCheckedIn ? (
+            <p className="text-gray-800 font-serif text-lg">{checkInGreeting}</p>
+          ) : (
+            <p className="text-gray-600 font-serif text-lg">How are you feeling today? Set your daily intention.</p>
+          )}
+        </div>
+        {!hasCheckedIn && (
+          <form onSubmit={handleCheckIn} className="flex-1 w-full max-w-md flex flex-col sm:flex-row gap-3">
+            <div className="flex bg-gray-50 rounded-xl p-1 gap-1 border border-gray-100">
+              {EMOJI_OPTIONS.map(emoji => (
+                <button
+                  key={emoji}
+                  type="button"
+                  onClick={() => setCheckInEmoji(emoji)}
+                  className={`w-10 h-10 flex items-center justify-center text-lg rounded-lg transition-transform ${checkInEmoji === emoji ? 'bg-white shadow-sm scale-110' : 'hover:bg-gray-100'}`}
+                >
+                  {emoji}
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-1 relative">
+              <input
+                type="text"
+                placeholder="What's your main goal today?"
+                value={checkInText}
+                onChange={(e) => setCheckInText(e.target.value)}
+                className="w-full pl-4 pr-12 py-3 bg-gray-50 border border-gray-100 rounded-xl focus:outline-none focus:border-[#ff4e00] focus:ring-1 focus:ring-[#ff4e00] text-sm"
+              />
+              <button 
+                type="submit"
+                disabled={!checkInText.trim()}
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-[#ff4e00] disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#ff4e00]/10 rounded-lg transition-colors"
+              >
+                <Send className="w-4 h-4" />
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
       {/* Quick Actions (shadcn/ui) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/calendar')}>
+        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300" onClick={() => navigate('/calendar')}>
           <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3">
             <Calendar size={28} className="text-[#ff4e00] sm:w-8 sm:h-8" />
             <h2 className="text-lg sm:text-xl font-semibold text-center">View Schedule</h2>
@@ -135,7 +198,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow" onClick={() => navigate('/assignments/submit')}>
+        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300" onClick={() => navigate('/assignments/submit')}>
           <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3">
             <Upload size={28} className="text-[#5A5A40] sm:w-8 sm:h-8" />
             <h2 className="text-lg sm:text-xl font-semibold text-center">Submit Assignment</h2>
@@ -143,7 +206,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-lg border-gray-100 cursor-pointer hover:shadow-xl transition-shadow sm:col-span-2 lg:col-span-1" onClick={() => navigate('/attendance/mark')}>
+        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 sm:col-span-2 lg:col-span-1" onClick={() => navigate('/attendance/mark')}>
           <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3">
             <CheckCircle size={28} className="text-green-600 sm:w-8 sm:h-8" />
             <h2 className="text-lg sm:text-xl font-semibold text-center">Mark Attendance</h2>
@@ -159,10 +222,10 @@ export default function Dashboard() {
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#1a1a1a] text-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl relative overflow-hidden cursor-pointer hover:bg-black transition-colors"
+            className="bg-[#1a1a1a] text-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl relative overflow-hidden cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 group"
             onClick={() => navigate('/calendar/events/w1a-leadership-modern-world-theory')}
           >
-            <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#ff4e00]/20 to-transparent rounded-full blur-3xl -mr-16 -mt-16 sm:-mr-20 sm:-mt-20" />
+            <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-gradient-to-br from-[#ff4e00]/20 to-transparent rounded-full blur-3xl -mr-16 -mt-16 sm:-mr-20 sm:-mt-20 group-hover:from-[#ff4e00]/30 transition-colors" />
             
             <div className="relative z-10">
               <div className="flex items-center gap-2 text-[#ff8c00] font-medium mb-3 sm:mb-4 text-xs sm:text-sm uppercase tracking-wider">
@@ -193,11 +256,11 @@ export default function Dashboard() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 }}
-              className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-sm border border-gray-100"
+              className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-md border border-gray-100 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
+              onClick={() => navigate('/knowledge')}
             >
               <div 
-                className="flex items-center gap-2 mb-4 sm:mb-6 cursor-pointer hover:opacity-80 transition-opacity"
-                onClick={() => navigate('/knowledge')}
+                className="flex items-center gap-2 mb-4 sm:mb-6 transition-opacity"
               >
                 <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-[#ff4e00]" />
                 <h3 className="text-lg sm:text-xl font-bold font-serif">AI Leadership Copilot</h3>

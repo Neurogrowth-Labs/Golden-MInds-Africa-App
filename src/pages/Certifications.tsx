@@ -16,6 +16,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
+import appLogo from '../assets/images/logo.png';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -263,11 +264,11 @@ function CertificationsMain() {
                   </div>
                   
                   <div className="relative z-10 text-center space-y-8">
-                    <div className="flex justify-center mb-8">
-                      <div className="w-24 h-24 bg-[#0A1F44] rounded-full flex items-center justify-center border-4 border-[#C9A646] shadow-lg">
-                        <Crown className="w-12 h-12 text-[#C9A646]" />
+                      <div className="flex justify-center mb-8">
+                        <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center border-4 border-[#C9A646] shadow-lg overflow-hidden p-1">
+                          <img src={appLogo} alt="Golden Minds Africa" className="w-full h-full object-contain" />
+                        </div>
                       </div>
-                    </div>
                     
                     <div className="space-y-2">
                       <h1 className="text-4xl md:text-5xl font-serif font-bold text-[#0A1F44] tracking-wide uppercase">
@@ -599,9 +600,14 @@ function CertificationsMain() {
                   <div className="bg-white p-8 md:p-16 shadow-xl rounded-sm border border-gray-200">
                     {/* Letterhead */}
                     <div className="border-b-2 border-[#0A1F44] pb-8 mb-8 flex justify-between items-start">
-                      <div>
-                        <h1 className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-wider">Golden Minds Africa</h1>
-                        <p className="text-sm text-gray-500 font-serif italic">Office of the Academic Dean</p>
+                      <div className="flex items-center gap-4">
+                        <div className="w-16 h-16">
+                          <img src={appLogo} alt="Logo" className="w-full h-full object-contain" />
+                        </div>
+                        <div>
+                          <h1 className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-wider">Golden Minds Africa</h1>
+                          <p className="text-sm text-gray-500 font-serif italic">Office of the Academic Dean</p>
+                        </div>
                       </div>
                       <div className="text-right text-sm text-gray-500 font-serif">
                         <p>120 Innovation Drive</p>

@@ -583,7 +583,7 @@ function LearningHubReader() {
                 Take Notes
               </button>
               <button 
-                onClick={() => toast.success(`Tracking metric updated: Read Completion logged for ${materialId}`)}
+                onClick={() => toast.success('🎉 Milestone Reached! Module completed successfully. Keep up the great work!', { duration: 4000 })}
                 className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
                >
                 Log Read Completion
@@ -707,7 +707,7 @@ function LearningHubVideoPlayer() {
                 Take Notes
               </button>
               <button 
-                onClick={() => toast.success(`Tracking metric updated: Video Completion logged for ${materialId}`)}
+                onClick={() => toast.success('🎉 Milestone Reached! Module completed successfully. Keep up the great work!', { duration: 4000 })}
                 className="px-6 py-3 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00]/20 active:scale-95 border border-[#ff4e00]/20 rounded-xl font-medium transition-all shadow-sm"
                >
                 Mark Completed

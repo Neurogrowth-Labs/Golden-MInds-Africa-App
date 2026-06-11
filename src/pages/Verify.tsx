@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { ShieldCheck, CheckCircle2, XCircle, Search, ArrowLeft, Crown, Award, FileText, Link as LinkIcon, Copy, Clock, AlertCircle } from 'lucide-react';
+import appLogo from '../assets/images/logo.png';
 
 // Mock database of valid certificates
 const VALID_CERTIFICATES: Record<string, any> = {
@@ -59,8 +60,8 @@ export default function Verify() {
       <header className="bg-[#0A1F44] text-white py-6 px-4 md:px-8 shadow-md">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-white/10 rounded-lg">
-              <ShieldCheck className="w-6 h-6 text-[#C9A646]" />
+            <div className="w-10 h-10 bg-white/10 rounded-lg p-1 overflow-hidden flex items-center justify-center">
+              <img src={appLogo} alt="Golden Minds Africa" className="w-full h-full object-contain filter drop-shadow-md" />
             </div>
             <div>
               <h1 className="text-xl font-serif font-bold tracking-wide">GMAF Credential Verification</h1>
