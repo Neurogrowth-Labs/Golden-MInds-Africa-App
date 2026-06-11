@@ -357,7 +357,7 @@ export default function Layout() {
               className="w-full py-[16px] px-4 bg-white text-black text-[15px] font-bold rounded-[18px] hover:bg-gray-100 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed mb-24"
             >
               {isLoggingIn ? (
-                <Loader2 className="w-5 h-5 animate-spin" text-black />
+                <Loader2 className="w-5 h-5 animate-spin text-black" />
               ) : (
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-[20px] h-[20px]" />
               )}
