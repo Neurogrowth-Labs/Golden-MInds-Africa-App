@@ -1,11 +1,11 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import mandelaImg from '../assets/images/mandela_portrait_1781183220665.png';
-import nkrumahImg from '../assets/images/nkrumah_portrait_1781183238170.png';
-import lumumbaImg from '../assets/images/lumumba_portrait_1781183251384.png';
-import cheImg from '../assets/images/che_portrait_1781183263402.png';
-import savimbiImg from '../assets/images/savimbi_portrait_1781183277110.png';
-import womanFighterImg from '../assets/images/woman_fighter_portrait_1781183290085.png';
+import mandelaImg from '../assets/images/mandela_ultra_realistic_1781190743154.jpg';
+import nkrumahImg from '../assets/images/nkrumah_ultra_realistic_1781190758087.jpg';
+import lumumbaImg from '../assets/images/lumumba_ultra_realistic_1781190771223.jpg';
+import cheImg from '../assets/images/che_ultra_realistic_1781190785321.jpg';
+import savimbiImg from '../assets/images/savimbi_ultra_realistic_1781190797387.jpg';
+import womanFighterImg from '../assets/images/woman_fighter_ultra_realistic_1781190810892.jpg';
 
 interface FloatingFacesProps {
   sectionIndex: number;
@@ -14,23 +14,16 @@ interface FloatingFacesProps {
 export default function FloatingFaces({ sectionIndex }: FloatingFacesProps) {
   // Define positions and images based on section index to give variety
   const faces = [
-    { src: mandelaImg, alt: 'Nelson Mandela', side: 'left', y: '20%' },
-    { src: nkrumahImg, alt: 'Kwame Nkrumah', side: 'right', y: '15%' },
-    { src: lumumbaImg, alt: 'Patrice Lumumba', side: 'left', y: '60%' },
-    { src: cheImg, alt: 'Che Guevara', side: 'right', y: '70%' },
-    { src: savimbiImg, alt: 'Jonas Savimbi', side: 'left', y: '80%' },
-    { src: womanFighterImg, alt: 'Woman Freedom Fighter', side: 'right', y: '40%' }
+    { src: mandelaImg, alt: 'Nelson Mandela', side: 'left', y: '30%' },
+    { src: nkrumahImg, alt: 'Kwame Nkrumah', side: 'right', y: '40%' },
+    { src: lumumbaImg, alt: 'Patrice Lumumba', side: 'left', y: '50%' },
+    { src: cheImg, alt: 'Che Guevara', side: 'right', y: '30%' },
+    { src: savimbiImg, alt: 'Jonas Savimbi', side: 'left', y: '40%' },
+    { src: womanFighterImg, alt: 'Woman Freedom Fighter', side: 'right', y: '50%' }
   ];
 
-  // Pick 2 or 3 faces based on section index
-  const faceSet = [];
-  if (sectionIndex % 3 === 0) {
-    faceSet.push(faces[0], faces[1]);
-  } else if (sectionIndex % 3 === 1) {
-    faceSet.push(faces[2], faces[3], faces[5]);
-  } else {
-    faceSet.push(faces[4], faces[0], faces[1]);
-  }
+  // Pick exactly 1 face per section
+  const faceSet = [faces[sectionIndex % faces.length]];
 
   return (
     <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 hidden lg:block">
