@@ -4,6 +4,7 @@ import { ArrowRight, ShieldCheck, Users, BookOpen, Globe, Star, MapPin, Target, 
 import appLogo from '../assets/images/logo.png';
 import africanGovBg from '../assets/images/african_governance_bg_1781130107908.png';
 import FloatingFaces from '../components/FloatingFaces';
+import AfricanMap from '../components/AfricanMap';
 
 interface LandingPageProps {
   onEnter: () => void;
@@ -217,6 +218,26 @@ export default function LandingPage({ onEnter, onFellowshipClick }: LandingPageP
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* --- CONTINENTAL REACH / MAP --- */}
+      <section className="py-24 px-6 bg-[#0a0a0c] border-t border-white/5 relative overflow-hidden">
+        <FloatingFaces sectionIndex={5} />
+        <div className="container mx-auto max-w-6xl relative z-10">
+          <motion.div {...fadeIn} className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-serif font-bold mb-4 text-[#cca568]">Continental Reach</h2>
+            <p className="text-gray-400 max-w-2xl mx-auto text-lg pt-4">
+              Explore our fellowship regions and specialized governance focuses across the African continent.
+            </p>
+          </motion.div>
+          <motion.div 
+            {...fadeIn}
+            transition={{ delay: 0.2, duration: 0.8 }}
+            className="w-full max-w-4xl mx-auto h-[600px] rounded-[32px] overflow-hidden border border-white/10 shadow-[0_0_50px_rgba(0,0,0,0.5)]"
+          >
+            <AfricanMap />
+          </motion.div>
         </div>
       </section>
 

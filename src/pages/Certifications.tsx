@@ -22,19 +22,35 @@ const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 // Mock Data for the Fellow's Performance & Credentials
 const MOCK_DATA = {
+  id: "CERT-2026-X1Y2Z3",
   track: "Public Policy & Tech Governance",
   duration: "Jan 2026 - Dec 2026",
+  issueDate: "December 15, 2026",
   classification: "Distinction",
+  percentile: "Top 5%",
   scores: {
-    overall: 0,
-    academic: 0,
-    portfolio: 0,
-    engagement: 0
+    overall: 92,
+    academic: 90,
+    portfolio: 95,
+    engagement: 91,
+    projects: 95,
+    simulations: 88,
+    participation: 94,
+    assessments: 91
   },
   detailedScores: [],
-  modules: [],
+  modules: [
+    { title: "Geopolitics", score: 90, name: "Advanced Geopolitics", code: "GEO401", grade: "A" },
+    { title: "Policy Labs", score: 95, name: "Public Policy Formulation", code: "POL302", grade: "A+" }
+  ],
+  radarData: [
+    { subject: 'Policy Analysis', A: 95, fullMark: 100 },
+    { subject: 'Simulations', A: 88, fullMark: 100 },
+    { subject: 'Participation', A: 94, fullMark: 100 },
+    { subject: 'Academics', A: 91, fullMark: 100 },
+  ],
   portfolio: [],
-  recommendationToken: ""
+  recommendationToken: "REC-998877"
 };
 
 function CertificationsMain() {
