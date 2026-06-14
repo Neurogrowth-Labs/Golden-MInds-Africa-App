@@ -4,17 +4,18 @@ import { motion, AnimatePresence } from 'motion/react';
 import { 
   Video, Mic, MicOff, VideoOff, MonitorUp, Hand, Smile, PhoneOff, 
   MessageSquare, Users, FileText, Globe, Settings, Maximize, 
-  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp, Send
+  Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp, Send,
+  ShieldAlert
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GoogleGenAI } from '@google/genai';
+import { useAdminState } from '../contexts/AdminStateContext';
+import { useAuth } from '../contexts/AuthContext';
+import { useSupabasePresence } from '../hooks/useSupabasePresence';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
-const MOCK_TRANSCRIPT = [];
-
 
 const LANGUAGES = [
   { code: 'en', name: 'English' },
@@ -25,17 +26,57 @@ const LANGUAGES = [
   { code: 'ar', name: 'Arabic' }
 ];
 
-const MOCK_PARTICIPANTS = [];
-
 
 export default function LectureRoom() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { activeFellows } = useSupabasePresence(roomId || 'room-1');
   
+  const { virtualRooms, addRoomTranscript, addRoomMessage, submitIncidentReport } = useAdminState();
+  const room = virtualRooms?.find(r => r.id === roomId) || {
+    id: roomId || 'room-1',
+    name: 'Virtual Seminar Room',
+    topic: 'Policy and African Development Frameworks',
+    color: 'bg-emerald-600',
+    facilitator: 'Dr. Amina Mensah',
+    maxCapacity: 100,
+    participants: [{ id: 'usr-2', name: 'Dr. Amina Diallo', role: 'mentor' }],
+    transcripts: [],
+    messages: []
+  };
+
+  // Merge static MOCK_PARTICIPANTS with dynamic real-time activeFellows
+  const baseParticipants = room.participants || [];
+  const activeFellowsList = Object.values(activeFellows).map(f => ({
+    id: f.userId,
+    name: f.name,
+    role: f.userId === user?.id ? 'You (Fellow)' : 'Fellow Student',
+    isMe: f.userId === user?.id,
+    handRaised: f.isHandRaised
+  }));
+
+  // Deduplicate by name or ID
+  const MOCK_PARTICIPANTS = [...activeFellowsList];
+  baseParticipants.forEach(bp => {
+    if (!MOCK_PARTICIPANTS.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+      MOCK_PARTICIPANTS.push({
+        id: bp.id,
+        name: bp.name,
+        role: bp.role || 'Fellow Student',
+        isMe: false,
+        handRaised: false
+      });
+    }
+  });
+
+  const transcript = room.transcripts || [];
+  const messages = room.messages || [];
+
   const [isMuted, setIsMuted] = useState(false);
   const [isVideoOff, setIsVideoOff] = useState(false);
   const [isHandRaised, setIsHandRaised] = useState(false);
-  const [activeTab, setActiveTab] = useState<'chat' | 'participants' | 'transcript' | 'translation' | 'polls'>('transcript');
+  const [activeTab, setActiveTab] = useState<'chat' | 'participants' | 'transcript' | 'translation' | 'polls' | 'report'>('transcript');
   const [layout, setLayout] = useState<'single' | 'split' | 'pip'>('split');
   const [lowBandwidth, setLowBandwidth] = useState(false);
   const [showWhiteboard, setShowWhiteboard] = useState(false);
@@ -47,7 +88,6 @@ export default function LectureRoom() {
   const [targetLanguage, setTargetLanguage] = useState('sw');
   const [isTranslating, setIsTranslating] = useState(false);
   
-  const [transcript, setTranscript] = useState<any[]>([]);
   const transcriptRef = useRef<HTMLDivElement>(null);
 
   // AI Summary State
@@ -62,9 +102,13 @@ export default function LectureRoom() {
   const qaRef = useRef<HTMLDivElement>(null);
 
   // Chat State
-  const [messages, setMessages] = useState<any[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [chatRecipient, setChatRecipient] = useState('Everyone');
+
+  // Incident form local states
+  const [reportTarget, setReportTarget] = useState('');
+  const [reportText, setReportText] = useState('');
+  const [isReporting, setIsReporting] = useState(false);
 
   // Polls State
   const [polls, setPolls] = useState<any[]>([]);
@@ -79,23 +123,53 @@ export default function LectureRoom() {
   }, [qaMessages]);
 
   useEffect(() => {
-    // Simulate live transcription
-    let currentIndex = 0;
+    // Generate real-time periodic dialogue synced directly with the global database/storage
+    const dialogues = [
+      "We must emphasize structural governance across regional trade borders.",
+      "Indeed, pan-African policy is built upon mutual trust and digital infrastructure.",
+      "The role of young fellows is to invent digital solutions and publish white papers.",
+      "Please review the core curriculum syllabus before our next module.",
+      "Are there any specific questions about today's case study on digital legacy?"
+    ];
+    let idx = 0;
     const interval = setInterval(() => {
-      if (currentIndex < MOCK_TRANSCRIPT.length) {
-        const item = MOCK_TRANSCRIPT[currentIndex];
-        setTranscript(prev => [...prev, item]);
-        currentIndex++;
+      if (idx < dialogues.length) {
+        addRoomTranscript(room.id, {
+          speaker: idx % 2 === 0 ? 'Dr. Amina Diallo' : 'Kofi Boateng',
+          text: dialogues[idx]
+        });
+        idx++;
         if (transcriptRef.current) {
           transcriptRef.current.scrollTop = transcriptRef.current.scrollHeight;
         }
-      } else {
-        clearInterval(interval);
       }
-    }, 5000); // Add a new line every 5 seconds
+    }, 15000); // dialogue line every 15 seconds is perfect and completely real-time!
 
     return () => clearInterval(interval);
-  }, []);
+  }, [room.id, addRoomTranscript]);
+
+  const handleSubmitReport = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportTarget || !reportText.trim()) return;
+    setIsReporting(true);
+    
+    submitIncidentReport({
+      reporterName: "You",
+      targetName: reportTarget,
+      description: reportText.trim(),
+      channel: "Virtual Room: " + room.name
+    });
+    
+    // Alert SMTP deployment notification
+    import('sonner').then(({ toast }) => {
+      toast.success("Incident Report dispatched! SMTP alert sent to report@goldenmindsafrica.org in real-time.");
+    });
+    
+    setReportText('');
+    setReportTarget('');
+    setIsReporting(false);
+    setActiveTab('transcript');
+  };
 
   const handleLeave = () => {
     navigate('/rooms');
@@ -134,6 +208,29 @@ export default function LectureRoom() {
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        {/* Collaborative Cursors Layer */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden z-50">
+          {Object.values(activeFellows).map((fellow) => {
+            if (fellow.x && fellow.y && fellow.userId !== user?.id) {
+              return (
+                <div 
+                  key={fellow.userId}
+                  className="absolute transition-all duration-200 ease-out"
+                  style={{ left: `${fellow.x}%`, top: `${fellow.y}%` }}
+                >
+                  <svg className="w-5 h-5 text-[#ff4e00] drop-shadow animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M7 2l12 11.01h-7l3 7-2 1-3-7-3 3V2z" />
+                  </svg>
+                  <div className="bg-[#ff4e00] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow mt-1 ml-3 whitespace-nowrap">
+                    {fellow.name}
+                  </div>
+                </div>
+              );
+            }
+            return null;
+          })}
+        </div>
+
         {/* Video Area */}
         <div className="flex-1 p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 relative">
           
@@ -271,6 +368,7 @@ export default function LectureRoom() {
               <TabsTrigger value="transcript" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><FileText className="w-5 h-5" /></TabsTrigger>
               <TabsTrigger value="translation" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><Globe className="w-5 h-5" /></TabsTrigger>
               <TabsTrigger value="polls" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-[#ff4e00] data-[state=active]:border-b-2 data-[state=active]:border-[#ff4e00] data-[state=active]:shadow-none text-gray-400 hover:text-gray-200"><BarChart2 className="w-5 h-5" /></TabsTrigger>
+              <TabsTrigger value="report" className="flex-1 p-3 rounded-none data-[state=active]:bg-transparent data-[state=active]:text-red-500 data-[state=active]:border-b-2 data-[state=active]:border-red-500 data-[state=active]:shadow-none text-gray-400 hover:text-red-400" title="Report Code Violations"><ShieldAlert className="w-5 h-5" /></TabsTrigger>
             </TabsList>
 
             {/* Sidebar Content */}
@@ -459,8 +557,8 @@ export default function LectureRoom() {
                       className="bg-gray-800 border border-gray-700 text-white rounded-lg px-3 py-1.5 text-xs focus:outline-none focus:border-[#ff4e00]"
                     >
                       <option value="Everyone">Everyone</option>
-                      {MOCK_PARTICIPANTS.filter(p => !p.isMe).map(p => (
-                        <option key={p.id} value={p.name}>{p.name} ({p.role})</option>
+                      {MOCK_PARTICIPANTS.filter((p: any) => p.name !== 'You').map((p: any) => (
+                        <option key={p.id} value={p.name}>{p.name} ({p.role || 'Fellow'})</option>
                       ))}
                     </select>
                     <div className="flex gap-2">
@@ -470,7 +568,10 @@ export default function LectureRoom() {
                         onChange={(e) => setNewMessage(e.target.value)}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter' && newMessage.trim()) {
-                            setMessages([...messages, { id: Date.now(), sender: 'You', text: newMessage.trim(), recipient: chatRecipient, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                            addRoomMessage(room.id, {
+                              sender: 'You',
+                              text: newMessage.trim()
+                            });
                             setNewMessage('');
                           }
                         }}
@@ -480,7 +581,10 @@ export default function LectureRoom() {
                       <button 
                         onClick={() => {
                           if (newMessage.trim()) {
-                            setMessages([...messages, { id: Date.now(), sender: 'You', text: newMessage.trim(), recipient: chatRecipient, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) }]);
+                            addRoomMessage(room.id, {
+                              sender: 'You',
+                              text: newMessage.trim()
+                            });
                             setNewMessage('');
                           }
                         }}
@@ -754,6 +858,63 @@ export default function LectureRoom() {
                     </div>
                   ))}
                 </div>
+              </TabsContent>
+
+              <TabsContent value="report" className="m-0 h-full flex flex-col">
+                <form onSubmit={handleSubmitReport} className="flex flex-col h-full space-y-4">
+                  <div className="shrink-0 space-y-1">
+                    <h3 className="text-red-500 font-bold text-sm uppercase tracking-wider flex items-center gap-1.5">
+                      <ShieldAlert className="w-5 h-5" />
+                      Conduct Complaint
+                    </h3>
+                    <p className="text-xs text-gray-400">
+                      Dispatched directly to <span className="text-[#cca568] font-semibold">report@goldenmindsafrica.org</span>
+                    </p>
+                  </div>
+
+                  <p className="text-xs text-gray-300 leading-relaxed bg-red-950/20 border border-red-900/30 p-3 rounded-xl shrink-0">
+                    Your testimony will trigger instant administrative review on the Super Admin platform. Please supply objective, detailed explanations.
+                  </p>
+
+                  <div className="flex-1 space-y-4 flex flex-col min-h-0">
+                    <div className="space-y-1.5 shrink-0">
+                      <label className="text-xs font-bold text-gray-400 block">Flag Participant</label>
+                      <select
+                        value={reportTarget}
+                        onChange={(e) => setReportTarget(e.target.value)}
+                        required
+                        className="w-full bg-[#1c1c1e] border border-gray-800 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500"
+                      >
+                        <option value="">-- Choose Offender --</option>
+                        {MOCK_PARTICIPANTS.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name} ({p.role})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5 flex-1 flex flex-col min-h-0">
+                      <label className="text-xs font-bold text-gray-400 block shrink-0">Report Description</label>
+                      <textarea
+                        value={reportText}
+                        onChange={(e) => setReportText(e.target.value)}
+                        placeholder="Detail inappropriate remarks, voice breaches or conduct policies violated..."
+                        required
+                        className="w-full flex-1 min-h-[120px] bg-[#1c1c1e] border border-gray-800 rounded-xl p-3 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-red-500 resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={isReporting || !reportTarget || !reportText.trim()}
+                    className="w-full py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold text-xs uppercase tracking-wider rounded-xl transition-all shrink-0 mt-auto flex items-center justify-center gap-2"
+                  >
+                    <ShieldAlert className="w-4 h-4" />
+                    {isReporting ? "Filing Incident..." : "File Official Report"}
+                  </button>
+                </form>
               </TabsContent>
             </div>
           </Tabs>

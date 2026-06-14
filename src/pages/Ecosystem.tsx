@@ -3,11 +3,29 @@ import { motion } from 'motion/react';
 import { BookOpen, Mic, Video, Users, MessageSquare, Plus, Search, Filter, ThumbsUp, MessageCircle, Share2, Swords, PlayCircle, FileText, Radio, Users2, Target } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
+import { useAdminState } from '../contexts/AdminStateContext';
 
 type ContentType = 'article' | 'podcast' | 'video' | 'debate' | 'community_post';
 
 export default function Ecosystem() {
   const { user, profile } = useAuth();
+  const { publications: adminPublications } = useAdminState();
+  
+  const formattedAdminPubs = (adminPublications || [])
+    .filter(pub => pub.status === 'Published')
+    .map(pub => ({
+      id: pub.id,
+      type: 'article' as const,
+      author: pub.author,
+      title: pub.title,
+      summary: pub.content,
+      likes: 24,
+      comments: 5,
+      tags: [pub.type, pub.track],
+      time: pub.date,
+      mediaUrl: null
+    }));
+
   const [activeTab, setActiveTab] = useState('feed');
   const [isComposing, setIsComposing] = useState(false);
   const [composeType, setComposeType] = useState<ContentType>('article');
@@ -728,7 +746,7 @@ export default function Ecosystem() {
                 </div>
               </div>
 
-              {feed.filter(item => {
+              {[...formattedAdminPubs, ...feed].filter(item => {
                 if (activeTab === 'feed') {
                   return filterType === 'all' || item.type === filterType;
                 }

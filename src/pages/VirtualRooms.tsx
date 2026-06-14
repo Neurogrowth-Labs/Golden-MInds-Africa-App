@@ -5,11 +5,10 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
-const ROOMS = [];
-
+import { useAdminState } from '../contexts/AdminStateContext';
 
 export default function VirtualRooms() {
+  const { virtualRooms: ROOMS } = useAdminState();
   const navigate = useNavigate();
   const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [accessCode, setAccessCode] = useState('');
@@ -82,7 +81,7 @@ export default function VirtualRooms() {
             <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8 flex-1">
               <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500">
                 <Users className="w-4 h-4" />
-                <span>{room.participants} / {room.maxCapacity} Fellows</span>
+                <span>{room.participants?.length || 0} / {room.maxCapacity} Fellows</span>
               </div>
               <div className="flex items-center gap-2 sm:gap-3 text-xs sm:text-sm text-gray-500">
                 <ShieldCheck className="w-4 h-4" />

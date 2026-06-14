@@ -1,10 +1,42 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Award, Star, Trophy, Target, Zap, Shield, Crown, Medal, TrendingUp, Sparkles } from 'lucide-react';
+import { Award, Star, Trophy, Target, Zap, Shield, Crown, Medal, TrendingUp, Sparkles, FileText } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { jsPDF } from 'jspdf';
+import { toast } from 'sonner';
 
-const BADGES = [];
-
+const BADGES = [
+  { 
+    id: 'attendance', 
+    name: 'Dedicated Scholar', 
+    description: 'Maintain a 5+ days attendance streak', 
+    icon: Star, 
+    condition: (p: any) => (p?.attendanceStreak || 0) >= 5, 
+    bg: 'bg-amber-50', 
+    border: 'border-amber-200', 
+    color: 'text-amber-600' 
+  },
+  { 
+    id: 'participation', 
+    name: 'Vibrant Voice', 
+    description: 'Reach 100+ Fellowship XP', 
+    icon: Trophy, 
+    condition: (p: any) => (p?.participationScore || 0) >= 100, 
+    bg: 'bg-emerald-50', 
+    border: 'border-emerald-200', 
+    color: 'text-emerald-600' 
+  },
+  { 
+    id: 'elite', 
+    name: 'GMA Visionary', 
+    description: 'Reach Level 5+ on GMA Platform', 
+    icon: Crown, 
+    condition: (p: any) => (Math.floor((p?.participationScore || 0) / 50) + 1) >= 5, 
+    bg: 'bg-purple-50', 
+    border: 'border-purple-200', 
+    color: 'text-purple-600' 
+  },
+];
 
 export default function Achievements() {
   const { profile } = useAuth();
@@ -14,11 +46,129 @@ export default function Achievements() {
   const nextLevelScore = level * 50;
   const progress = (score % 50) / 50 * 100;
 
+  const generatePDFReport = () => {
+    try {
+      const doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // GMA Premium Brand Color Palette
+      const brandDarkGreen = [2, 44, 34]; // rgb(2,44,34)
+      const brandAmberGold = [212, 175, 55]; // rgb(212,175,55)
+
+      // Header Block
+      doc.setFillColor(brandDarkGreen[0], brandDarkGreen[1], brandDarkGreen[2]);
+      doc.rect(0, 0, 210, 48, 'F');
+
+      // Title & Subtitle text elements
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(20);
+      doc.text('GOLDEN MINDS AFRICA FELLOWSHIP', 15, 18);
+      
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10.5);
+      doc.setTextColor(brandAmberGold[0], brandAmberGold[1], brandAmberGold[2]);
+      doc.text('OFFICIAL FELLOWSHIP ACHIEVEMENTS & MILESTONES TRANSCRIPT', 15, 26);
+      doc.setTextColor(215, 215, 215);
+      doc.text(`Issued On: ${new Date().toLocaleDateString()} • Verified Record of Leadership`, 15, 33);
+
+      // Gold line separator band
+      doc.setFillColor(brandAmberGold[0], brandAmberGold[1], brandAmberGold[2]);
+      doc.rect(0, 41, 210, 2, 'F');
+
+      // Personal Profile Information section
+      doc.setTextColor(45, 45, 45);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.text(`${profile?.name || 'Fellow Member'}`, 15, 60);
+
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10.5);
+      doc.setTextColor(110, 110, 110);
+      doc.text(`Current Leadership Rank: Level ${level} Fellow`, 15, 66);
+      doc.text(`Total Lifetime Participation XP Score: ${score} points`, 15, 72);
+      doc.text(`Consecutive Lecture Attendance Streak: ${profile?.attendanceStreak || 0} days`, 15, 78);
+
+      // Separator line
+      doc.setDrawColor(220, 220, 220);
+      doc.setLineWidth(0.5);
+      doc.line(15, 84, 195, 84);
+
+      // Achievements summary text block
+      doc.setTextColor(brandDarkGreen[0], brandDarkGreen[1], brandDarkGreen[2]);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(12.5);
+      doc.text('Performance Summary & Standing', 15, 93);
+
+      doc.setTextColor(70, 70, 70);
+      doc.setFont('Helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`This document certifies that ${profile?.name || 'the fellow'} is in good academic standing.`, 15, 100);
+      doc.text(`They have climbed to Level ${level} following an active participation rating in GMA Seminars and Dev-labs.`, 15, 105);
+
+      // Badges Section
+      doc.setTextColor(brandDarkGreen[0], brandDarkGreen[1], brandDarkGreen[2]);
+      doc.setFont('Helvetica', 'bold');
+      doc.setFontSize(12.5);
+      doc.text('Earned Badges & Unlocked Honors', 15, 120);
+      doc.line(15, 123, 195, 123);
+
+      let verticalOffset = 131;
+      const earnedBadges = BADGES.filter(b => b.condition(profile));
+
+      if (earnedBadges.length === 0) {
+        doc.setFont('Helvetica', 'oblique');
+        doc.setTextColor(120, 120, 120);
+        doc.text('No certified badges unlocked yet. Keep up the active participation to unlock honors!', 15, verticalOffset);
+      } else {
+        earnedBadges.forEach((badge, index) => {
+          doc.setFont('Helvetica', 'bold');
+          doc.setTextColor(50, 50, 50);
+          doc.setFontSize(11);
+          doc.text(`${index + 1}. ${badge.name}`, 15, verticalOffset);
+
+          doc.setFont('Helvetica', 'normal');
+          doc.setTextColor(100, 100, 100);
+          doc.setFontSize(9.5);
+          doc.text(badge.description, 18, verticalOffset + 5.5);
+          verticalOffset += 15;
+        });
+      }
+
+      // GMA Trust seal logo simulation
+      doc.setFillColor(248, 248, 245);
+      doc.rect(0, 274, 210, 23, 'F');
+      doc.setTextColor(110, 110, 110);
+      doc.setFontSize(8);
+      doc.text('Academic Achievements Board - Golden Minds Africa', 15, 282);
+      doc.text('Validation Code: GMA-RANK-VERIFIED-2026', 15, 287);
+      doc.text('Page 1 of 1', 185, 284);
+
+      doc.save(`${profile?.name || 'Fellow'}_GMA_Achievements_Milestones.pdf`);
+      toast.success('Branded Achievements & Milestones PDF generated and downloaded!');
+    } catch (pdfErr) {
+      console.error('jsPDF generation failed:', pdfErr);
+      toast.error('Could not compile achievements PDF report.');
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 sm:space-y-8">
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold font-serif mb-2">Fellowship Achievements</h1>
-        <p className="text-sm sm:text-base text-gray-600">Track your progress, earn badges, and climb the leaderboard.</p>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+        <div>
+          <h1 className="text-3xl sm:text-4xl font-bold font-serif mb-2">Fellowship Achievements</h1>
+          <p className="text-sm sm:text-base text-gray-600">Track your progress, earn badges, and climb the leaderboard.</p>
+        </div>
+        <button
+          onClick={generatePDFReport}
+          className="flex items-center justify-center gap-2 bg-[#d4af37] text-[#022c22] px-6 py-3 rounded-full shadow-md hover:bg-[#b8972e] font-bold text-sm transition-colors cursor-pointer self-start sm:self-auto"
+        >
+          <FileText className="w-5 h-5" />
+          Download Achievements PDF
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">

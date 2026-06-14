@@ -39,6 +39,9 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
   accessToken: string | null;
   setAccessToken: (token: string | null) => void;
+  loginSuperAdmin?: () => void;
+  logoutSuperAdmin?: () => void;
+  isSuperAdmin?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
@@ -47,7 +50,10 @@ const AuthContext = createContext<AuthContextType>({
   loading: true, 
   refreshProfile: async () => {},
   accessToken: null,
-  setAccessToken: () => {}
+  setAccessToken: () => {},
+  loginSuperAdmin: () => {},
+  logoutSuperAdmin: () => {},
+  isSuperAdmin: false
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -58,8 +64,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  const loginSuperAdmin = () => {
+    sessionStorage.setItem('gma-super-admin-authenticated', 'true');
+    const mockUser = {
+      id: 'super-admin-uid',
+      uid: 'super-admin-uid',
+      firebaseUid: 'super-admin-uid',
+      email: 'simao@neurogrowthlabs.co.za',
+      displayName: 'Simao Simas',
+      emailVerified: true
+    } as any;
+    
+    const mockProfile: UserProfile = {
+      id: 'super-admin-uid',
+      uid: 'super-admin-uid',
+      name: 'Simao Simas',
+      email: 'simao@neurogrowthlabs.co.za',
+      role: 'admin',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
+      participationScore: 100,
+      attendanceStreak: 12
+    };
+
+    setUser(mockUser);
+    setProfile(mockProfile);
+    setLoading(false);
+  };
+
+  const logoutSuperAdmin = () => {
+    sessionStorage.removeItem('gma-super-admin-authenticated');
+    setUser(null);
+    setProfile(null);
+  };
+
   useEffect(() => {
     let mounted = true;
+
+    // Check if we are already logged in as super-admin
+    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
+      loginSuperAdmin();
+      return;
+    }
 
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (mounted) {
@@ -147,8 +192,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const isSuperAdmin = !!(
+    (user && user.email === 'simao@neurogrowthlabs.co.za') || 
+    sessionStorage.getItem('gma-super-admin-authenticated') === 'true'
+  );
+
   return (
-    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, accessToken, setAccessToken }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, accessToken, setAccessToken, loginSuperAdmin, logoutSuperAdmin, isSuperAdmin }}>
       {children}
     </AuthContext.Provider>
   );

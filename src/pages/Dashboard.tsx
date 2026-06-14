@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { motion } from 'motion/react';
-import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle, Smile, Send } from 'lucide-react';
+import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle, Smile, Send, RefreshCw, BrainCircuit } from 'lucide-react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from '../lib/supabase';
 import { GoogleGenAI } from '@google/genai';
 import { toast } from 'sonner';
+import Markdown from 'react-markdown';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -20,12 +21,42 @@ export default function Dashboard() {
   const [findingHubs, setFindingHubs] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
 
+  // Daily recap state
+  const [dailyRecap, setDailyRecap] = useState<string | null>(null);
+  const [recapLoading, setRecapLoading] = useState(false);
+
   // Daily Check-in state
   const [checkInText, setCheckInText] = useState('');
   const [checkInEmoji, setCheckInEmoji] = useState('🌟');
   const [hasCheckedIn, setHasCheckedIn] = useState(false);
   const [checkInGreeting, setCheckInGreeting] = useState('');
   const EMOJI_OPTIONS = ['🌟', '🔥', '💡', '🚀', '🧠', '❤️'];
+
+  const fetchDailyRecap = async () => {
+    setRecapLoading(true);
+    try {
+      const greetingName = profile?.name?.split(' ')[0] || 'Fellow';
+      const prompt = `
+        You are the Golden Minds Africa AI system. Synthesize a warm, encouraging, short morning recap for the user "${greetingName}".
+        The recap MUST summarize:
+        - Upcoming Tasks & Schedule: Attend Peer Mentorship circle with Advisor Marie Uwase at 4:00 PM today.
+        - Pending Assignments: "Module 3: Leadership Philosophy Blueprint Submission" (Due tomorrow at 11:59 PM). "Cohort Debate Feedback Form" (due in 3 days).
+        - New Ecosystem Highlights: Fellow Samuel Chike uploaded an Agritech East Africa Soil Science publication, and administrators verified 4 cyberdefense certifications.
+        
+        Style guidelines: Give a cheerful personalized morning saludo. List the actionable task and pending assignments with bullet-points, and outline ecosystem updates in a brief sentence. Keep the layout clean, beautifully structured in Markdown format. Keep the entire response under 150 words.
+      `;
+      const response = await ai.models.generateContent({
+        model: 'gemini-3-flash-preview',
+        contents: prompt
+      });
+      setDailyRecap(response.text || "Your daily overview is ready! Stay focused on your goals.");
+    } catch (err: any) {
+      console.error("Error generating daily recap:", err);
+      setDailyRecap("Unable to load automatic recap at this time. Focus on completing your daily assignments and checking in with your mentor!");
+    } finally {
+      setRecapLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
@@ -68,7 +99,8 @@ export default function Dashboard() {
     };
 
     fetchDashboardData();
-  }, []);
+    fetchDailyRecap();
+  }, [profile]);
 
   const earnedBadges = [
     { id: 'pioneer', name: 'Pioneer', description: 'Joined the platform', icon: Sparkles, color: 'text-purple-600', bg: 'bg-purple-50', earned: true },
@@ -186,6 +218,52 @@ export default function Dashboard() {
             </div>
           </form>
         )}
+      </div>
+
+      {/* Gemini Powered Daily Recap Card */}
+      <div 
+        id="daily-recap-section" 
+        className="bg-gradient-to-br from-emerald-50 to-[#cca568]/15 dark:from-[#011a14] dark:to-zinc-900 border border-emerald-100 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-sm relative overflow-hidden transition-all duration-300"
+      >
+        <div className="absolute top-0 right-0 w-32 h-32 bg-[#cca568]/15 dark:bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
+        
+        <div className="relative z-10 flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+          <div className="space-y-3 flex-1">
+            <div className="flex items-center gap-2.5 text-amber-700 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
+              <BrainCircuit className="w-5 h-5 text-amber-700 dark:text-amber-400 animate-pulse" />
+              <span>Personalized Daily AI Recap</span>
+            </div>
+            
+            <h2 className="text-xl sm:text-2xl font-serif font-bold text-gray-905 dark:text-white leading-tight">
+              A quick look at your day
+            </h2>
+
+            {recapLoading ? (
+              <div className="py-6 flex items-center gap-3 text-gray-500 dark:text-gray-400 text-sm">
+                <Loader2 className="w-4 h-4 animate-spin text-amber-500" />
+                <span className="font-medium">Gemini is synthesizing upcoming tasks, assignments, and fellowship network data...</span>
+              </div>
+            ) : dailyRecap ? (
+              <div className="prose dark:prose-invert max-w-none text-gray-700 dark:text-gray-300 text-sm leading-relaxed space-y-2 mt-2 font-normal">
+                <Markdown>{dailyRecap}</Markdown>
+              </div>
+            ) : (
+              <p className="text-gray-500 dark:text-gray-400 text-sm italic">
+                Set a main goal above and tap "Refresh Recap" to compose your day.
+              </p>
+            )}
+          </div>
+
+          <button 
+            type="button"
+            disabled={recapLoading}
+            onClick={fetchDailyRecap}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white dark:bg-zinc-800 text-gray-700 dark:text-zinc-200 hover:bg-gray-50 dark:hover:bg-zinc-750 rounded-xl text-xs font-semibold shadow-sm border border-gray-150 dark:border-zinc-700 transition-all disabled:opacity-50 cursor-pointer w-max self-start md:self-auto"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${recapLoading ? 'animate-spin text-amber-500' : ''}`} />
+            <span>Generate Recap</span>
+          </button>
+        </div>
       </div>
 
       {/* Quick Actions (shadcn/ui) */}

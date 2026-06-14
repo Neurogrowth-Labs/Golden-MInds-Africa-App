@@ -1,16 +1,19 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
-import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu, Eye, EyeOff, Diamond, Star, GraduationCap, Map, Crown } from 'lucide-react';
+import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu, Eye, EyeOff, Diamond, Star, GraduationCap, Map, Crown, Sparkles, Sun, Moon, Search, PlayCircle } from 'lucide-react';
 import { auth, googleProvider } from '../lib/firebase';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut, updateProfile, GoogleAuthProvider } from 'firebase/auth';
 import QuickAIHelper from './QuickAIHelper';
-import africanGovBg from '../assets/images/african_governance_bg_1781130107908.png';
+import googleBigBg from '../assets/images/african_governance_bg_1781130107908.png';
 import freedomFightersBg from '../assets/images/freedom_fighters_bg_1781179439940.png';
 import appLogo from '../assets/images/logo.png';
 import LandingPage from '../pages/LandingPage';
 import FellowshipLanding from '../pages/FellowshipLanding';
+import { useAdminState } from '../contexts/AdminStateContext';
+import { useTheme } from '../contexts/ThemeContext';
+import OnboardingTour, { startTour } from './OnboardingTour';
 
 const AFRICAN_QUOTES = [
   { text: "It always seems impossible until it's done.", author: "Nelson Mandela" },
@@ -21,8 +24,26 @@ const AFRICAN_QUOTES = [
   { text: "The enemies of Africa are those who exploit its resources while the people starve.", author: "Wangari Maathai" }
 ];
 
+const africanGovBg = googleBigBg;
+
+const MASTER_SEARCH_INDEX = [
+  { title: "Pan-African Tele-Education System", category: "Projects", path: "/projects", query: "teleport network classes school learning digital" },
+  { title: "Agritech Irrigation Drone Swarms", category: "Projects", path: "/projects", query: "farm irrigation agriculture water crops engineering" },
+  { title: "Decentralized Energy Microgrid Prototype", category: "Projects", path: "/projects", query: "solar battery hardware power lights electrical sustainable" },
+  { title: "Dr. Amina Diop - Public Health Advisor", category: "Mentors", path: "/mentorship", query: "health research medical government clinic" },
+  { title: "Prof. Kwame Mensah - Cybersecurity Officer", category: "Mentors", path: "/mentorship", query: "tech software internet privacy hacking networking development" },
+  { title: "Marie Uwase - Sustainable Agritech Lead", category: "Mentors", path: "/mentorship", query: "advisor mentor farm advisory plants land" },
+  { title: "Digital Policy & Sovereignty Blueprint v2.1", category: "Knowledge Vault", path: "/knowledge", query: "sovereign policy storage cloud security" },
+  { title: "Decentralized Grid Network Protocols", category: "Knowledge Vault", path: "/knowledge", query: "ethereum blockchain solar nodes microgrids" },
+  { title: "AI-Augmented Agronomy Soil Report", category: "Knowledge Vault", path: "/knowledge", query: "biology farming earth organic nitrogen report" },
+  { title: "Golden Minds Africa Elite Fellowship 2026", category: "Fellowships", path: "/", query: "main cohort criteria leadership program" },
+  { title: "Global Showcase and Digital Portfolio", category: "Fellowships", path: "/showcase", query: "show public resume digital profile" },
+  { title: "Pan-African Network & Collaboration Forum", category: "Fellowships", path: "/ecosystem", query: "debates publications chats forums groups" }
+];
+
 export default function Layout() {
-  const { user, profile, loading, setAccessToken } = useAuth();
+  const { user, profile, loading, setAccessToken, loginSuperAdmin, logoutSuperAdmin } = useAuth();
+  const { users } = useAdminState();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -31,6 +52,22 @@ export default function Layout() {
   const [quoteFade, setQuoteFade] = useState(true);
   const [landingView, setLandingView] = useState<'main' | 'fellowship' | 'none'>('main');
   
+  // Theme & search states
+  const { theme, toggleTheme } = useTheme();
+  const [globalSearch, setGlobalSearch] = useState('');
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setSearchFocused(false);
+      }
+    };
+    document.addEventListener('mousedown', handleOutsideClick);
+    return () => document.removeEventListener('mousedown', handleOutsideClick);
+  }, []);
+
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,6 +93,23 @@ export default function Layout() {
     setIsLoggingIn(true);
     setAuthError('');
     setAuthSuccess('');
+
+    // Check for super admin credentials
+    if (authMode === 'login' && email === 'simao@neurogrowthlabs.co.za' && password === 'GMAfrica2@') {
+      try {
+        if (loginSuperAdmin) {
+          loginSuperAdmin();
+        }
+        setAuthSuccess('Welcome back, Super Admin!');
+        navigate('/admin', { replace: true });
+        setIsLoggingIn(false);
+        return;
+      } catch (err: any) {
+        setAuthError(err?.message || 'Failed log in as super admin');
+        setIsLoggingIn(false);
+        return;
+      }
+    }
     
     try {
       if (authMode === 'signup') {
@@ -63,25 +117,30 @@ export default function Layout() {
         await updateProfile(userCredential.user, {
           displayName: name
         });
-        setAuthSuccess('Registration successful!');
+        setAuthSuccess('Registration successful! You are now logged in.');
       } else {
         await signInWithEmailAndPassword(auth, email, password);
       }
     } catch (error: any) {
       let errorMessage = error?.message || 'Unknown error';
-      const lowerError = errorMessage.toLowerCase();
+      const errorCode = error?.code || '';
+      const lowerError = errorMessage.toLowerCase() + ' ' + errorCode.toLowerCase();
       
       if (lowerError.includes('auth/too-many-requests')) {
-        errorMessage = 'Too many attempts. Please wait a few minutes.';
+        errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
+      } else if (lowerError.includes('auth/operation-not-allowed')) {
+        errorMessage = 'Email & Password sign-in is not enabled on this Firebase project. To enable it: open the Firebase Console, navigate to "Authentication" -> "Sign-in method", click on "Email/Password" and turn on "Enable", then click Save.';
       } else if (lowerError.includes('auth/invalid-credential') || lowerError.includes('auth/user-not-found') || lowerError.includes('auth/wrong-password')) {
-        errorMessage = 'Invalid email or password.';
+        errorMessage = 'Invalid email or password. If you do not have an account yet, please click the "Sign Up" tab above to create one.';
       } else if (lowerError.includes('auth/invalid-email')) {
         errorMessage = 'Please enter a valid email address.';
       } else if (lowerError.includes('auth/email-already-in-use')) {
-        errorMessage = 'An account with this email already exists.';
+        errorMessage = 'An account with this email address already exists. Please sign in instead.';
+      } else {
+        errorMessage = `Authentication failed: ${error?.message || 'Please check your connection and credentials.'}`;
       }
       
-      console.error("Auth failed:", errorMessage, error);
+      console.error("Auth failed:", errorCode, errorMessage, error);
       setAuthError(errorMessage);
     } finally {
       setIsLoggingIn(false);
@@ -107,11 +166,25 @@ export default function Layout() {
   };
 
   const handleLogout = async () => {
-    await signOut(auth);
+    sessionStorage.removeItem('gma-super-admin-redirected');
+    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
+      if (logoutSuperAdmin) {
+        logoutSuperAdmin();
+      }
+    } else {
+      await signOut(auth);
+    }
   };
 
   useEffect(() => {
     if (user && profile) {
+      // Direct session-based redirect for Super Admin
+      if ((user.email === 'simao@neurogrowthlabs.co.za' || profile.role === 'admin') && !sessionStorage.getItem('gma-super-admin-redirected')) {
+        sessionStorage.setItem('gma-super-admin-redirected', 'true');
+        navigate('/admin', { replace: true });
+        return;
+      }
+
       const intendedRole = sessionStorage.getItem('intended_role');
       if (intendedRole === 'admin') {
         sessionStorage.removeItem('intended_role');
@@ -357,7 +430,7 @@ export default function Layout() {
               className="w-full py-[16px] px-4 bg-white text-black text-[15px] font-bold rounded-[18px] hover:bg-gray-100 transition-all flex items-center justify-center gap-3 disabled:opacity-70 disabled:cursor-not-allowed mb-24"
             >
               {isLoggingIn ? (
-                <Loader2 className="w-5 h-5 animate-spin text-black" />
+                <Loader2 className="w-5 h-5 animate-spin" text-black />
               ) : (
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" className="w-[20px] h-[20px]" />
               )}
@@ -408,6 +481,7 @@ export default function Layout() {
 
   const fellowNavItems = [
     { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
+    { to: '/notes', icon: Sparkles, label: 'AI Center' },
     { to: '/learning-hub', icon: BookOpen, label: 'Learning Hub' },
     { to: '/calendar', icon: Calendar, label: 'Smart Calendar' },
     { to: '/mentorship', icon: UserPlus, label: 'Mentors' },
@@ -428,27 +502,76 @@ export default function Layout() {
 
   const currentNavItems = fellowNavItems;
 
+  const currentUserProfileInSync = users?.find(u => u.email?.toLowerCase() === user?.email?.toLowerCase());
+  const isUserBanned = currentUserProfileInSync?.status === 'Banned';
+
+  if (user && isUserBanned) {
+    return (
+      <div 
+        className="min-h-screen flex items-center justify-center bg-black p-6 text-white font-sans overflow-hidden relative"
+        style={{
+          backgroundImage: `url(${freedomFightersBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/90 backdrop-blur-md z-0" />
+        
+        <div className="w-full max-w-lg bg-zinc-900/80 border border-red-500/30 rounded-[32px] p-8 sm:p-10 shadow-2xl relative z-10 text-center space-y-6">
+          <div className="w-16 h-16 bg-red-500/10 text-red-500 border border-red-500/20 rounded-2xl flex items-center justify-center mx-auto shadow-lg animate-pulse">
+            <ShieldAlert className="w-8 h-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <h1 className="text-2xl sm:text-3xl font-serif font-black text-white tracking-tight">Account Restricted</h1>
+            <p className="text-[#cca568] font-mono text-[11px] uppercase tracking-widest font-bold">Code of Conduct Suspension</p>
+          </div>
+          
+          <p className="text-gray-300 text-sm leading-relaxed">
+            Your candidate access privileges on the <strong>Golden Minds Africa Fellowship</strong> network have been suspended due to identified violations of our community policy, terms of service, or private protocols.
+          </p>
+          
+          <div className="bg-black/50 p-4 rounded-2xl border border-white/5 text-xs text-gray-400 leading-snug space-y-1">
+            <p className="font-semibold text-gray-200">REASON: Policy Breach / Administrative Review</p>
+            <p><strong>APPEALS OFFICE:</strong> report@goldenmindsafrica.org</p>
+          </div>
+
+          <button 
+            onClick={handleLogout}
+            className="w-full py-4 px-4 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-red-500/20"
+          >
+            <LogOut className="w-4 h-4" />
+            Proceed to Log Out
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-[#f5f5f0] text-gray-900 flex">
+    <div className="min-h-screen bg-[#f5f5f0] dark:bg-zinc-950 text-gray-900 dark:text-zinc-100 flex transition-colors duration-300">
+      {/* Interactive Onboarding Tour Overlay Tooltips */}
+      <OnboardingTour />
+
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/50 z-40 md:hidden"
+          className="fixed inset-0 bg-black/60 z-40 md:hidden animate-fade-in"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar */}
-      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white border-r border-gray-200 flex flex-col transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="p-6 flex items-center justify-between md:justify-start gap-3">
+      <aside className={`fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-zinc-900 border-r border-gray-200 dark:border-zinc-800 flex flex-col transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="p-6 flex items-center justify-between md:justify-start gap-3 border-b border-gray-100 dark:border-zinc-800">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden bg-white shadow-sm border border-gray-100">
+            <div className="w-10 h-10 flex items-center justify-center rounded-full overflow-hidden bg-white shadow-sm border border-gray-100 dark:border-zinc-800">
               <img src={appLogo} alt="Golden Minds" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-xl tracking-tight hidden md:block">Golden Minds</span>
+            <span className="font-bold text-lg tracking-tight text-gray-900 dark:text-white">Golden Minds</span>
           </div>
           <button 
-            className="md:hidden p-2 text-gray-500 hover:bg-gray-100 rounded-lg"
+            className="md:hidden p-2 text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg cursor-pointer"
             onClick={() => setMobileMenuOpen(false)}
           >
             <X className="w-5 h-5" />
@@ -458,29 +581,36 @@ export default function Layout() {
         <nav className="flex-1 px-4 space-y-1 mt-4 overflow-y-auto hide-scrollbar pb-20 md:pb-0">
           {currentNavItems.map((item) => {
             const isActive = location.pathname === item.to || (item.to === '/admin' && location.pathname.startsWith('/admin'));
+            // Create specific tour tracking IDs for search, ai center, knowledge vault, and mentors
+            const tourId = item.to === '/' ? 'tour-nav-dashboard' : 
+                           item.to === '/notes' ? 'tour-nav-notes' :
+                           item.to === '/knowledge' ? 'tour-nav-knowledge' :
+                           item.to === '/mentorship' ? 'tour-nav-mentorship' : undefined;
 
             return (
               <NavLink
                 key={item.to}
                 to={item.to}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                id={tourId}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all ${
                   isActive 
                     ? 'bg-[#5A5A40] text-white shadow-md' 
-                    : 'text-gray-600 hover:bg-gray-100'
+                    : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800/60'
                 }`}
               >
-                <item.icon className="w-5 h-5" />
-                <span className="font-medium">{item.label}</span>
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium text-sm">{item.label}</span>
               </NavLink>
             );
           })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 bg-white">
+        <div className="p-4 border-t border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
           {isAdminRoute && (
             <button 
-              onClick={() => navigate('/')}
-              className="w-full flex items-center gap-2 px-4 py-3 mb-4 text-gray-700 hover:bg-gray-100 rounded-xl transition-colors border border-gray-200"
+              onClick={() => { navigate('/'); setMobileMenuOpen(false); }}
+              className="w-full flex items-center gap-2 px-4 py-2.5 mb-4 text-gray-700 dark:text-gray-305 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-xl transition-colors border border-gray-200 dark:border-zinc-800"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="text-sm font-bold">Fellow Dashboard</span>
@@ -488,48 +618,163 @@ export default function Layout() {
           )}
           <div 
             onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }}
-            className="flex items-center gap-3 mb-4 px-2 cursor-pointer hover:bg-gray-50 p-2 rounded-xl transition-colors"
+            className="flex items-center gap-3 mb-4 px-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-zinc-800/40 p-2 rounded-xl transition-colors"
           >
-            <img src={profile?.avatar || `https://ui-avatars.com/api/?name=${profile?.name}`} alt="Avatar" className="w-10 h-10 rounded-full" referrerPolicy="no-referrer" />
+            <img src={profile?.avatar || `https://ui-avatars.com/api/?name=${profile?.name}`} alt="Avatar" className="w-10 h-10 rounded-full object-cover border border-gray-100 dark:border-zinc-800" referrerPolicy="no-referrer" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold truncate">{profile?.name}</p>
+              <p className="text-sm font-semibold truncate text-gray-905 dark:text-white">{profile?.name}</p>
               <p className="text-xs text-gray-500 capitalize">{profile?.role}</p>
             </div>
           </div>
           <div className="flex gap-2">
             <button 
               onClick={() => { navigate('/settings'); setMobileMenuOpen(false); }}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors text-xs font-semibold cursor-pointer border border-gray-100 dark:border-zinc-800"
             >
-              <span className="text-sm font-medium">Settings</span>
+              <span>Settings</span>
             </button>
             <button 
               onClick={handleLogout}
-              className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+              className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-650 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-lg transition-colors text-xs font-semibold cursor-pointer"
             >
-              <LogOut className="w-4 h-4" />
-              <span className="text-sm font-medium">Sign Out</span>
+              <LogOut className="w-3.5 h-3.5" />
+              <span>Sign Out</span>
             </button>
           </div>
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <main className="flex-1 flex flex-col overflow-hidden w-full">
-        <header className="md:hidden bg-white border-b border-gray-200 p-4 flex justify-between items-center sticky top-0 z-30">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-white shadow-sm border border-gray-100">
-              <img src={appLogo} alt="Golden Minds" className="w-full h-full object-contain" />
+        {/* Unified Responsive Top Navigation Header Bar */}
+        <header className="bg-white dark:bg-zinc-900 border-b border-gray-250 dark:border-zinc-800 px-4 md:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30 transition-colors">
+          {/* Mobile menu toggle button */}
+          <div className="flex items-center gap-3">
+            <button 
+              className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-lg transition-colors cursor-pointer"
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="md:hidden flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden bg-white shadow-sm border border-gray-100">
+                <img src={appLogo} alt="Golden Minds" className="w-full h-full object-contain" />
+              </div>
+              <span className="font-bold text-gray-800 dark:text-white text-sm">GMA Fellowship</span>
             </div>
-            <span className="font-bold text-gray-800">Golden Minds</span>
           </div>
-          <button 
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            onClick={() => setMobileMenuOpen(true)}
-          >
-            <Menu className="w-6 h-6" />
-          </button>
+
+          {/* Interactive Global Search bar with live suggestions query */}
+          <div ref={searchContainerRef} className="relative flex-1 max-w-lg mx-4 md:mx-0">
+            <div className="relative">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input 
+                id="header-search-bar"
+                type="text"
+                placeholder="Search projects, mentors, knowledge papers..."
+                value={globalSearch}
+                onChange={(e) => {
+                  setGlobalSearch(e.target.value);
+                  setSearchFocused(true);
+                }}
+                onFocus={() => setSearchFocused(true)}
+                className="w-full bg-gray-50 dark:bg-zinc-805 border border-gray-200 dark:border-zinc-800 rounded-xl pl-10 pr-4 py-2 text-sm text-gray-900 dark:text-zinc-100 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500 transition-all font-normal"
+              />
+            </div>
+            
+            {/* Auto-suggest results block */}
+            {searchFocused && (
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in duration-200 max-h-[360px] overflow-y-auto">
+                {globalSearch.trim() === '' ? (
+                  <div className="p-4 text-xs text-gray-400 dark:text-gray-500 space-y-2">
+                    <p className="font-semibold uppercase tracking-wider font-mono">Recent suggestion categories</p>
+                    <div className="flex flex-wrap gap-1.5 pt-1">
+                      {['Projects', 'Mentors', 'Knowledge Vault', 'Fellowships'].map(cat => (
+                        <span 
+                          key={cat} 
+                          onClick={() => { setGlobalSearch(cat); }}
+                          className="px-2.5 py-1.5 bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-950/30 cursor-pointer transition-all"
+                        >
+                          {cat}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100 dark:divide-zinc-805">
+                    {(() => {
+                      const query = globalSearch.toLowerCase();
+                      const filtered = MASTER_SEARCH_INDEX.filter(item => 
+                        item.title.toLowerCase().includes(query) || 
+                        item.category.toLowerCase().includes(query) || 
+                        item.query.toLowerCase().includes(query)
+                      );
+                      
+                      if (filtered.length === 0) {
+                        return (
+                          <div className="p-6 text-center text-sm text-gray-405 dark:text-gray-500 font-normal">
+                            No elements matched your lookup query "{globalSearch}". Try another topic.
+                          </div>
+                        );
+                      }
+                      
+                      return filtered.map((item, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => {
+                            setGlobalSearch('');
+                            setSearchFocused(false);
+                            navigate(item.path);
+                          }}
+                          className="p-3.5 hover:bg-amber-50/50 dark:hover:bg-zinc-800/40 cursor-pointer transition-all flex items-start justify-between gap-4"
+                        >
+                          <div>
+                            <p className="font-serif font-bold text-sm text-gray-905 dark:text-white leading-tight">{item.title}</p>
+                            <p className="text-xs text-gray-400 dark:text-gray-500 mt-0.5 leading-snug">{item.query}</p>
+                          </div>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 dark:bg-zinc-800 text-gray-500 uppercase tracking-widest font-semibold flex-shrink-0">
+                            {item.category}
+                          </span>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Action Tools & Presets */}
+          <div className="flex items-center gap-3">
+            {/* Take Virtual Walkthrough tour */}
+            <button 
+              onClick={() => startTour()}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-2 bg-amber-50/60 dark:bg-amber-950/20 text-amber-800 dark:text-amber-400 rounded-xl text-xs font-bold hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-all border border-amber-250/50 dark:border-amber-900/10 cursor-pointer"
+            >
+              <PlayCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 animate-pulse" />
+              <span>Virtual Tour</span>
+            </button>
+
+            {/* Header Theme Switcher Toggle */}
+            <button 
+              id="theme-toggle-header"
+              onClick={() => toggleTheme()}
+              className="p-2 bg-gray-50 dark:bg-zinc-800 hover:bg-gray-100 dark:hover:bg-zinc-700/80 text-gray-600 dark:text-amber-400 rounded-xl transition-all cursor-pointer border border-gray-200 dark:border-zinc-700/60"
+              title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-300" /> : <Moon className="w-4 h-4 text-[#5A5A40]" />}
+            </button>
+            
+            <div className="hidden md:flex items-center gap-2.5 pl-2 border-l border-gray-200 dark:border-zinc-800">
+              <img src={profile?.avatar || `https://ui-avatars.com/api/?name=${profile?.name}`} alt="Avatar" className="w-8 h-8 rounded-full border border-gray-100 dark:border-zinc-800" referrerPolicy="no-referrer" />
+              <div className="text-left leading-none">
+                <p className="text-xs font-semibold text-gray-700 dark:text-zinc-200 truncate max-w-[100px]">{profile?.name}</p>
+                <span className="text-[9px] font-mono text-gray-400 capitalize">{profile?.role}</span>
+              </div>
+            </div>
+          </div>
         </header>
+
         <div className="flex-1 overflow-auto p-4 md:p-8 w-full">
           <Outlet />
         </div>
