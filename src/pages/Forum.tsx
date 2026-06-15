@@ -18,7 +18,8 @@ export default function Forum() {
         .from('posts')
         .select(`
           *,
-          profiles:author_id (full_name, avatar_url)
+          profiles:author_id (full_name, avatar_url),
+          likes (user_id)
         `)
         .order('created_at', { ascending: false });
         
@@ -28,7 +29,9 @@ export default function Forum() {
           ...post,
           authorName: post.profiles?.full_name || 'Unknown',
           createdAt: post.created_at,
-          upvotes: 0 // We'd need a separate likes table query here in a real app
+          upvotes: post.likes ? post.likes.length : 0,
+          hasUpvoted: post.likes ? post.likes.some((l: any) => l.user_id === user?.id) : false,
+          category: post.tags && post.tags.length > 0 ? post.tags[0] : 'General'
         })));
       }
     } catch (error) {
@@ -65,24 +68,34 @@ export default function Forum() {
     }
   };
 
-  const handleUpvote = async (postId: string, currentUpvotes: number) => {
+  const handleUpvote = async (postId: string, currentUpvotes: number, hasUpvoted: boolean) => {
     if (!user) return;
     try {
-      // In a real app, we'd insert into the likes table and then fetch the count
-      // For now, we'll just optimistically update the UI
-      setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes + 1 } : p));
-      
-      const { error } = await supabase
-        .from('likes')
-        .insert([{ post_id: postId, user_id: user.id }]);
-        
-      if (error) {
-        // Revert on error
-        setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes } : p));
-        throw error;
+      if (hasUpvoted) {
+        // Optimistically remove upvote
+        setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: Math.max(0, currentUpvotes - 1), hasUpvoted: false } : p));
+        const { error } = await supabase
+          .from('likes')
+          .delete()
+          .eq('post_id', postId)
+          .eq('user_id', user.id);
+        if (error) {
+          setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes, hasUpvoted: true } : p));
+          throw error;
+        }
+      } else {
+        // Optimistically add upvote
+        setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes + 1, hasUpvoted: true } : p));
+        const { error } = await supabase
+          .from('likes')
+          .insert([{ post_id: postId, user_id: user.id }]);
+        if (error) {
+          setPosts(posts.map(p => p.id === postId ? { ...p, upvotes: currentUpvotes, hasUpvoted: false } : p));
+          throw error;
+        }
       }
     } catch (error: any) {
-      console.error("Error upvoting:", error);
+      console.error("Error toggling upvote:", error);
     }
   };
 
@@ -186,10 +199,10 @@ export default function Forum() {
                   
                   <div className="flex items-center gap-4 sm:gap-6">
                     <button 
-                      onClick={() => handleUpvote(post.id, post.upvotes)}
-                      className="flex items-center gap-2 text-gray-500 hover:text-[#ff4e00] transition-colors"
+                      onClick={() => handleUpvote(post.id, post.upvotes, !!post.hasUpvoted)}
+                      className={`flex items-center gap-2 transition-colors ${post.hasUpvoted ? 'text-[#ff4e00]' : 'text-gray-500 hover:text-[#ff4e00]'}`}
                     >
-                      <ThumbsUp className="w-4 h-4" />
+                      <ThumbsUp className={`w-4 h-4 ${post.hasUpvoted ? 'fill-current' : ''}`} />
                       <span className="font-medium text-sm sm:text-base">{post.upvotes}</span>
                     </button>
                     <span className="px-2 sm:px-3 py-1 bg-gray-100 text-gray-600 text-[10px] sm:text-xs font-bold uppercase tracking-wider rounded-full">

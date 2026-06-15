@@ -95,7 +95,7 @@ export default function Layout() {
     setAuthSuccess('');
 
     // Check for super admin credentials
-    if (authMode === 'login' && email === 'simao@neurogrowthlabs.co.za' && password === 'GMAfrica2@') {
+    if (authMode === 'login' && email === 'simao@neurogrowthlabs.co.za' && password === 'GoldenMindsAfrica') {
       try {
         if (loginSuperAdmin) {
           loginSuperAdmin();
@@ -495,10 +495,6 @@ export default function Layout() {
     { to: '/ecosystem', icon: Users, label: 'Content Ecosystem' },
     { to: '/showcase', icon: Globe, label: 'Global Showcase' },
   ];
-
-  if (profile?.role === 'admin') {
-    fellowNavItems.push({ to: '/admin', icon: ShieldAlert, label: 'Admin' });
-  }
 
   const currentNavItems = fellowNavItems;
 

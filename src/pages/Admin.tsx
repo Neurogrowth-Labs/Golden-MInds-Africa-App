@@ -97,7 +97,7 @@ export default function Admin() {
 
     // Secure authentication matching for Super Admin
     setTimeout(() => {
-      if (loginEmail === 'simao@neurogrowthlabs.co.za' && loginPassword === 'GMAfrica2@') {
+      if (loginEmail === 'simao@neurogrowthlabs.co.za' && loginPassword === 'GoldenMindsAfrica') {
         sessionStorage.setItem('gma-super-admin-authenticated', 'true');
         setIsAuthenticated(true);
         if (loginSuperAdmin) {

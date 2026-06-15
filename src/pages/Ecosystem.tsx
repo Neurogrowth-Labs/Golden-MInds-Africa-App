@@ -4,6 +4,7 @@ import { BookOpen, Mic, Video, Users, MessageSquare, Plus, Search, Filter, Thumb
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { useAdminState } from '../contexts/AdminStateContext';
+import { toast } from 'sonner';
 
 type ContentType = 'article' | 'podcast' | 'video' | 'debate' | 'community_post';
 
@@ -67,33 +68,87 @@ export default function Ecosystem() {
   const MOCK_COMMUNITIES = [];
 
 
+  const fetchFeed = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('posts')
+        .select(`
+          *,
+          profiles:author_id (full_name),
+          likes (user_id)
+        `)
+        .order('created_at', { ascending: false });
+        
+      if (error) throw error;
+      if (data) {
+        setFeed(data.map(post => ({
+          id: post.id,
+          type: post.type || 'community_post',
+          author: post.profiles?.full_name || 'Anonymous',
+          title: post.title,
+          summary: post.content,
+          likes: post.likes ? post.likes.length : 0,
+          comments: 0,
+          tags: post.tags || [],
+          time: post.created_at ? new Date(post.created_at).toLocaleDateString() : 'Just now',
+          mediaUrl: null
+        })));
+      }
+    } catch (err) {
+      console.error("Error fetching ecosystem feed:", err);
+    }
+  };
+
   useEffect(() => {
-    // Initialize with mock data, but in a real app this would fetch from Firestore
-    setFeed(MOCK_FEED);
+    fetchFeed();
     setCommunities(MOCK_COMMUNITIES);
-    setDebateRooms(MOCK_DEBATE_ROOMS);
+    
+    const fetchDebates = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('debates')
+          .select('*')
+          .order('scheduled_for', { ascending: true });
+        if (data) {
+          setDebateRooms(data);
+        }
+      } catch (err) {
+        console.error("Error fetching debates:", err);
+      }
+    };
+    fetchDebates();
   }, []);
 
-  const handlePublish = () => {
-    // In a real app, this would save to Firestore
-    const newItem = {
-      id: Date.now(),
-      type: composeType,
-      author: profile?.name || 'Current User',
-      title: composeTitle || 'New Content Title',
-      summary: composeBody || 'This is a newly published piece of content...',
-      likes: 0,
-      comments: 0,
-      tags: composeTags ? composeTags.split(',').map(t => t.trim()) : ['New'],
-      time: 'Just now',
-      mediaUrl: mediaFileUrl
-    };
-    setFeed([newItem, ...feed]);
-    setIsComposing(false);
-    setComposeTitle('');
-    setComposeBody('');
-    setComposeTags('');
-    setMediaFileUrl(null);
+  const handlePublish = async () => {
+    if (!user) {
+      toast.success("Using guest publisher credentials");
+    }
+    const title = composeTitle || 'New Content Title';
+    const content = composeBody || 'Content body';
+    const tags = composeTags ? composeTags.split(',').map(t => t.trim()) : ['New'];
+    
+    try {
+      const { error } = await supabase
+        .from('posts')
+        .insert([{
+          author_id: user?.id || 'super-admin-uid', // fallback if testing on mock super admin
+          title,
+          content,
+          tags,
+          type: composeType
+        }]);
+        
+      if (error) throw error;
+      
+      setIsComposing(false);
+      setComposeTitle('');
+      setComposeBody('');
+      setComposeTags('');
+      setMediaFileUrl(null);
+      await fetchFeed();
+    } catch (err: any) {
+      console.error("Error publishing content:", err);
+    }
   };
 
   const handleMediaUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
