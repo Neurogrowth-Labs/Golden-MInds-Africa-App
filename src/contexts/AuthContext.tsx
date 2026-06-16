@@ -64,20 +64,37 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
-  const loginSuperAdmin = () => {
+  const loginSuperAdmin = async () => {
     sessionStorage.setItem('gma-super-admin-authenticated', 'true');
+    const superAdminUuid = 'e0000000-0000-0000-0000-000000000000';
+    
+    // Asynchronously upsert the super admin profile directly to database to avoid FK violation constraints
+    try {
+      await supabase.from('profiles').upsert({
+        id: superAdminUuid,
+        full_name: 'Simao Simas',
+        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
+        role: 'admin',
+        bio: 'Super Admin Command center root administrator of Golden Minds Africa.',
+        participationScore: 100,
+        attendanceStreak: 12
+      });
+    } catch (err) {
+      console.error("Failed to upsert super-admin profile:", err);
+    }
+
     const mockUser = {
-      id: 'super-admin-uid',
-      uid: 'super-admin-uid',
-      firebaseUid: 'super-admin-uid',
+      id: superAdminUuid,
+      uid: superAdminUuid,
+      firebaseUid: superAdminUuid,
       email: 'simao@neurogrowthlabs.co.za',
       displayName: 'Simao Simas',
       emailVerified: true
     } as any;
     
     const mockProfile: UserProfile = {
-      id: 'super-admin-uid',
-      uid: 'super-admin-uid',
+      id: superAdminUuid,
+      uid: superAdminUuid,
       name: 'Simao Simas',
       email: 'simao@neurogrowthlabs.co.za',
       role: 'admin',

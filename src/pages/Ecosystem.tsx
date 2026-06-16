@@ -131,7 +131,7 @@ export default function Ecosystem() {
       const { error } = await supabase
         .from('posts')
         .insert([{
-          author_id: user?.id || 'super-admin-uid', // fallback if testing on mock super admin
+          author_id: user?.id || 'e0000000-0000-0000-0000-000000000000', // fallback if testing on mock super admin
           title,
           content,
           tags,

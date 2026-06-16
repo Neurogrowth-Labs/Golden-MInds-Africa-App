@@ -459,7 +459,7 @@ function CertificationsMain() {
                   </h3>
                   <p className="text-sm text-gray-500 mb-6">Visual breakdown of your core competencies.</p>
                   <div className="flex-1 min-h-[300px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
+                    <ResponsiveContainer width="100%" height="100%" minHeight={300}>
                       <RadarChart cx="50%" cy="50%" outerRadius="70%" data={FELLOW_DATA.radarData}>
                         <PolarGrid stroke="#e5e7eb" />
                         <PolarAngleAxis dataKey="subject" tick={{ fill: '#6b7280', fontSize: 12, fontWeight: 600 }} />

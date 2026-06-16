@@ -88,14 +88,7 @@ export default function LandingPage({ onEnter, onFellowshipClick }: LandingPageP
             </a>
           </motion.div>
 
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 1 }}
-            className="mt-16 text-sm text-gray-400 font-medium tracking-wide uppercase"
-          >
-            Powered by: Africa Youth Future Forward (AYFFF)
-          </motion.p>
+
         </div>
       </section>
 

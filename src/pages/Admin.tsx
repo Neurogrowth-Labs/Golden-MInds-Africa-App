@@ -811,7 +811,7 @@ export default function Admin() {
                         Ecosystem Growth Engagement
                       </h3>
                       <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={280}>
                           <AreaChart data={growthData}>
                             <defs>
                               <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
@@ -837,7 +837,7 @@ export default function Admin() {
                         Study Metric Outputs
                       </h3>
                       <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
+                        <ResponsiveContainer width="100%" height="100%" minHeight={280}>
                           <BarChart data={growthData}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#222" />
                             <XAxis dataKey="month" stroke="#777" fontSize={11} />
@@ -858,7 +858,7 @@ export default function Admin() {
                       Hourly Active Users & Peak Engagement Periods
                     </h3>
                     <div className="h-64">
-                      <ResponsiveContainer width="100%" height="100%">
+                      <ResponsiveContainer width="100%" height="100%" minHeight={250}>
                         <LineChart data={[
                           { hour: '08:00', fellows: 42, mentors: 5 },
                           { hour: '10:00', fellows: 85, mentors: 12 },
