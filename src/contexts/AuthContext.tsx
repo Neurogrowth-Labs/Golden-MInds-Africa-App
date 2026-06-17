@@ -82,7 +82,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch (err) {
       console.error("Failed to upsert super-admin profile:", err);
     }
-
+// test error
     const mockUser = {
       id: superAdminUuid,
       uid: superAdminUuid,
