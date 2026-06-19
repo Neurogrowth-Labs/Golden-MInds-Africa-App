@@ -9,6 +9,7 @@ import { supabase } from '../lib/supabase';
 import { GoogleGenAI } from '@google/genai';
 import { toast } from 'sonner';
 import Markdown from 'react-markdown';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -20,6 +21,79 @@ export default function Dashboard() {
   const [nearbyHubs, setNearbyHubs] = useState('');
   const [findingHubs, setFindingHubs] = useState(false);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+
+  // Trailing 30 days engagement heatmap data
+  const [engagementData, setEngagementData] = useState<any[]>([]);
+  const [selectedHeatmapDay, setSelectedHeatmapDay] = useState<any>(null);
+
+  const generateTrailing30DaysData = () => {
+    const data = [];
+    const stored = localStorage.getItem('gma_study_sessions');
+    let sessionsMap: { [key: string]: number } = {};
+    if (stored) {
+      try {
+        sessionsMap = JSON.parse(stored);
+      } catch (e) {
+        console.error(e);
+      }
+    } else {
+      // Generate some initial random/mock engagement
+      const today = new Date();
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(today.getDate() - i);
+        const dateString = d.toISOString().split('T')[0];
+        // mock random active days
+        if (i % 3 === 0) {
+          sessionsMap[dateString] = Math.floor(Math.random() * 45) + 15;
+        } else if (i % 7 === 1) {
+          sessionsMap[dateString] = Math.floor(Math.random() * 20) + 5;
+        } else {
+          sessionsMap[dateString] = 0;
+        }
+      }
+      localStorage.setItem('gma_study_sessions', JSON.stringify(sessionsMap));
+    }
+
+    const today = new Date();
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(today.getDate() - i);
+      const dateString = d.toISOString().split('T')[0];
+      const minutes = sessionsMap[dateString] || 0;
+      data.push({
+        dateString,
+        dayLabel: d.toLocaleDateString([], { day: 'numeric', month: 'short' }),
+        minutes,
+      });
+    }
+    return data;
+  };
+
+  useEffect(() => {
+    const data = generateTrailing30DaysData();
+    setEngagementData(data);
+    if (data.length > 0) {
+      setSelectedHeatmapDay(data[data.length - 1]); // default to today
+    }
+  }, []);
+
+  const handleLogStudyTime = (minutes: number) => {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const stored = localStorage.getItem('gma_study_sessions');
+    let sessionsMap: { [key: string]: number } = {};
+    if (stored) {
+      try {
+        sessionsMap = JSON.parse(stored);
+      } catch {}
+    }
+    sessionsMap[todayStr] = (sessionsMap[todayStr] || 0) + minutes;
+    localStorage.setItem('gma_study_sessions', JSON.stringify(sessionsMap));
+    
+    // Re-generate chart data
+    setEngagementData(generateTrailing30DaysData());
+    toast.success(`Logged ${minutes} minutes of active learning! Dashboard heatmap updated.`);
+  };
 
   // Daily recap state
   const [dailyRecap, setDailyRecap] = useState<string | null>(null);
@@ -462,6 +536,137 @@ export default function Dashboard() {
               <div>
                 <p className="text-xs sm:text-sm font-bold text-blue-900 mb-1">AI Sovereign Advisor Insight</p>
                 <p className="text-xs sm:text-sm text-blue-800">"<span className="cursor-pointer hover:underline font-bold" onClick={(e) => { e.stopPropagation(); navigate('/achievements'); }}>Your crisis response speed is in the top 10%.</span> To improve your Policy Score, focus on integrating more quantitative evidence in your next brief."</p>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Active Learning & Study Heatmap */}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.22 }}
+            className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-sm border border-gray-100"
+          >
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
+              <div className="flex items-center gap-2">
+                <BrainCircuit className="w-5 h-5 text-[#ff4e00]" />
+                <h3 className="text-lg sm:text-xl font-bold font-serif">Fellow Engagement Heatmap</h3>
+              </div>
+              <div className="flex bg-gray-100 dark:bg-zinc-850 p-1 rounded-xl text-xs font-bold gap-1">
+                <span className="text-[#ff4e00] bg-white dark:bg-zinc-900 px-3 py-1 rounded-lg shadow-sm">Past 30 Days</span>
+              </div>
+            </div>
+
+            <p className="text-gray-500 text-xs sm:text-sm mb-6">
+              Visualizing active engagement, module progress, video watch minutes, and quiz accuracy. Shaded blocks signify intensive academic output.
+            </p>
+
+            {/* Heatmap Grid */}
+            <div className="mb-6 bg-gray-50 dark:bg-zinc-900/50 p-4 sm:p-6 rounded-2xl border border-gray-100 dark:border-zinc-800">
+              <div className="flex items-center justify-between mb-3 text-xs text-gray-500 font-bold uppercase tracking-wider">
+                <span>Monthly Engagement Board</span>
+                <span>Active Days: {engagementData.filter(d => d.minutes > 0).length} / 30</span>
+              </div>
+
+              {/* Grid Board */}
+              <div className="flex flex-wrap gap-[6px] justify-center sm:justify-start">
+                {engagementData.map((day, idx) => {
+                  // Determine heat shade based on minutes
+                  let bgClass = "bg-gray-200 dark:bg-zinc-850";
+                  if (day.minutes > 0 && day.minutes <= 15) bgClass = "bg-[#ffebe5]";
+                  else if (day.minutes > 15 && day.minutes <= 30) bgClass = "bg-[#ffbb99]";
+                  else if (day.minutes > 30 && day.minutes <= 45) bgClass = "bg-[#ff884d]";
+                  else if (day.minutes > 45) bgClass = "bg-[#ff4e00]";
+
+                  const isSelected = selectedHeatmapDay?.dateString === day.dateString;
+
+                  return (
+                    <div
+                      key={day.dateString}
+                      onClick={() => setSelectedHeatmapDay(day)}
+                      className={`w-8 h-8 rounded-lg cursor-pointer transition-all hover:scale-110 relative shrink-0 ${bgClass} ${isSelected ? 'ring-2 ring-black dark:ring-white scale-105' : ''}`}
+                      title={`${day.dayLabel}: ${day.minutes} mins studied`}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center text-[9px] font-bold text-black/40">
+                        {idx + 1}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Legend & Hover detail */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mt-4 pt-4 border-t border-gray-200/55 text-xs text-gray-500">
+                <div className="flex items-center gap-2">
+                  <span>Less</span>
+                  <div className="w-3 h-3 rounded bg-gray-200 dark:bg-zinc-850" />
+                  <div className="w-3 h-3 rounded bg-[#ffebe5]" />
+                  <div className="w-3 h-3 rounded bg-[#ffbb99]" />
+                  <div className="w-3 h-3 rounded bg-[#ff884d]" />
+                  <div className="w-3 h-3 rounded bg-[#ff4e00]" />
+                  <span>More</span>
+                </div>
+
+                <div className="bg-[#5a5a40]/10 text-[#5a5a40] font-semibold px-3 py-1.5 rounded-xl border border-[#5a5a40]/15 text-center min-w-[200px]">
+                  {selectedHeatmapDay ? (
+                    <span>{selectedHeatmapDay.dayLabel}: <strong>{selectedHeatmapDay.minutes} minutes</strong> active</span>
+                  ) : (
+                    <span>Tap on any square to read details</span>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Recharts BarChart Visualization */}
+            <div className="mb-6 bg-white border border-gray-100 rounded-2xl p-4 h-64">
+              <div className="text-xs uppercase font-bold tracking-widest text-[#5a5a40] mb-4">Minutes Studied Over Time</div>
+              
+              <div className="w-full h-48 select-none">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={engagementData}>
+                    <XAxis dataKey="dayLabel" tick={{ fontSize: 10 }} tickLine={false} axisLine={false} />
+                    <YAxis label={{ value: 'Mins', angle: -90, position: 'insideLeft', style: { fontSize: 10, fill: '#888' } }} tickLine={false} axisLine={false} tick={{ fontSize: 10 }} />
+                    <RechartsTooltip 
+                      contentStyle={{ background: '#1a1a1a', borderRadius: '12px', border: 'none', color: '#fff', fontSize: '11px' }} 
+                      labelStyle={{ fontWeight: 'bold' }}
+                    />
+                    <Bar dataKey="minutes" radius={[4, 4, 0, 0]}>
+                      {engagementData.map((entry, index) => {
+                        let barColor = "#e5e7eb";
+                        if (entry.minutes > 0 && entry.minutes <= 15) barColor = "#ffebe5";
+                        else if (entry.minutes > 15 && entry.minutes <= 30) barColor = "#ffbb99";
+                        else if (entry.minutes > 30 && entry.minutes <= 45) barColor = "#ff884d";
+                        else if (entry.minutes > 45) barColor = "#ff4e00";
+                        return <Cell key={`cell-${index}`} fill={barColor} />;
+                      })}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Log study time simulations */}
+            <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+              <span className="text-xs font-bold uppercase text-gray-500 tracking-wider block mb-3">Sync Study & Academic Sessions</span>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleLogStudyTime(15)}
+                  className="px-4 py-2 bg-white text-gray-800 hover:bg-gray-100 border border-gray-200 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1"
+                >
+                  ⏱️ +15m Lecture Stream
+                </button>
+                <button
+                  onClick={() => handleLogStudyTime(30)}
+                  className="px-4 py-2 bg-white text-gray-800 hover:bg-gray-100 border border-gray-200 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1"
+                >
+                  📚 +30m Syllabus Reading
+                </button>
+                <button
+                  onClick={() => handleLogStudyTime(60)}
+                  className="px-4 py-2 bg-[#ff4e00]/10 text-[#ff4e00] hover:bg-[#ff4e00] hover:text-white border border-[#ff4e00]/25 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm active:scale-95 flex items-center gap-1"
+                >
+                  🔥 +1h Active Quiz & Debate
+                </button>
               </div>
             </div>
           </motion.div>
