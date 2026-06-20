@@ -186,7 +186,7 @@ export default function CrisisXEngine() {
            </div>
 
            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-             {Object.entries(metrics).map(([key, val]) => (
+             {(Object.entries(metrics) as [string, number][]).map(([key, val]) => (
                 <div key={key} className="bg-white/5 border border-white/10 p-4 rounded-xl text-center">
                   <div className="text-xs text-gray-400 uppercase tracking-widest mb-1">{key}</div>
                   <div className={`text-3xl font-mono ${val > 50 ? 'text-green-400' : 'text-red-400'}`}>{Math.round(val)}%</div>

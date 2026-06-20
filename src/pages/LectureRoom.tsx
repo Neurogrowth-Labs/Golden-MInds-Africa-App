@@ -13,7 +13,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GoogleGenAI } from '@google/genai';
 import { useAdminState } from '../contexts/AdminStateContext';
 import { useAuth } from '../contexts/AuthContext';
-import { useSupabasePresence } from '../hooks/useSupabasePresence';
+import { useSupabasePresence, PresenceUser } from '../hooks/useSupabasePresence';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -48,7 +48,7 @@ export default function LectureRoom() {
 
   // Merge static MOCK_PARTICIPANTS with dynamic real-time activeFellows
   const baseParticipants = room.participants || [];
-  const activeFellowsList = Object.values(activeFellows).map(f => ({
+  const activeFellowsList = (Object.values(activeFellows) as PresenceUser[]).map(f => ({
     id: f.userId,
     name: f.name,
     role: f.userId === user?.id ? 'You (Fellow)' : 'Fellow Student',
@@ -210,10 +210,10 @@ export default function LectureRoom() {
       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         {/* Collaborative Cursors Layer */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden z-50">
-          {Object.values(activeFellows).map((fellow) => {
+          {(Object.values(activeFellows) as PresenceUser[]).map((fellow) => {
             if (fellow.x && fellow.y && fellow.userId !== user?.id) {
               return (
-                <div 
+                <div
                   key={fellow.userId}
                   className="absolute transition-all duration-200 ease-out"
                   style={{ left: `${fellow.x}%`, top: `${fellow.y}%` }}
