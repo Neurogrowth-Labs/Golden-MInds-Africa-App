@@ -350,19 +350,19 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300" onClick={() => navigate('/assignments/submit')}>
+        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300" onClick={() => navigate('/assignments')}>
           <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3">
             <Upload size={28} className="text-[#5A5A40] sm:w-8 sm:h-8" />
             <h2 className="text-lg sm:text-xl font-semibold text-center">Submit Assignment</h2>
-            <Button onClick={(e) => { e.stopPropagation(); navigate('/assignments/submit'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base">Upload</Button>
+            <Button onClick={(e) => { e.stopPropagation(); navigate('/assignments'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base">Upload</Button>
           </CardContent>
         </Card>
 
-        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 sm:col-span-2 lg:col-span-1" onClick={() => navigate('/attendance/mark')}>
+        <Card className="rounded-2xl shadow-md border-gray-100 cursor-pointer hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 sm:col-span-2 lg:col-span-1" onClick={() => navigate('/attendance')}>
           <CardContent className="p-4 sm:p-6 flex flex-col items-center gap-3">
             <CheckCircle size={28} className="text-green-600 sm:w-8 sm:h-8" />
             <h2 className="text-lg sm:text-xl font-semibold text-center">Mark Attendance</h2>
-            <Button onClick={(e) => { e.stopPropagation(); navigate('/attendance/mark'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base">Check In</Button>
+            <Button onClick={(e) => { e.stopPropagation(); navigate('/attendance'); }} className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base">Check In</Button>
           </CardContent>
         </Card>
       </div>
@@ -847,7 +847,7 @@ export default function Dashboard() {
                     <input type="file" className="border border-gray-200 bg-gray-50 p-2 text-xs sm:text-sm rounded-lg w-full" />
                     <Button 
                       className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base"
-                      onClick={() => navigate('/assignments/submit')}
+                      onClick={() => navigate('/assignments')}
                     >
                       Submit Assignment
                     </Button>
@@ -866,13 +866,13 @@ export default function Dashboard() {
                   <div className="flex flex-col gap-2 sm:gap-3">
                     <Button 
                       className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base"
-                      onClick={() => navigate('/attendance/mark')}
+                      onClick={() => navigate('/attendance')}
                     >
                       Check In Now
                     </Button>
                     <p 
                       className="text-xs sm:text-sm text-gray-500 font-medium text-center cursor-pointer hover:text-gray-900 hover:underline transition-colors"
-                      onClick={() => navigate('/attendance/report')}
+                      onClick={() => navigate('/attendance')}
                     >
                       Attendance Rate: 85%
                     </p>
@@ -893,13 +893,13 @@ export default function Dashboard() {
               <div className="flex flex-col gap-2 sm:gap-3">
                 <Button 
                   className="bg-[#1a1a1a] hover:bg-black w-full rounded-xl text-sm sm:text-base"
-                  onClick={() => navigate('/attendance/mark')}
+                  onClick={() => navigate('/attendance')}
                 >
                   Check In Now
                 </Button>
                 <p 
                   className="text-xs sm:text-sm text-gray-500 font-medium text-center cursor-pointer hover:text-gray-900 hover:underline transition-colors"
-                  onClick={() => navigate('/attendance/report')}
+                  onClick={() => navigate('/attendance')}
                 >
                   Attendance Rate: 85%
                 </p>

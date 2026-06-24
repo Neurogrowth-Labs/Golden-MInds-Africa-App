@@ -21,6 +21,7 @@ export default function Forum() {
           profiles:author_id (full_name, avatar_url),
           likes (user_id)
         `)
+        .neq('type', 'admin_state')
         .order('created_at', { ascending: false });
         
       if (error) throw error;

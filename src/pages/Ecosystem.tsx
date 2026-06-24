@@ -77,6 +77,7 @@ export default function Ecosystem() {
           profiles:author_id (full_name),
           likes (user_id)
         `)
+        .neq('type', 'admin_state')
         .order('created_at', { ascending: false });
         
       if (error) throw error;

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Briefcase, FileText, Award, Download, Share2, Globe, ExternalLink, Edit3, CheckCircle2, Sparkles } from 'lucide-react';
+import { Briefcase, FileText, Award, Download, Share2, Globe, ExternalLink, Edit3, CheckCircle2, Sparkles, X } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { GoogleGenAI } from '@google/genai';
 import { Routes, Route, useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
+import Markdown from 'react-markdown';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
@@ -82,6 +83,41 @@ function PortfolioMain() {
   const [portfolioSummary, setPortfolioSummary] = useState('');
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const [activeTab, setActiveTab] = useState(searchParams.get('status') || 'active');
+  const [selectedArticle, setSelectedArticle] = useState<{title: string, pub: string, content: string} | null>(null);
+
+  const publications = [
+    {
+      title: "The Future of Digital Currencies in Africa",
+      pub: "Published in Fellowship Journal • March 2026",
+      content: `## Executive Summary
+This paper examines the integration of central bank digital currencies (CBDCs) and decentralized financial protocols within the East African monetary union. As mobile money platforms like M-Pesa have established unmatched financial inclusion, sovereign digital currencies represent the logical next phase of infrastructure.
+
+## Key Recommendations
+1. **Interoperable Settlement Rails:** National CBDC systems must natively support cross-border instant settlement to maximize trade under the AfCFTA framework.
+2. **Hybrid Governance Architectures:** Centralized sovereignty combined with decentralized validation nodes increases transaction auditability and systemic resilience.
+3. **Proportional Regulatory Sandboxes:** Allow financial technology startups to pilot secondary credit and savings products using the digital currency APIs without full retail licensing hurdles.`
+    },
+    {
+      title: "Decentralized Energy Grids and Rural Electrification",
+      pub: "Published in Green Summit Quarterly • January 2026",
+      content: `## Executive Summary
+Energy poverty remains one of the primary roadblocks to industrialization in Sub-Saharan Africa. This research argues that massive, centralized grid extensions are capital-inefficient and sluggish compared to modular, solar-and-wind decentralized microgrids managed via automated smart contracts.
+
+## Key Findings
+- **Modular Expansion:** Microgrids can scale incrementally with community demand, reducing upfront capital requirement by over 60%.
+- **Tokenized Billing:** Micro-payments via localized stablecoins or mobile airtime tokens enable automated utility billing and instant revenue sharing among microgrid developers and local operators.`
+    },
+    {
+      title: "AI Ethics in Public Policy: An African Perspective",
+      pub: "Published in Tech & Governance Review • November 2025",
+      content: `## Abstract
+This policy review advocates for localized algorithmic frameworks. Current mainstream AI ethics guidelines originate predominantly from North American and European institutions, prioritizing individualistic data rights over community-oriented social structures.
+
+## Core Pillars
+1. **Ubuntu Algorithmic Frameworks:** Promoting collective benefits and human dignity in algorithmic automated decision-making.
+2. **Sovereign Training Corpora:** Building open-source, high-quality training sets that reflect regional African languages, cultural nuances, and historical realities to eliminate western algorithmic bias.`
+    }
+  ];
 
   useEffect(() => {
     const status = searchParams.get('status');
@@ -414,15 +450,20 @@ function PortfolioMain() {
               Publications & Debates
             </h3>
             <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
+              {publications.map((pub, idx) => (
+                <div key={idx} className="flex flex-col sm:flex-row items-start gap-4 p-4 rounded-2xl hover:bg-gray-50 transition-colors border border-transparent hover:border-gray-100">
                   <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center shrink-0">
                     <FileText className="w-5 h-5 text-blue-600" />
                   </div>
-                  <div>
-                    <h4 className="font-bold text-gray-900 mb-1">The Future of Digital Currencies in Africa</h4>
-                    <p className="text-sm text-gray-500 mb-2">Published in Fellowship Journal • March 2026</p>
-                    <a href="#" className="text-xs font-bold text-blue-600 hover:underline">Read Article →</a>
+                  <div className="flex-1">
+                    <h4 className="font-bold text-gray-900 mb-1">{pub.title}</h4>
+                    <p className="text-sm text-gray-500 mb-2">{pub.pub}</p>
+                    <button 
+                      onClick={() => setSelectedArticle(pub)} 
+                      className="text-xs font-bold text-blue-600 hover:underline cursor-pointer"
+                    >
+                      Read Article →
+                    </button>
                   </div>
                 </div>
               ))}
@@ -430,6 +471,45 @@ function PortfolioMain() {
           </motion.div>
         </div>
       </div>
+
+      {/* Article Preview Modal */}
+      {selectedArticle && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl max-w-2xl w-full max-h-[85vh] overflow-hidden flex flex-col shadow-2xl"
+          >
+            <div className="p-6 border-b border-gray-100 flex items-start justify-between bg-gray-50">
+              <div>
+                <span className="text-xs font-bold text-blue-600 uppercase tracking-widest">{selectedArticle.pub}</span>
+                <h3 className="text-xl sm:text-2xl font-bold font-serif text-gray-900 mt-1">{selectedArticle.title}</h3>
+              </div>
+              <button 
+                onClick={() => setSelectedArticle(null)}
+                className="p-1.5 hover:bg-gray-100 rounded-xl transition-colors text-gray-400 hover:text-gray-700"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 sm:p-8 overflow-y-auto flex-1 text-gray-700 leading-relaxed">
+              <div className="markdown-body prose prose-sm max-w-none">
+                <Markdown>{selectedArticle.content}</Markdown>
+              </div>
+            </div>
+            
+            <div className="p-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+              <button 
+                onClick={() => setSelectedArticle(null)}
+                className="px-5 py-2.5 bg-gray-900 hover:bg-black text-white text-sm font-bold rounded-xl transition-colors"
+              >
+                Close Reader
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 }

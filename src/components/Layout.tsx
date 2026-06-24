@@ -3,8 +3,6 @@ import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabase';
 import { LayoutDashboard, CalendarCheck, BookOpen, MessageSquare, Users, Mic, ShieldAlert, LogOut, X, Loader2, BrainCircuit, Image as ImageIcon, ArrowLeft, Calendar, FileText, Video, Globe, Briefcase, Cpu, Award, ShieldCheck, Database, Compass, FolderOpen, UserPlus, Mail, Lock, User, Menu, Eye, EyeOff, Diamond, Star, GraduationCap, Map, Crown, Sparkles, Sun, Moon, Search, PlayCircle } from 'lucide-react';
-import { auth, googleProvider } from '../lib/firebase';
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, signOut, updateProfile, GoogleAuthProvider } from 'firebase/auth';
 import QuickAIHelper from './QuickAIHelper';
 import googleBigBg from '../assets/images/african_governance_bg_1781130107908.png';
 import freedomFightersBg from '../assets/images/freedom_fighters_bg_1781179439940.png';
@@ -42,7 +40,7 @@ const MASTER_SEARCH_INDEX = [
 ];
 
 export default function Layout() {
-  const { user, profile, loading, setAccessToken, loginSuperAdmin, logoutSuperAdmin } = useAuth();
+  const { user, profile, loading, setAccessToken, loginSuperAdmin, logoutSuperAdmin, isSuperAdmin } = useAuth();
   const { users } = useAdminState();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -113,34 +111,27 @@ export default function Layout() {
     
     try {
       if (authMode === 'signup') {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await updateProfile(userCredential.user, {
-          displayName: name
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
         });
-        setAuthSuccess('Registration successful! You are now logged in.');
+        if (error) throw error;
+        setAuthSuccess('Registration successful! Check your inbox for a verification email or you are logged in.');
       } else {
-        await signInWithEmailAndPassword(auth, email, password);
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
       }
     } catch (error: any) {
       let errorMessage = error?.message || 'Unknown error';
-      const errorCode = error?.code || '';
-      const lowerError = errorMessage.toLowerCase() + ' ' + errorCode.toLowerCase();
-      
-      if (lowerError.includes('auth/too-many-requests')) {
-        errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
-      } else if (lowerError.includes('auth/operation-not-allowed')) {
-        errorMessage = 'Email & Password sign-in is not enabled on this Firebase project. To enable it: open the Firebase Console, navigate to "Authentication" -> "Sign-in method", click on "Email/Password" and turn on "Enable", then click Save.';
-      } else if (lowerError.includes('auth/invalid-credential') || lowerError.includes('auth/user-not-found') || lowerError.includes('auth/wrong-password')) {
-        errorMessage = 'Invalid email or password. If you do not have an account yet, please click the "Sign Up" tab above to create one.';
-      } else if (lowerError.includes('auth/invalid-email')) {
-        errorMessage = 'Please enter a valid email address.';
-      } else if (lowerError.includes('auth/email-already-in-use')) {
-        errorMessage = 'An account with this email address already exists. Please sign in instead.';
-      } else {
-        errorMessage = `Authentication failed: ${error?.message || 'Please check your connection and credentials.'}`;
-      }
-      
-      console.error("Auth failed:", errorCode, errorMessage, error);
+      console.error("Auth failed:", errorMessage, error);
       setAuthError(errorMessage);
     } finally {
       setIsLoggingIn(false);
@@ -152,11 +143,13 @@ export default function Layout() {
     setIsLoggingIn(true);
     setAuthError('');
     try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      if (credential?.accessToken) {
-        setAccessToken(credential.accessToken);
-      }
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
     } catch (error: any) {
       console.error("Google login failed", error);
       setAuthError(error.message || 'Failed to sign in with Google');
@@ -172,7 +165,7 @@ export default function Layout() {
         logoutSuperAdmin();
       }
     } else {
-      await signOut(auth);
+      await supabase.auth.signOut();
     }
   };
 
@@ -496,7 +489,9 @@ export default function Layout() {
     { to: '/showcase', icon: Globe, label: 'Global Showcase' },
   ];
 
-  const currentNavItems = fellowNavItems;
+  const currentNavItems = isSuperAdmin 
+    ? [...fellowNavItems, { to: '/admin', icon: Cpu, label: 'Admin Command Center' }] 
+    : fellowNavItems;
 
   const currentUserProfileInSync = users?.find(u => u.email?.toLowerCase() === user?.email?.toLowerCase());
   const isUserBanned = currentUserProfileInSync?.status === 'Banned';
