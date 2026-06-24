@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { scanContentAI, reportModerationViolation } from '../lib/moderation';
+import { supabase } from '../lib/supabase';
 
 // Define TS Interfaces
 export interface SiteConfig {
@@ -506,50 +507,186 @@ export const AdminStateProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     return saved ? JSON.parse(saved) : DEFAULT_INCIDENT_REPORTS;
   });
 
-  // Persist each state on changes
+  // Helper to persist to Supabase
+  const saveToSupabase = async (key: string, value: any) => {
+    const isSuperAdmin = sessionStorage.getItem('gma-super-admin-authenticated') === 'true';
+    if (!isSuperAdmin) return;
+
+    try {
+      const deterministicIds: Record<string, string> = {
+        site_config: 'a0000000-0000-0000-0000-000000000001',
+        mentors: 'a0000000-0000-0000-0000-000000000002',
+        publications: 'a0000000-0000-0000-0000-000000000003',
+        fellow_contents: 'a0000000-0000-0000-0000-000000000004',
+        audit_logs: 'a0000000-0000-0000-0000-000000000005',
+        membership_data: 'a0000000-0000-0000-0000-000000000006',
+        growth_data: 'a0000000-0000-0000-0000-000000000007',
+        users: 'a0000000-0000-0000-0000-000000000008',
+        debates: 'a0000000-0000-0000-0000-000000000009',
+        virtual_rooms: 'a0000000-0000-0000-0000-000000000010',
+        incident_reports: 'a0000000-0000-0000-0000-000000000011',
+      };
+
+      const id = deterministicIds[key];
+      if (!id) return;
+
+      await supabase
+        .from('posts')
+        .upsert({
+          id,
+          author_id: 'e0000000-0000-0000-0000-000000000000',
+          title: key,
+          content: JSON.stringify(value),
+          type: 'admin_state',
+          tags: []
+        });
+    } catch (err) {
+      console.error(`Exception saving ${key} to Supabase:`, err);
+    }
+  };
+
+  // Persist each state on changes and sync with Supabase
   useEffect(() => {
     localStorage.setItem('gma_admin_site_config', JSON.stringify(siteConfig));
+    saveToSupabase('site_config', siteConfig);
   }, [siteConfig]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_mentors', JSON.stringify(mentors));
+    saveToSupabase('mentors', mentors);
   }, [mentors]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_publications', JSON.stringify(publications));
+    saveToSupabase('publications', publications);
   }, [publications]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_fellow_contents', JSON.stringify(fellowContents));
+    saveToSupabase('fellow_contents', fellowContents);
   }, [fellowContents]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_audit_logs', JSON.stringify(auditLogs));
+    saveToSupabase('audit_logs', auditLogs);
   }, [auditLogs]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_membership_data', JSON.stringify(membershipData));
+    saveToSupabase('membership_data', membershipData);
   }, [membershipData]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_growth_data', JSON.stringify(growthData));
+    saveToSupabase('growth_data', growthData);
   }, [growthData]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_users', JSON.stringify(users));
+    saveToSupabase('users', users);
   }, [users]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_debates', JSON.stringify(debates));
+    saveToSupabase('debates', debates);
   }, [debates]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_virtual_rooms', JSON.stringify(virtualRooms));
+    saveToSupabase('virtual_rooms', virtualRooms);
   }, [virtualRooms]);
 
   useEffect(() => {
     localStorage.setItem('gma_admin_incident_reports', JSON.stringify(incidentReports));
+    saveToSupabase('incident_reports', incidentReports);
   }, [incidentReports]);
+
+  // Load state and subscribe to changes
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchInitialState = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('posts')
+          .select('title, content')
+          .eq('type', 'admin_state');
+        
+        if (error) {
+          console.error("Failed to load global admin state:", error);
+          return;
+        }
+
+        if (mounted && data && data.length > 0) {
+          data.forEach((row) => {
+            try {
+              const parsed = JSON.parse(row.content);
+              if (row.title === 'site_config') setSiteConfig(parsed);
+              else if (row.title === 'mentors') setMentors(parsed);
+              else if (row.title === 'publications') setPublications(parsed);
+              else if (row.title === 'fellow_contents') setFellowContents(parsed);
+              else if (row.title === 'audit_logs') setAuditLogs(parsed);
+              else if (row.title === 'membership_data') setMembershipData(parsed);
+              else if (row.title === 'growth_data') setGrowthData(parsed);
+              else if (row.title === 'users') setUsers(parsed);
+              else if (row.title === 'debates') setDebates(parsed);
+              else if (row.title === 'virtual_rooms') setVirtualRooms(parsed);
+              else if (row.title === 'incident_reports') setIncidentReports(parsed);
+            } catch (err) {
+              console.error("Error parsing admin state row:", row.title, err);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Exception fetching admin state:", err);
+      }
+    };
+
+    fetchInitialState();
+
+    const channel = supabase
+      .channel('admin-state-sync')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'posts',
+          filter: 'type=eq.admin_state'
+        },
+        (payload) => {
+          const newRecord = payload.new as any;
+          if (!newRecord || !newRecord.title || !newRecord.content) return;
+          
+          if (mounted) {
+            try {
+              const parsed = JSON.parse(newRecord.content);
+              const key = newRecord.title;
+              
+              if (key === 'site_config') setSiteConfig(parsed);
+              else if (key === 'mentors') setMentors(parsed);
+              else if (key === 'publications') setPublications(parsed);
+              else if (key === 'fellow_contents') setFellowContents(parsed);
+              else if (key === 'audit_logs') setAuditLogs(parsed);
+              else if (key === 'membership_data') setMembershipData(parsed);
+              else if (key === 'growth_data') setGrowthData(parsed);
+              else if (key === 'users') setUsers(parsed);
+              else if (key === 'debates') setDebates(parsed);
+              else if (key === 'virtual_rooms') setVirtualRooms(parsed);
+              else if (key === 'incident_reports') setIncidentReports(parsed);
+            } catch (err) {
+              console.error("Error parsing real-time payload:", err);
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      mounted = false;
+      channel.unsubscribe();
+    };
+  }, []);
 
   // Logging utility
   const logAdminAction = (action: string, target: string, category: AuditLogItem['category']) => {

@@ -11,8 +11,6 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { toast } from 'sonner';
 import { scanContentAI, reportModerationViolation } from '../lib/moderation';
-import { collection, addDoc } from 'firebase/firestore';
-import { db as firestoreDb } from '../lib/firebase';
 
 // Initialize live gemini client
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
@@ -251,20 +249,6 @@ export default function AINotes() {
       const { data, error } = await supabase.from('ai_notes').insert([newNote]).select();
       if (error) throw error;
 
-      // 4. ALSO duplicate-save to Firebase Firestore
-      try {
-        await addDoc(collection(firestoreDb, 'ai_notes_backup'), {
-          user_id: user?.id || 'unknown_user',
-          session_id: newNote.session_id,
-          content: dictatedText,
-          summary: dictatedText,
-          tags: newNote.tags,
-          created_at: new Date().toISOString()
-        });
-      } catch (fsErr) {
-        console.warn('Firestore backup saving warning:', fsErr);
-      }
-
       if (data && data.length > 0) {
         setSavedNotes(prev => [data[0], ...prev]);
       }
@@ -303,24 +287,10 @@ export default function AINotes() {
       const { data, error } = await supabase.from('ai_notes').insert([newNote]).select();
       if (error) throw error;
 
-      // Dual-save to Firebase Firestore
-      try {
-        await addDoc(collection(firestoreDb, 'ai_notes_backup'), {
-          user_id: user.id,
-          session_id: newNote.session_id,
-          content: contentStr,
-          summary: contentStr,
-          tags: newNote.tags,
-          created_at: new Date().toISOString()
-        });
-      } catch (fsErr) {
-        console.warn('Firestore dual-save error:', fsErr);
-      }
-      
       if (data && data.length > 0) {
         setSavedNotes(prev => [data[0], ...prev]);
       }
-      toast.success('Saved to your Fellowship Notes & Firestore backup!');
+      toast.success('Saved to your Fellowship Notes!');
     } catch (error: any) {
       console.error('Error saving note:', error);
       toast.error('Failed to save notes.');

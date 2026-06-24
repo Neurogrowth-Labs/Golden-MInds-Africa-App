@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth } from '../lib/firebase';
 import { supabase } from '../lib/supabase';
 
-interface CustomUser extends User {
-  id: string; // The UUID generated from Firebase UID
-  firebaseUid: string; // The original Firebase UID
+interface CustomUser {
+  id: string; // The original Supabase Auth UUID
+  email?: string;
+  displayName?: string;
+  photoURL?: string;
 }
 
 interface UserProfile {
@@ -20,16 +20,6 @@ interface UserProfile {
   bio?: string;
   skills?: string;
   showBioAndSkills?: boolean;
-}
-
-// Generate a deterministic UUID from a Firebase UID
-async function getUuidFromFirebaseUid(uid: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(uid);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-  return `${hex.substring(0, 8)}-${hex.substring(8, 12)}-4${hex.substring(13, 16)}-a${hex.substring(17, 20)}-${hex.substring(20, 32)}`;
 }
 
 interface AuthContextType {
@@ -83,14 +73,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error("Failed to upsert super-admin profile:", err);
     }
 
-    const mockUser = {
+    const mockUser: CustomUser = {
       id: superAdminUuid,
-      uid: superAdminUuid,
-      firebaseUid: superAdminUuid,
       email: 'simao@neurogrowthlabs.co.za',
       displayName: 'Simao Simas',
-      emailVerified: true
-    } as any;
+      photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop'
+    };
     
     const mockProfile: UserProfile = {
       id: superAdminUuid,
@@ -113,39 +101,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
     setProfile(null);
   };
-
-  useEffect(() => {
-    let mounted = true;
-
-    // Check if we are already logged in as super-admin
-    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
-      loginSuperAdmin();
-      return;
-    }
-
-    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
-      if (mounted) {
-        if (currentUser) {
-          const supabaseUuid = await getUuidFromFirebaseUid(currentUser.uid);
-          const customUser = Object.assign({}, currentUser, { id: supabaseUuid, firebaseUid: currentUser.uid }) as CustomUser;
-          (currentUser as any).id = supabaseUuid;
-          (currentUser as any).firebaseUid = currentUser.uid;
-          setUser(customUser);
-          await fetchProfile(customUser);
-        } else {
-          setUser(null);
-          setProfile(null);
-          setAccessToken(null);
-          setLoading(false);
-        }
-      }
-    });
-
-    return () => {
-      mounted = false;
-      unsubscribe();
-    };
-  }, []);
 
   const fetchProfile = async (currentUser: CustomUser) => {
     try {
@@ -173,7 +128,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           skills: data.skills?.join(', ') || '',
         });
       } else {
-        // Create profile in Supabase for the new Firebase user
+        // Create profile in Supabase for the new user
         const newProfile = {
           id: currentUser.id,
           full_name: currentUser.displayName || 'Student',
@@ -202,6 +157,62 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    let mounted = true;
+
+    // Check if we are already logged in as super-admin
+    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
+      loginSuperAdmin();
+      return;
+    }
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted) {
+        if (session?.user) {
+          const mappedUser: CustomUser = {
+            id: session.user.id,
+            email: session.user.email,
+            displayName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+            photoURL: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '',
+          };
+          setUser(mappedUser);
+          fetchProfile(mappedUser);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setLoading(false);
+        }
+      }
+    });
+
+    // Listen to Auth State changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (mounted) {
+        if (session?.user) {
+          const mappedUser: CustomUser = {
+            id: session.user.id,
+            email: session.user.email,
+            displayName: session.user.user_metadata?.full_name || session.user.user_metadata?.name || '',
+            photoURL: session.user.user_metadata?.avatar_url || session.user.user_metadata?.picture || '',
+          };
+          setUser(mappedUser);
+          await fetchProfile(mappedUser);
+        } else {
+          setUser(null);
+          setProfile(null);
+          setAccessToken(null);
+          setLoading(false);
+        }
+      }
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
 
   const refreshProfile = async () => {
     if (user) {
