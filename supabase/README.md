@@ -11,8 +11,3 @@ multiple attendance records for the same `(session_id, user_id)`, because the
 migration adds a unique index for that invariant. Configure administrator users
 through Supabase Auth `app_metadata.role = "admin"`; changing `profiles.role`
 alone is intentionally insufficient for privileged database access.
-
-Legacy records that violate the new content or profile checks do not block the
-migration: those checks are added as `NOT VALID`, which protects all new and
-updated records. Review and correct historical data before validating a
-constraint with `ALTER TABLE ... VALIDATE CONSTRAINT ...`.

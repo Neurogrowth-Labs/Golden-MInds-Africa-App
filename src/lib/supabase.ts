@@ -3,9 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-/** Lets the application render a clear configuration screen instead of crashing at module load. */
-export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey);
-
 // This inert client is never used when configuration is absent: App renders the
 // configuration screen first. It only prevents an import-time exception that
 // previously produced a blank/dark page with no actionable error.
