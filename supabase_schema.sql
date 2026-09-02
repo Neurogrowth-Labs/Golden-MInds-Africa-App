@@ -9,15 +9,15 @@
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 -- ==========================================
--- 1. DROP EXISTING CONFLICTING SCHEMAS (Clean Slate)
+-- 1. DEVELOPMENT-ONLY RESET (disabled by default: never destroy production data)
 -- ==========================================
-DROP TABLE IF EXISTS "public"."likes" CASCADE;
-DROP TABLE IF EXISTS "public"."posts" CASCADE;
-DROP TABLE IF EXISTS "public"."ai_notes" CASCADE;
+-- DROP TABLE IF EXISTS "public"."likes" CASCADE;
+-- DROP TABLE IF EXISTS "public"."posts" CASCADE;
+-- DROP TABLE IF EXISTS "public"."ai_notes" CASCADE;
 -- Backup existing attendance/debates/profiles table if needed, otherwise recreate
-DROP TABLE IF EXISTS "public"."attendance" CASCADE;
-DROP TABLE IF EXISTS "public"."debates" CASCADE;
-DROP TABLE IF EXISTS "public"."profiles" CASCADE;
+-- DROP TABLE IF EXISTS "public"."attendance" CASCADE;
+-- DROP TABLE IF EXISTS "public"."debates" CASCADE;
+-- DROP TABLE IF EXISTS "public"."profiles" CASCADE;
 
 -- ==========================================
 -- 2. CREATE MASTER TABLES
@@ -31,7 +31,7 @@ CREATE TABLE "public"."profiles" (
     "role" TEXT DEFAULT 'student' CHECK ("role" IN ('fellow', 'admin', 'moderator', 'student', 'mentor')),
     "bio" TEXT,
     "skills" TEXT[] DEFAULT '{}'::TEXT[],
-    "participationScore" INTEGER DEFAULT 0, -- CamelCase column for direct UI sorting compatibility 
+    "participationScore" INTEGER DEFAULT 0, -- CamelCase column for direct UI sorting compatibility
     "participation_score" INTEGER DEFAULT 0, -- Standard snake_case column
     "attendanceStreak" INTEGER DEFAULT 0,    -- CamelCase column
     "attendance_streak" INTEGER DEFAULT 0,   -- Standard snake_case column
@@ -167,7 +167,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE "public"."ai_notes";
 -- ==========================================
 -- 5. STORAGE BUCKET INTEGRATION (Avatars)
 -- ==========================================
-INSERT INTO storage.buckets (id, name, public) 
+INSERT INTO storage.buckets (id, name, public)
 VALUES ('avatars', 'avatars', true)
 ON CONFLICT (id) DO NOTHING;
 
@@ -187,59 +187,77 @@ ALTER TABLE "public"."ai_notes" ENABLE ROW LEVEL SECURITY;
 -- Setup general transparent and secure access policies
 
 -- Profiles policies
-CREATE POLICY "Public profiles are viewable by everyone" 
-ON "public"."profiles" FOR SELECT 
+CREATE POLICY "Public profiles are viewable by everyone"
+ON "public"."profiles" FOR SELECT
 USING (true);
 
-CREATE POLICY "Users can insert their own profiles" 
-ON "public"."profiles" FOR INSERT 
-WITH CHECK (true); -- Mapped deterministically from Firebase client auth flow
+CREATE POLICY "Users can insert their own profiles"
+ON "public"."profiles" FOR INSERT
+WITH CHECK (auth.uid() = id AND role = 'student');
 
-CREATE POLICY "Users can update their own profile" 
-ON "public"."profiles" FOR UPDATE 
-USING (true); -- Fully open/secure fallback for easy cross-platform logins
+CREATE POLICY "Users can update their own profile"
+ON "public"."profiles" FOR UPDATE
+USING (auth.uid() = id)
+WITH CHECK (auth.uid() = id AND role = (SELECT role FROM public.profiles WHERE id = auth.uid()));
 
 -- Debates policies
-CREATE POLICY "Debates are viewable by everyone" 
-ON "public"."debates" FOR SELECT 
+CREATE POLICY "Debates are viewable by everyone"
+ON "public"."debates" FOR SELECT
 USING (true);
 
-CREATE POLICY "Admins or authors can insert/update debates" 
-ON "public"."debates" FOR ALL 
-USING (true);
+CREATE POLICY "Admins manage debates"
+ON "public"."debates" FOR ALL
+USING ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin')
+WITH CHECK ((auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
 -- Attendance policies
-CREATE POLICY "Users can view their attendance logs" 
-ON "public"."attendance" FOR SELECT 
-USING (true);
+CREATE POLICY "Users can view their attendance logs"
+ON "public"."attendance" FOR SELECT
+USING (auth.uid() = user_id OR (auth.jwt() -> 'app_metadata' ->> 'role') = 'admin');
 
-CREATE POLICY "Users can sign their own attendance" 
-ON "public"."attendance" FOR INSERT 
-WITH CHECK (true);
+CREATE POLICY "Users can sign their own attendance"
+ON "public"."attendance" FOR INSERT
+WITH CHECK (auth.uid() = user_id);
 
 -- Posts policies
-CREATE POLICY "Forum posts are visible to clear users" 
-ON "public"."posts" FOR SELECT 
+CREATE POLICY "Forum posts are visible to clear users"
+ON "public"."posts" FOR SELECT
 USING (true);
 
-CREATE POLICY "Users can create and modify forum posts" 
-ON "public"."posts" FOR ALL 
-USING (true);
+CREATE POLICY "Users can create and modify forum posts"
+ON "public"."posts" FOR INSERT WITH CHECK (auth.uid() = author_id);
+CREATE POLICY "Authors can update their posts"
+ON "public"."posts" FOR UPDATE USING (auth.uid() = author_id) WITH CHECK (auth.uid() = author_id);
+CREATE POLICY "Authors can delete their posts"
+ON "public"."posts" FOR DELETE USING (auth.uid() = author_id);
 
 -- Likes policies
-CREATE POLICY "Upvotes are read-accessible" 
-ON "public"."likes" FOR SELECT 
+CREATE POLICY "Upvotes are read-accessible"
+ON "public"."likes" FOR SELECT
 USING (true);
 
-CREATE POLICY "Users can trigger upvotes" 
-ON "public"."likes" FOR ALL 
-USING (true);
+CREATE POLICY "Users can create their own upvotes"
+ON "public"."likes" FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can remove their own upvotes"
+ON "public"."likes" FOR DELETE USING (auth.uid() = user_id);
 
 -- AI Notes policies
-CREATE POLICY "Users can fetch only their own study notes" 
-ON "public"."ai_notes" FOR SELECT 
-USING (true);
+CREATE POLICY "Users can fetch only their own study notes"
+ON "public"."ai_notes" FOR SELECT
+USING (auth.uid() = user_id);
 
-CREATE POLICY "Users can write and delete their own study notes" 
-ON "public"."ai_notes" FOR ALL 
-USING (true);
+CREATE POLICY "Users can write their own study notes"
+ON "public"."ai_notes" FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update their own study notes"
+ON "public"."ai_notes" FOR UPDATE USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can delete their own study notes"
+ON "public"."ai_notes" FOR DELETE USING (auth.uid() = user_id);
+
+-- Newsletter subscriptions are write-only from the public client; no browser may read subscriber data.
+CREATE TABLE IF NOT EXISTS public.subscribers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  email TEXT NOT NULL UNIQUE CHECK (email = lower(email) AND length(email) <= 320),
+  subscribed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+ALTER TABLE public.subscribers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can subscribe" ON public.subscribers FOR INSERT WITH CHECK (true);

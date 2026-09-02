@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import appLogo from '../assets/images/logo.png';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 // Mock Data for the Fellow's Performance & Credentials
 const MOCK_DATA = {
@@ -440,10 +440,9 @@ function CertificationsMain() {
                         <p>Analyzing performance metrics...</p>
                       </div>
                     ) : (
-                      <div 
-                        className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
-                        dangerouslySetInnerHTML={{ __html: aiExplanation || '' }}
-                      />
+                      <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
+                        {aiExplanation}
+                      </div>
                     )}
                   </motion.div>
                 )}
@@ -634,10 +633,9 @@ function CertificationsMain() {
                     </div>
                     
                     {/* Letter Content */}
-                    <div 
-                      className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed text-gray-800"
-                      dangerouslySetInnerHTML={{ __html: recommendationLetter || '' }}
-                    />
+                    <div className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed text-gray-800 whitespace-pre-wrap">
+                      {recommendationLetter}
+                    </div>
                     
                     {/* Signoff */}
                     <div className="mt-16 pt-8">

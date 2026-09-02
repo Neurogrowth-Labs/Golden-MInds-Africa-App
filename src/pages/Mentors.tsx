@@ -5,7 +5,7 @@ import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../contexts/AuthContext';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 const MOCK_MENTORS = [];
 
@@ -67,7 +67,7 @@ function MentorsMain() {
               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI Match Recommendation
             </div>
             <div className="prose prose-invert max-w-none text-base sm:text-lg leading-relaxed font-medium">
-              <div dangerouslySetInnerHTML={{ __html: matchResult.replace(/\n/g, '<br/>') }} />
+              <div className="whitespace-pre-wrap">{matchResult}</div>
             </div>
           </div>
         </motion.div>

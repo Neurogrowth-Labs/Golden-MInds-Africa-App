@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 import { scanContentAI, reportModerationViolation } from '../lib/moderation';
 
 // Initialize live gemini client
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 interface ChatMessage {
   id: string;
