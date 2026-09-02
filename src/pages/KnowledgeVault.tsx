@@ -6,7 +6,7 @@ import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 import KnowledgeGraph from './KnowledgeGraph';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 const MOCK_RESOURCES = [];
 
@@ -30,33 +30,8 @@ function KnowledgeVaultMain() {
         });
         setAiSummary(response.text);
       } else {
-        // Live Web Search using Perplexity RapidAPI
-        const options = {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-rapidapi-host': 'perplexity2.p.rapidapi.com',
-            'x-rapidapi-key': 'cd707cd18emsha46a78d1c51103cp11a3eajsn047d42571f12'
-          },
-          body: JSON.stringify({ content: searchQuery })
-        };
-        const res = await fetch('https://perplexity2.p.rapidapi.com/', options);
-        if (!res.ok) throw new Error('Failed to fetch from live web API.');
-        const data = await res.json();
-        
-        // Extract text depending on exact API payload shape (usually Gemini-like choices[0].content.parts[0].text for this specific RapidAPI endpoint)
-        let text = "No content returned.";
-        if (data.choices && data.choices[0] && data.choices[0].content && data.choices[0].content.parts) {
-            text = data.choices[0].content.parts[0].text;
-        } else if (data.text) {
-            text = data.text; // Fallback
-        } else if (typeof data === 'string') {
-            text = data;
-        } else {
-            text = JSON.stringify(data, null, 2);
-        }
-        
-        setAiSummary(text);
+        // Third-party search must run through an authenticated server-side integration.
+        setAiSummary('Live web search is unavailable until a server-side search integration is configured. No provider credentials are exposed in this client.');
       }
     } catch (error: any) {
       console.error('Search Error:', error);

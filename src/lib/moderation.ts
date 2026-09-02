@@ -13,7 +13,7 @@ let aiInstance: GoogleGenAI | null = null;
 
 function getAIClient(): GoogleGenAI {
   if (!aiInstance) {
-    const key = process.env.GEMINI_API_KEY;
+    const key = undefined;
     if (!key) {
       console.warn('GEMINI_API_KEY is not defined in the environment. AI moderation of content fell back to keyword matching.');
       throw new Error('GEMINI_API_KEY is required for AI content moderation.');

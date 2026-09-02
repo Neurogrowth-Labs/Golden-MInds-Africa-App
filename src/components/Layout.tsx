@@ -41,7 +41,7 @@ const MASTER_SEARCH_INDEX = [
 ];
 
 export default function Layout() {
-  const { user, profile, loading, setAccessToken, loginSuperAdmin, logoutSuperAdmin, isSuperAdmin } = useAuth();
+  const { user, profile, loading, setAccessToken, isSuperAdmin } = useAuth();
   const { users } = useAdminState();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
@@ -93,23 +93,6 @@ export default function Layout() {
     setAuthError('');
     setAuthSuccess('');
 
-    // Check for super admin credentials
-    if (authMode === 'login' && email === 'simao@neurogrowthlabs.co.za' && password === 'GoldenMindsAfrica') {
-      try {
-        if (loginSuperAdmin) {
-          loginSuperAdmin();
-        }
-        setAuthSuccess('Welcome back, Super Admin!');
-        navigate('/admin', { replace: true });
-        setIsLoggingIn(false);
-        return;
-      } catch (err: any) {
-        setAuthError(err?.message || 'Failed log in as super admin');
-        setIsLoggingIn(false);
-        return;
-      }
-    }
-    
     try {
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({
@@ -160,21 +143,12 @@ export default function Layout() {
   };
 
   const handleLogout = async () => {
-    sessionStorage.removeItem('gma-super-admin-redirected');
-    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
-      if (logoutSuperAdmin) {
-        logoutSuperAdmin();
-      }
-    } else {
-      await supabase.auth.signOut();
-    }
+    await supabase.auth.signOut();
   };
 
   useEffect(() => {
     if (user && profile) {
-      // Direct session-based redirect for Super Admin
-      if ((user.email === 'simao@neurogrowthlabs.co.za' || profile.role === 'admin') && !sessionStorage.getItem('gma-super-admin-redirected')) {
-        sessionStorage.setItem('gma-super-admin-redirected', 'true');
+      if (profile.role === 'admin' && location.pathname !== '/admin') {
         navigate('/admin', { replace: true });
         return;
       }

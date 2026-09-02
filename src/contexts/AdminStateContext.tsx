@@ -509,8 +509,8 @@ export const AdminStateProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   // Helper to persist to Supabase
   const saveToSupabase = async (key: string, value: any) => {
-    const isSuperAdmin = sessionStorage.getItem('gma-super-admin-authenticated') === 'true';
-    if (!isSuperAdmin) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
 
     try {
       const deterministicIds: Record<string, string> = {

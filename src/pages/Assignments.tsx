@@ -68,7 +68,7 @@ Estimated cost, Funding sources, ROI / economic impact
 KPIs (measurable), Data collection methods, Review timeline
 `;
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 export default function Assignments() {
   const [activeTab, setActiveTab] = useState<'pending' | 'submitted' | 'reviewed'>('pending');
@@ -477,7 +477,7 @@ export default function Assignments() {
                             <Sparkles className="w-5 h-5" /> AI Feedback Preview
                           </div>
                           <div className="prose prose-sm prose-emerald max-w-none text-emerald-900">
-                            <div dangerouslySetInnerHTML={{ __html: aiFeedback.replace(/\n/g, '<br/>') }} />
+                            <div className="whitespace-pre-wrap">{aiFeedback}</div>
                           </div>
                         </div>
                       )}
