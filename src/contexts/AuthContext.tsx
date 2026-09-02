@@ -29,9 +29,7 @@ interface AuthContextType {
   refreshProfile: () => Promise<void>;
   accessToken: string | null;
   setAccessToken: (token: string | null) => void;
-  loginSuperAdmin?: () => void;
-  logoutSuperAdmin?: () => void;
-  isSuperAdmin?: boolean;
+  isSuperAdmin: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({ 
@@ -41,8 +39,6 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
   accessToken: null,
   setAccessToken: () => {},
-  loginSuperAdmin: () => {},
-  logoutSuperAdmin: () => {},
   isSuperAdmin: false
 });
 
@@ -53,54 +49,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessToken, setAccessToken] = useState<string | null>(null);
-
-  const loginSuperAdmin = async () => {
-    sessionStorage.setItem('gma-super-admin-authenticated', 'true');
-    const superAdminUuid = 'e0000000-0000-0000-0000-000000000000';
-    
-    // Asynchronously upsert the super admin profile directly to database to avoid FK violation constraints
-    try {
-      await supabase.from('profiles').upsert({
-        id: superAdminUuid,
-        full_name: 'Simao Simas',
-        avatar_url: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
-        role: 'admin',
-        bio: 'Super Admin Command center root administrator of Golden Minds Africa.',
-        participationScore: 100,
-        attendanceStreak: 12
-      });
-    } catch (err) {
-      console.error("Failed to upsert super-admin profile:", err);
-    }
-
-    const mockUser: CustomUser = {
-      id: superAdminUuid,
-      email: 'simao@neurogrowthlabs.co.za',
-      displayName: 'Simao Simas',
-      photoURL: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop'
-    };
-    
-    const mockProfile: UserProfile = {
-      id: superAdminUuid,
-      uid: superAdminUuid,
-      name: 'Simao Simas',
-      email: 'simao@neurogrowthlabs.co.za',
-      role: 'admin',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop',
-      participationScore: 100,
-      attendanceStreak: 12
-    };
-
-    setUser(mockUser);
-    setProfile(mockProfile);
-    setLoading(false);
-  };
-
-  const logoutSuperAdmin = () => {
-    sessionStorage.removeItem('gma-super-admin-authenticated');
-    setUser(null);
-    setProfile(null);
-  };
 
   const fetchProfile = async (currentUser: CustomUser) => {
     try {
@@ -161,12 +109,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     let mounted = true;
 
-    // Check if we are already logged in as super-admin
-    if (sessionStorage.getItem('gma-super-admin-authenticated') === 'true') {
-      loginSuperAdmin();
-      return;
-    }
-
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted) {
@@ -220,13 +162,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const isSuperAdmin = !!(
-    (user && user.email === 'simao@neurogrowthlabs.co.za') || 
-    sessionStorage.getItem('gma-super-admin-authenticated') === 'true'
-  );
+  const isSuperAdmin = profile?.role === 'admin';
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, accessToken, setAccessToken, loginSuperAdmin, logoutSuperAdmin, isSuperAdmin }}>
+    <AuthContext.Provider value={{ user, profile, loading, refreshProfile, accessToken, setAccessToken, isSuperAdmin }}>
       {children}
     </AuthContext.Provider>
   );

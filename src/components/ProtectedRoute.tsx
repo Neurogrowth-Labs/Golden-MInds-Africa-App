@@ -9,11 +9,7 @@ interface ProtectedRouteProps {
 }
 
 export default function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
-
-  const isSessionAuth = sessionStorage.getItem('gma-super-admin-authenticated') === 'true';
-  const isSuperAdminUser = user && user.email === 'simao@neurogrowthlabs.co.za';
-  const isAuthorized = isSessionAuth || isSuperAdminUser;
+  const { user, profile, loading } = useAuth();
 
   if (loading) {
     return (
@@ -26,9 +22,7 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  // If a standard fellow (user exists but is not Simao) attempts to access /admin
-  if (user && user.email !== 'simao@neurogrowthlabs.co.za') {
-    // Prevent standard fellows from seeing admin dashboard
+  if (!user || profile?.role !== 'admin') {
     toast.error("Unauthorized Access: Super Admin credentials required.");
     return <Navigate to="/" replace />;
   }

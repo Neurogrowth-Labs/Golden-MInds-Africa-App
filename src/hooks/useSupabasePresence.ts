@@ -35,7 +35,7 @@ export function useSupabasePresence(roomId: string) {
       const fellows: Record<string, PresenceUser> = {};
       
       Object.keys(state).forEach((key) => {
-        const userPresences = state[key] as any[];
+        const userPresences = state[key] as unknown as PresenceUser[];
         if (userPresences && userPresences.length > 0) {
           const mainPresence = userPresences[userPresences.length - 1];
           fellows[key] = {

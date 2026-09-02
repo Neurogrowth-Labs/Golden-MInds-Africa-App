@@ -4,7 +4,7 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import { Briefcase, GraduationCap, DollarSign, Mic, Sparkles, ExternalLink, Search, Filter } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 const MOCK_OPPORTUNITIES = [];
 
@@ -82,7 +82,7 @@ function OpportunitiesMain() {
             <Sparkles className="w-5 h-5" /> AI Career Insights
           </div>
           <div className="prose prose-sm prose-emerald max-w-none text-emerald-900">
-            <div dangerouslySetInnerHTML={{ __html: aiRecommendation.replace(/\n/g, '<br/>') }} />
+            <div className="whitespace-pre-wrap">{aiRecommendation}</div>
           </div>
         </motion.div>
       )}

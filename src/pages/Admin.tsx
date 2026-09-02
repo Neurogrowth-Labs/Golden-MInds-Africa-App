@@ -21,13 +21,13 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
 } from 'recharts';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 export default function Admin() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const activeTab = searchParams.get('tab') || 'analytics';
-  const { user, loginSuperAdmin, logoutSuperAdmin } = useAuth();
+  const { user } = useAuth();
   
   // Connect to the Admin global state manager context
   const {
@@ -70,18 +70,10 @@ export default function Admin() {
     setSearchParams({ tab: tabId });
   };
 
-  // Super Admin Local Authentication State & Handlers
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('gma-super-admin-authenticated') === 'true' || 
-           (user && user.email === 'simao@neurogrowthlabs.co.za');
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
   useEffect(() => {
-    if (user && user.email === 'simao@neurogrowthlabs.co.za') {
-      setIsAuthenticated(true);
-    } else if (!user && sessionStorage.getItem('gma-super-admin-authenticated') !== 'true') {
-      setIsAuthenticated(false);
-    }
+    setIsAuthenticated(Boolean(user));
   }, [user]);
 
   const [loginEmail, setLoginEmail] = useState('');
@@ -90,19 +82,15 @@ export default function Admin() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [authErrorAlert, setAuthErrorAlert] = useState('');
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthErrorAlert('');
     setIsSubmitting(true);
 
-    // Secure authentication matching for Super Admin
-    setTimeout(() => {
-      if (loginEmail === 'simao@neurogrowthlabs.co.za' && loginPassword === 'GoldenMindsAfrica') {
-        sessionStorage.setItem('gma-super-admin-authenticated', 'true');
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
+      if (!error) {
         setIsAuthenticated(true);
-        if (loginSuperAdmin) {
-          loginSuperAdmin();
-        }
         toast.success('Access Granted. Super Admin command deck online.', {
           id: 'admin-login-success'
         });
@@ -111,17 +99,14 @@ export default function Admin() {
         setAuthErrorAlert('Invalid terminal handshake. Access Denied.');
         toast.error('Authentication Failed. Access credentials mismatch.');
       }
+    } finally {
       setIsSubmitting(false);
-    }, 600);
+    }
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem('gma-super-admin-authenticated');
-    sessionStorage.removeItem('gma-super-admin-redirected');
     setIsAuthenticated(false);
-    if (logoutSuperAdmin) {
-      logoutSuperAdmin();
-    }
+    void supabase.auth.signOut();
     setLoginPassword('');
     toast.info('Super Admin environment disconnected safely.');
     navigate('/', { replace: true });

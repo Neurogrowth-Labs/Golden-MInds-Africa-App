@@ -4,7 +4,7 @@ import { ShieldAlert, Activity, TrendingDown, CheckCircle2, BrainCircuit, ArrowR
 import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 const scenarios = [
   {
