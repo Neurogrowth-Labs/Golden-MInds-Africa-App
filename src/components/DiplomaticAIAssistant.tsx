@@ -3,7 +3,7 @@ import { GoogleGenAI } from '@google/genai';
 import { motion, AnimatePresence } from 'motion/react';
 import { Bot, Send, X, Sparkles, User, Globe, ChevronRight, ShieldCheck, Award } from 'lucide-react';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 interface Message {
   role: 'user' | 'assistant';

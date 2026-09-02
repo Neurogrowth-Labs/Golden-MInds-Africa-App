@@ -7,7 +7,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 // Utility to parse YouTube IDs from general URLs or direct IDs
 const getYouTubeId = (url: string): string => {
@@ -917,7 +917,7 @@ function LearningHubMain() {
                     </div>
                   ) : aiSummary ? (
                     <div className="prose prose-sm max-w-none text-gray-700 bg-[#f5f5f0] p-4 rounded-2xl border border-gray-200">
-                      <div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '<br/>') }} />
+                      <div className="whitespace-pre-wrap">{aiSummary}</div>
                     </div>
                   ) : (
                     <p className="text-gray-500 text-xs bg-gray-50 p-4 rounded-xl border border-gray-100 text-center leading-relaxed">

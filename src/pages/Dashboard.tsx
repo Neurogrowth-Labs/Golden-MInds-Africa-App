@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import Markdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: undefined });
 
 export default function Dashboard() {
   const { profile } = useAuth();
@@ -457,7 +457,7 @@ export default function Dashboard() {
                   </div>
                 ) : nearbyHubs ? (
                   <div className="prose prose-sm max-w-none text-gray-700 text-xs sm:text-sm">
-                    <div dangerouslySetInnerHTML={{ __html: nearbyHubs.replace(/\n/g, '<br/>') }} />
+                    <div className="whitespace-pre-wrap">{nearbyHubs}</div>
                   </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-center">
