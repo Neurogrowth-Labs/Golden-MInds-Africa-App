@@ -45,38 +45,17 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_auth_user();
 
--- Data validation applies regardless of which client reaches PostgREST.
 alter table public.profiles
   alter column full_name set not null,
   alter column full_name set default 'Student';
 alter table public.profiles
   drop constraint if exists profiles_full_name_length,
-  add constraint profiles_full_name_length check (char_length(trim(full_name)) between 1 and 160),
-  drop constraint if exists profiles_bio_length,
-  add constraint profiles_bio_length check (bio is null or char_length(bio) <= 4000),
-  drop constraint if exists profiles_avatar_url_protocol,
-  add constraint profiles_avatar_url_protocol check (avatar_url = '' or avatar_url ~ '^https://');
-
-alter table public.posts
-  drop constraint if exists posts_title_length,
-  add constraint posts_title_length check (char_length(trim(title)) between 1 and 200),
-  drop constraint if exists posts_content_length,
-  add constraint posts_content_length check (char_length(trim(content)) between 1 and 20000),
-  drop constraint if exists posts_tags_limit,
-  add constraint posts_tags_limit check (cardinality(tags) <= 10);
-
-alter table public.ai_notes
-  drop constraint if exists ai_notes_content_length,
-  add constraint ai_notes_content_length check (char_length(trim(content)) between 1 and 50000),
-  drop constraint if exists ai_notes_summary_length,
-  add constraint ai_notes_summary_length check (char_length(trim(summary)) between 1 and 10000);
 
 alter table public.attendance
   drop constraint if exists attendance_coordinates_valid,
   add constraint attendance_coordinates_valid check (
     (latitude is null and longitude is null) or
     (latitude between -90 and 90 and longitude between -180 and 180)
-  );
 
 -- Prevent duplicate check-ins for the same session. This index is intentionally
 -- created only after validating the production data has no duplicates.
@@ -100,7 +79,7 @@ alter table public.subscribers
   add constraint subscribers_email_format check (
     char_length(email) <= 320 and
     email ~ '^[A-Za-z0-9.!#$%&''*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$'
-  );
+
 create unique index if not exists subscribers_email_unique on public.subscribers (lower(email));
 
 create or replace function public.normalize_subscriber_email()
