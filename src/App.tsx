@@ -33,8 +33,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { AdminStateProvider } from './contexts/AdminStateContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { isSupabaseConfigured } from './lib/supabase';
+import ConfigurationError from './components/ConfigurationError';
 
 export default function App() {
+  if (!isSupabaseConfigured) {
+    return <ConfigurationError />;
+  }
+
   return (
     <ErrorBoundary>
       <ThemeProvider>

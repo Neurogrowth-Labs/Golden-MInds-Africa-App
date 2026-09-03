@@ -3,11 +3,13 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Configure them before starting the application.');
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// This inert client is never used when configuration is absent: App renders the
+// configuration screen first. It only prevents an import-time exception that
+// previously produced a blank/dark page with no actionable error.
+export const supabase = createClient(
+  supabaseUrl || 'https://unconfigured.supabase.co',
+  supabaseAnonKey || 'unconfigured-anon-key',
+);
 
 export async function subscribeToNewsletter(email: string) {
   const { data, error } = await supabase
