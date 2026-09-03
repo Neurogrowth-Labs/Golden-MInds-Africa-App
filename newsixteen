@@ -1,0 +1,39 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/CollaborationRooms.tsx b/src/pages/CollaborationRooms.tsx
+index b71930d4bd28efff731956324778abd0179fe53a..da99d403a5b13a3fa7e29c077e5029c2ab888944 100644
+--- a/src/pages/CollaborationRooms.tsx
++++ b/src/pages/CollaborationRooms.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { MessageSquare, FileText, PenTool, Users, Plus, Hash, Sparkles, Search, MoreVertical } from '\''lucide-react'\'';
+ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_ROOMS = [];
+ 
+ 
+ export default function CollaborationRooms() {
+   const [activeRoom, setActiveRoom] = useState(MOCK_ROOMS[0]);
+   const [activeTab, setActiveTab] = useState('\''chat'\'');
+   const [message, setMessage] = useState('\'''\'');
+   const [messages, setMessages] = useState<any[]>([]);
+   const [isGenerating, setIsGenerating] = useState(false);
+ 
+   if (!activeRoom) {
+     return (
+       <div className="flex-1 flex items-center justify-center h-[calc(100vh-4rem)] text-gray-500 bg-white dark:bg-[#0a0a0a]">
+         No active rooms available.
+       </div>
+     );
+   }
+ 
+   const handleSendMessage = () => {
+     if (!message.trim()) return;
+     setMessages([...messages, { id: Date.now(), sender: '\''You'\'', text: message, time: new Date().toLocaleTimeString([], { hour: '\''2-digit'\'', minute: '\''2-digit'\'' }) }]);
+     setMessage('\'''\'');
+   };
+ 
+' | git apply --3way)
