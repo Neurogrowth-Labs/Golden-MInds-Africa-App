@@ -1,0 +1,1011 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/CollaborationRooms.tsx b/src/pages/CollaborationRooms.tsx
+index b71930d4bd28efff731956324778abd0179fe53a..da99d403a5b13a3fa7e29c077e5029c2ab888944 100644
+--- a/src/pages/CollaborationRooms.tsx
++++ b/src/pages/CollaborationRooms.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { MessageSquare, FileText, PenTool, Users, Plus, Hash, Sparkles, Search, MoreVertical } from '\''lucide-react'\'';
+ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_ROOMS = [];
+ 
+ 
+ export default function CollaborationRooms() {
+   const [activeRoom, setActiveRoom] = useState(MOCK_ROOMS[0]);
+   const [activeTab, setActiveTab] = useState('\''chat'\'');
+   const [message, setMessage] = useState('\'''\'');
+   const [messages, setMessages] = useState<any[]>([]);
+   const [isGenerating, setIsGenerating] = useState(false);
+ 
+   if (!activeRoom) {
+     return (
+       <div className="flex-1 flex items-center justify-center h-[calc(100vh-4rem)] text-gray-500 bg-white dark:bg-[#0a0a0a]">
+         No active rooms available.
+       </div>
+     );
+   }
+ 
+   const handleSendMessage = () => {
+     if (!message.trim()) return;
+     setMessages([...messages, { id: Date.now(), sender: '\''You'\'', text: message, time: new Date().toLocaleTimeString([], { hour: '\''2-digit'\'', minute: '\''2-digit'\'' }) }]);
+     setMessage('\'''\'');
+   };
+ 
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Dashboard.tsx b/src/pages/Dashboard.tsx
+index 1adfbf4ee3fb15a2c4b4f53ea658000be9833774..8d9e5ca758e2bea353fc11f3a3c2bdb64aa61f6f 100644
+--- a/src/pages/Dashboard.tsx
++++ b/src/pages/Dashboard.tsx
+@@ -1,39 +1,39 @@
+ import React, { useEffect, useState } from '\''react'\'';
+ import { useNavigate } from '\''react-router-dom'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Calendar, Clock, MapPin, Sparkles, TrendingUp, Award, Loader2, Trophy, Medal, Star, MessageCircle, BookOpen, Upload, CheckCircle, Smile, Send, RefreshCw, BrainCircuit } from '\''lucide-react'\'';
+ import { Card, CardContent } from "@/components/ui/card";
+ import { Button } from "@/components/ui/button";
+ import { supabase } from '\''../lib/supabase'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { toast } from '\''sonner'\'';
+ import Markdown from '\''react-markdown'\'';
+ import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from '\''recharts'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ export default function Dashboard() {
+   const { profile } = useAuth();
+   const navigate = useNavigate();
+   const [nextSession, setNextSession] = useState<any>(null);
+   const [loading, setLoading] = useState(true);
+   const [nearbyHubs, setNearbyHubs] = useState('\'''\'');
+   const [findingHubs, setFindingHubs] = useState(false);
+   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+ 
+   // Trailing 30 days engagement heatmap data
+   const [engagementData, setEngagementData] = useState<any[]>([]);
+   const [selectedHeatmapDay, setSelectedHeatmapDay] = useState<any>(null);
+ 
+   const generateTrailing30DaysData = () => {
+     const data = [];
+     const stored = localStorage.getItem('\''gma_study_sessions'\'');
+     let sessionsMap: { [key: string]: number } = {};
+     if (stored) {
+       try {
+         sessionsMap = JSON.parse(stored);
+       } catch (e) {
+         console.error(e);
+       }
+     } else {
+@@ -435,51 +435,51 @@ export default function Dashboard() {
+               </div>
+             </motion.div>
+ 
+             <motion.div 
+               initial={{ opacity: 0, y: 20 }}
+               animate={{ opacity: 1, y: 0 }}
+               transition={{ delay: 0.15 }}
+               className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-sm border border-gray-100 flex flex-col"
+             >
+               <div 
+                 className="flex items-center gap-2 mb-4 sm:mb-6 cursor-pointer hover:opacity-80 transition-opacity"
+                 onClick={() => navigate('\''/rooms'\'')}
+               >
+                 <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-[#5A5A40]" />
+                 <h3 className="text-lg sm:text-xl font-bold font-serif">Study Hubs</h3>
+               </div>
+               
+               <div className="flex-1 bg-[#f5f5f0] rounded-2xl p-4 sm:p-5 md:p-6 border border-gray-200 overflow-y-auto min-h-[150px]">
+                 {findingHubs ? (
+                   <div className="flex flex-col items-center justify-center h-full text-gray-400">
+                     <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 animate-spin mb-2" />
+                     <span className="text-xs sm:text-sm">Locating hubs...</span>
+                   </div>
+                 ) : nearbyHubs ? (
+                   <div className="prose prose-sm max-w-none text-gray-700 text-xs sm:text-sm">
+-                    <div dangerouslySetInnerHTML={{ __html: nearbyHubs.replace(/\n/g, '\''<br/>'\'') }} />
++                    <div className="whitespace-pre-wrap">{nearbyHubs}</div>
+                   </div>
+                 ) : (
+                   <div className="flex flex-col items-center justify-center h-full text-center">
+                     <p className="text-xs sm:text-sm text-gray-500 mb-4">Find nearby cafes or co-working spaces to study.</p>
+                     <button 
+                       onClick={(e) => { e.stopPropagation(); findNearbyHubs(); }}
+                       className="px-4 py-2 bg-[#1a1a1a] text-white rounded-xl text-xs sm:text-sm font-medium hover:bg-black transition-colors"
+                     >
+                       Find Nearby
+                     </button>
+                   </div>
+                 )}
+               </div>
+             </motion.div>
+           </div>
+ 
+           {/* Personal Impact Dashboard */}
+           <motion.div 
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: 0.2 }}
+             className="bg-white rounded-3xl p-5 sm:p-6 md:p-8 shadow-sm border border-gray-100"
+           >
+             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 sm:mb-6">
+               <div 
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Debates.tsx b/src/pages/Debates.tsx
+index 72c32d981e0a62cf611c386a38f7b4ef2f575952..8ae7aae701537cc22ce099478043e4e2b66b59f3 100644
+--- a/src/pages/Debates.tsx
++++ b/src/pages/Debates.tsx
+@@ -1,31 +1,31 @@
+ import React, { useState, useRef, useEffect } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Send, Bot, User, ShieldAlert, Trophy, Loader2 } from '\''lucide-react'\'';
+ import { GoogleGenAI, ThinkingLevel } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ interface Message {
+   id: string;
+   role: '\''user'\'' | '\''moderator'\'';
+   content: string;
+   team?: '\''A'\'' | '\''B'\'';
+   score?: number;
+ }
+ 
+ import { Routes, Route } from '\''react-router-dom'\'';
+ 
+ function DebatesMain() {
+   const [messages, setMessages] = useState<Message[]>([]);
+   const [input, setInput] = useState('\'''\'');
+   const [team, setTeam] = useState<'\''A'\'' | '\''B'\''>('\''A'\'');
+   const [isTyping, setIsTyping] = useState(false);
+   const messagesEndRef = useRef<HTMLDivElement>(null);
+ 
+   const scrollToBottom = () => {
+     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+   };
+ 
+   useEffect(() => {
+     scrollToBottom();
+   }, [messages]);
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/KnowledgeVault.tsx b/src/pages/KnowledgeVault.tsx
+index 8fd36ca836a537fcca34e71849d4dc0f4960d867..353d27119a88b57d76431ba582e9f1e9d24a531a 100644
+--- a/src/pages/KnowledgeVault.tsx
++++ b/src/pages/KnowledgeVault.tsx
+@@ -1,84 +1,59 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Routes, Route, useNavigate } from '\''react-router-dom'\'';
+ import { Search, Book, FileText, Video, Network, Sparkles, Filter, ChevronRight, Hash } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import Markdown from '\''react-markdown'\'';
+ import KnowledgeGraph from '\''./KnowledgeGraph'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_RESOURCES = [];
+ 
+ 
+ function KnowledgeVaultMain() {
+   const navigate = useNavigate();
+   const [searchQuery, setSearchQuery] = useState('\'''\'');
+   const [aiSummary, setAiSummary] = useState<string | null>(null);
+   const [isSearching, setIsSearching] = useState(false);
+   const [searchMode, setSearchMode] = useState<'\''internal'\'' | '\''web'\''>('\''internal'\'');
+ 
+   const handleAISearch = async () => {
+     if (!searchQuery.trim()) return;
+     setIsSearching(true);
+     setAiSummary(null);
+     try {
+       if (searchMode === '\''internal'\'') {
+         const response = await ai.models.generateContent({
+           model: '\''gemini-3-flash-preview'\'',
+           contents: `Based on the following resources: ${JSON.stringify(MOCK_RESOURCES)}. Answer the user'\''s query: "${searchQuery}". Provide a concise summary and recommend which resources to look at.`
+         });
+         setAiSummary(response.text);
+       } else {
+-        // Live Web Search using Perplexity RapidAPI
+-        const options = {
+-          method: '\''POST'\'',
+-          headers: {
+-            '\''Content-Type'\'': '\''application/json'\'',
+-            '\''x-rapidapi-host'\'': '\''perplexity2.p.rapidapi.com'\'',
+-            '\''x-rapidapi-key'\'': '\''cd707cd18emsha46a78d1c51103cp11a3eajsn047d42571f12'\''
+-          },
+-          body: JSON.stringify({ content: searchQuery })
+-        };
+-        const res = await fetch('\''https://perplexity2.p.rapidapi.com/'\'', options);
+-        if (!res.ok) throw new Error('\''Failed to fetch from live web API.'\'');
+-        const data = await res.json();
+-        
+-        // Extract text depending on exact API payload shape (usually Gemini-like choices[0].content.parts[0].text for this specific RapidAPI endpoint)
+-        let text = "No content returned.";
+-        if (data.choices && data.choices[0] && data.choices[0].content && data.choices[0].content.parts) {
+-            text = data.choices[0].content.parts[0].text;
+-        } else if (data.text) {
+-            text = data.text; // Fallback
+-        } else if (typeof data === '\''string'\'') {
+-            text = data;
+-        } else {
+-            text = JSON.stringify(data, null, 2);
+-        }
+-        
+-        setAiSummary(text);
++        // Third-party search must run through an authenticated server-side integration.
++        setAiSummary('\''Live web search is unavailable until a server-side search integration is configured. No provider credentials are exposed in this client.'\'');
+       }
+     } catch (error: any) {
+       console.error('\''Search Error:'\'', error);
+       setAiSummary(`Error generating response: ${error.message || '\''Unknown error'\''}`);
+     } finally {
+       setIsSearching(false);
+     }
+   };
+ 
+   return (
+     <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6 sm:space-y-8">
+       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+         <div>
+           <h1 className="text-2xl sm:text-3xl font-serif font-bold text-gray-900 dark:text-white">Knowledge Vault</h1>
+           <p className="text-sm sm:text-base text-gray-500 dark:text-gray-400 mt-1 sm:mt-2">Collective intelligence library of all cohorts, powered by AI.</p>
+         </div>
+       </div>
+ 
+       {/* Search & AI Section */}
+       <div className="bg-gradient-to-br from-[#022c22] to-[#011a14] rounded-3xl p-5 sm:p-6 md:p-8 shadow-xl relative overflow-hidden">
+         <div className="absolute top-0 right-0 w-48 h-48 sm:w-64 sm:h-64 bg-[#d4af37]/10 rounded-full blur-3xl" />
+         
+         <div className="relative z-10 max-w-3xl mx-auto space-y-5 sm:space-y-6">
+           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 text-[#d4af37] mb-1 sm:mb-2">
+             <div className="flex items-center gap-2 sm:gap-3">
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/LearningHub.tsx b/src/pages/LearningHub.tsx
+index 7ec3ea3ce82b67ae0720f31631372ba2131bbe64..85f262920bc8e8af07860c44bcfdd0173c8679db 100644
+--- a/src/pages/LearningHub.tsx
++++ b/src/pages/LearningHub.tsx
+@@ -1,35 +1,35 @@
+ import React, { useState, useEffect } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { BookOpen, Search, PlayCircle, FileText, Sparkles, Loader2, BrainCircuit, TrendingUp, Clock, Download, PenTool, Youtube, Video, Bookmark, Award, CheckCircle } from '\''lucide-react'\'';
+ import { GoogleGenAI, Type } from '\''@google/genai'\'';
+ import { Routes, Route, useNavigate, useLocation, Navigate, useParams } from '\''react-router-dom'\'';
+ import Markdown from '\''react-markdown'\'';
+ import remarkGfm from '\''remark-gfm'\'';
+ import { toast } from '\''sonner'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ // Utility to parse YouTube IDs from general URLs or direct IDs
+ const getYouTubeId = (url: string): string => {
+   if (!url) return '\'''\'';
+   const trimmed = url.trim();
+   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
+   
+   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+   const match = trimmed.match(regExp);
+   return (match && match[2].length === 11) ? match[2] : '\'''\'';
+ };
+ 
+ const MOCK_MODULES = [
+   {
+     id: '\''week1'\'',
+     title: '\''Week 1: Fundamentals of Values-Based & Servant Leadership'\'',
+     materials: [
+       {
+         id: '\''m1-v1'\'',
+         title: '\''Introduction to Values-Based African Leadership'\'',
+         type: '\''video'\'',
+         description: '\''Explore the core tenets of ethical leadership, public integrity, and how the values of Ubuntu serve as an active guiding philosophy for modern administrators.'\'',
+         youtubeId: '\''qp0HIF3SfI4'\'', // Simon Sinek - How Great Leaders Inspire Action
+         duration: '\''12 mins'\''
+       },
+@@ -895,51 +895,51 @@ function LearningHubMain() {
+                   <span>Doc Summary</span>
+                 </button>
+               </div>
+ 
+               {activeBuddyTab === '\''summary'\'' ? (
+                 <div className="text-left">
+                   <div className="flex items-center justify-between mb-3">
+                     <span className="text-xs text-gray-400 uppercase font-bold tracking-wider">Concept Digest</span>
+                     {!aiSummary && !isGenerating && (
+                       <button 
+                         onClick={() => handleGenerateSummary(selectedMaterial.title)}
+                         className="text-xs text-[#5A5A40] font-semibold hover:underline"
+                       >
+                         Generate Summary
+                       </button>
+                     )}
+                   </div>
+ 
+                   {isGenerating ? (
+                     <div className="flex flex-col items-center justify-center py-8 text-gray-400">
+                       <Loader2 className="w-8 h-8 animate-spin mb-3 text-[#ff4e00]" />
+                       <p className="text-sm">Analyzing material context...</p>
+                     </div>
+                   ) : aiSummary ? (
+                     <div className="prose prose-sm max-w-none text-gray-700 bg-[#f5f5f0] p-4 rounded-2xl border border-gray-200">
+-                      <div dangerouslySetInnerHTML={{ __html: aiSummary.replace(/\n/g, '\''<br/>'\'') }} />
++                      <div className="whitespace-pre-wrap">{aiSummary}</div>
+                     </div>
+                   ) : (
+                     <p className="text-gray-500 text-xs bg-gray-50 p-4 rounded-xl border border-gray-100 text-center leading-relaxed">
+                       Select "Generate Summary" to construct deep, AI-driven takeaways enriched with African policy context.
+                     </p>
+                   )}
+                 </div>
+               ) : (
+                 <div className="space-y-4 text-left">
+                   <div className="h-64 overflow-y-auto bg-gray-50 rounded-2xl p-3 border border-gray-100 space-y-3 flex flex-col hide-scrollbar">
+                     {buddyMessages.map((msg, idx) => (
+                       <div
+                         key={idx}
+                         className={`max-w-[85%] rounded-2xl p-2.5 text-xs ${
+                           msg.sender === '\''user'\''
+                             ? '\''bg-[#5A5A40] text-white self-end rounded-tr-none'\''
+                             : '\''bg-white border border-gray-200 text-gray-800 self-start rounded-tl-none'\''
+                         }`}
+                       >
+                         <strong>{msg.sender === '\''user'\'' ? '\''You'\'' : '\''Buddy'\''}:</strong>
+                         <p className="mt-0.5 leading-relaxed whitespace-pre-line">{msg.text}</p>
+                       </div>
+                     ))}
+                     {isBuddyLoading && (
+                       <div className="flex items-center gap-2 text-xs text-gray-400 self-start p-2 leading-relaxed">
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/LectureRoom.tsx b/src/pages/LectureRoom.tsx
+index 16707a44abff3935e5ff7def1972ed9cd62b24d8..5f32915b222bd89cadcd1c478e9f9168a27401a7 100644
+--- a/src/pages/LectureRoom.tsx
++++ b/src/pages/LectureRoom.tsx
+@@ -1,76 +1,76 @@
+ import React, { useState, useEffect, useRef } from '\''react'\'';
+ import { useParams, useNavigate } from '\''react-router-dom'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { 
+   Video, Mic, MicOff, VideoOff, MonitorUp, Hand, Smile, PhoneOff, 
+   MessageSquare, Users, FileText, Globe, Settings, Maximize, 
+   Minimize, LayoutGrid, LayoutTemplate, Wifi, WifiOff, Volume2, Type, PenTool, BarChart2, Image as ImageIcon, Sparkles, ChevronDown, ChevronUp, Send,
+   ShieldAlert
+ } from '\''lucide-react'\'';
+ import { Badge } from "@/components/ui/badge";
+ import { Switch } from "@/components/ui/switch";
+ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { useAdminState } from '\''../contexts/AdminStateContext'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+-import { useSupabasePresence } from '\''../hooks/useSupabasePresence'\'';
++import { useSupabasePresence, type PresenceUser } from '\''../hooks/useSupabasePresence'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const LANGUAGES = [
+   { code: '\''en'\'', name: '\''English'\'' },
+   { code: '\''sw'\'', name: '\''Swahili'\'' },
+   { code: '\''yo'\'', name: '\''Yoruba'\'' },
+   { code: '\''zu'\'', name: '\''Zulu'\'' },
+   { code: '\''fr'\'', name: '\''French'\'' },
+   { code: '\''ar'\'', name: '\''Arabic'\'' }
+ ];
+ 
+ 
+ export default function LectureRoom() {
+   const { roomId } = useParams();
+   const navigate = useNavigate();
+   const { user } = useAuth();
+   const { activeFellows } = useSupabasePresence(roomId || '\''room-1'\'');
+   
+   const { virtualRooms, addRoomTranscript, addRoomMessage, submitIncidentReport } = useAdminState();
+   const room = virtualRooms?.find(r => r.id === roomId) || {
+     id: roomId || '\''room-1'\'',
+     name: '\''Virtual Seminar Room'\'',
+     topic: '\''Policy and African Development Frameworks'\'',
+     color: '\''bg-emerald-600'\'',
+     facilitator: '\''Dr. Amina Mensah'\'',
+     maxCapacity: 100,
+     participants: [{ id: '\''usr-2'\'', name: '\''Dr. Amina Diallo'\'', role: '\''mentor'\'' }],
+     transcripts: [],
+     messages: []
+   };
+ 
+   // Merge static MOCK_PARTICIPANTS with dynamic real-time activeFellows
+   const baseParticipants = room.participants || [];
+-  const activeFellowsList = Object.values(activeFellows).map(f => ({
++  const activeFellowsList = (Object.values(activeFellows) as PresenceUser[]).map(f => ({
+     id: f.userId,
+     name: f.name,
+     role: f.userId === user?.id ? '\''You (Fellow)'\'' : '\''Fellow Student'\'',
+     isMe: f.userId === user?.id,
+     handRaised: f.isHandRaised
+   }));
+ 
+   // Deduplicate by name or ID
+   const MOCK_PARTICIPANTS = [...activeFellowsList];
+   baseParticipants.forEach(bp => {
+     if (!MOCK_PARTICIPANTS.some(p => p.name.toLowerCase() === bp.name.toLowerCase())) {
+       MOCK_PARTICIPANTS.push({
+         id: bp.id,
+         name: bp.name,
+         role: bp.role || '\''Fellow Student'\'',
+         isMe: false,
+         handRaised: false
+       });
+     }
+   });
+ 
+   const transcript = room.transcripts || [];
+   const messages = room.messages || [];
+ 
+   const [isMuted, setIsMuted] = useState(false);
+@@ -188,51 +188,51 @@ export default function LectureRoom() {
+           <span className="text-gray-400 text-xs sm:text-sm hidden sm:block truncate max-w-[150px] md:max-w-none">Policy & Tech Ecosystems</span>
+         </div>
+         
+         <div className="flex items-center gap-2 sm:gap-4">
+           <button 
+             onClick={() => setLowBandwidth(!lowBandwidth)}
+             className={`flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg text-[10px] sm:text-xs font-bold transition-colors ${
+               lowBandwidth ? '\''bg-yellow-500/20 text-yellow-500'\'' : '\''bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white'\''
+             }`}
+           >
+             {lowBandwidth ? <WifiOff className="w-3 h-3 sm:w-4 sm:h-4" /> : <Wifi className="w-3 h-3 sm:w-4 sm:h-4" />}
+             <span className="hidden sm:inline">{lowBandwidth ? '\''Low Bandwidth Mode'\'' : '\''HD Quality'\''}</span>
+           </button>
+           <div className="hidden md:flex bg-gray-800 rounded-lg p-1">
+             <button onClick={() => setLayout('\''single'\'')} className={`p-1.5 rounded-md transition-colors ${layout === '\''single'\'' ? '\''bg-gray-600 text-white'\'' : '\''text-gray-400 hover:text-white'\''}`}><Maximize className="w-4 h-4" /></button>
+             <button onClick={() => setLayout('\''split'\'')} className={`p-1.5 rounded-md transition-colors ${layout === '\''split'\'' ? '\''bg-gray-600 text-white'\'' : '\''text-gray-400 hover:text-white'\''}`}><LayoutGrid className="w-4 h-4" /></button>
+             <button onClick={() => setLayout('\''pip'\'')} className={`p-1.5 rounded-md transition-colors ${layout === '\''pip'\'' ? '\''bg-gray-600 text-white'\'' : '\''text-gray-400 hover:text-white'\''}`}><LayoutTemplate className="w-4 h-4" /></button>
+           </div>
+         </div>
+       </div>
+ 
+       {/* Main Content Area */}
+       <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+         {/* Collaborative Cursors Layer */}
+         <div className="pointer-events-none absolute inset-0 overflow-hidden z-50">
+-          {Object.values(activeFellows).map((fellow) => {
++          {(Object.values(activeFellows) as PresenceUser[]).map((fellow) => {
+             if (fellow.x && fellow.y && fellow.userId !== user?.id) {
+               return (
+                 <div 
+                   key={fellow.userId}
+                   className="absolute transition-all duration-200 ease-out"
+                   style={{ left: `${fellow.x}%`, top: `${fellow.y}%` }}
+                 >
+                   <svg className="w-5 h-5 text-[#ff4e00] drop-shadow animate-bounce" fill="currentColor" viewBox="0 0 24 24">
+                     <path d="M7 2l12 11.01h-7l3 7-2 1-3-7-3 3V2z" />
+                   </svg>
+                   <div className="bg-[#ff4e00] text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow mt-1 ml-3 whitespace-nowrap">
+                     {fellow.name}
+                   </div>
+                 </div>
+               );
+             }
+             return null;
+           })}
+         </div>
+ 
+         {/* Video Area */}
+         <div className="flex-1 p-2 sm:p-4 flex flex-col gap-2 sm:gap-4 relative">
+           
+           {lowBandwidth ? (
+             <div className="flex-1 bg-[#141414] rounded-2xl border border-gray-800 flex flex-col items-center justify-center p-4 text-center">
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Mentors.tsx b/src/pages/Mentors.tsx
+index 66d92a49bd5ce686776baf9918e117e9f4451fa9..5bcbab93be469200687110bdf5ce8977cf0b4a4f 100644
+--- a/src/pages/Mentors.tsx
++++ b/src/pages/Mentors.tsx
+@@ -1,33 +1,33 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Users, Sparkles, Calendar, MessageSquare, Star, ArrowRight, ShieldCheck } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import { Routes, Route, useNavigate, Navigate } from '\''react-router-dom'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_MENTORS = [];
+ 
+ 
+ function MentorsMain() {
+   const { profile } = useAuth();
+   const navigate = useNavigate();
+   const [isMatching, setIsMatching] = useState(false);
+   const [matchResult, setMatchResult] = useState('\'''\'');
+ 
+   const handleAIMatch = async () => {
+     navigate('\''/mentorship/match'\'');
+     setIsMatching(true);
+     try {
+       const prompt = `Act as an AI mentor matching engine for an African leadership fellowship. 
+       The fellow'\''s name is ${profile?.name || '\''a fellow'\''} and they are interested in Policy and Tech.
+       Based on the available mentors (Dr. Amina Yusuf - Public Policy & Tech, Kwame Osei - Entrepreneurship, Sarah Ndlovu - Economics), 
+       recommend the best mentor for them and explain why in 2 short sentences.`;
+ 
+       const response = await ai.models.generateContent({
+         model: '\''gemini-3-flash-preview'\'',
+         contents: prompt
+       });
+       setMatchResult(response.text || '\''Match generation failed.'\'');
+     } catch (error) {
+@@ -45,51 +45,51 @@ function MentorsMain() {
+           <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2 text-[#022c22] cursor-pointer hover:underline" onClick={() => navigate('\''/mentorship'\'')}>AI Mentor Matching</h1>
+           <p className="text-gray-600 text-sm sm:text-base">Connect with industry leaders and alumni based on your career goals.</p>
+         </div>
+         <button 
+           onClick={handleAIMatch}
+           disabled={isMatching}
+           className="flex items-center justify-center gap-2 bg-[#d4af37] text-white px-6 py-3 rounded-full shadow-lg hover:bg-yellow-500 transition-colors disabled:opacity-70 font-bold w-full md:w-auto text-sm sm:text-base"
+         >
+           {isMatching ? <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 animate-pulse" /> : <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" />}
+           Find My Perfect Match
+         </button>
+       </div>
+ 
+       {matchResult && (
+         <motion.div 
+           initial={{ opacity: 0, scale: 0.95 }}
+           animate={{ opacity: 1, scale: 1 }}
+           className="bg-gradient-to-br from-[#022c22] to-[#064e3b] text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden"
+         >
+           <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37] opacity-10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+           <div className="relative z-10">
+             <div className="flex items-center gap-2 text-[#d4af37] font-bold mb-3 sm:mb-4 uppercase tracking-wider text-xs sm:text-sm">
+               <Sparkles className="w-4 h-4 sm:w-5 sm:h-5" /> AI Match Recommendation
+             </div>
+             <div className="prose prose-invert max-w-none text-base sm:text-lg leading-relaxed font-medium">
+-              <div dangerouslySetInnerHTML={{ __html: matchResult.replace(/\n/g, '\''<br/>'\'') }} />
++              <div className="whitespace-pre-wrap">{matchResult}</div>
+             </div>
+           </div>
+         </motion.div>
+       )}
+ 
+       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+         {MOCK_MENTORS.map((mentor, i) => (
+           <motion.div
+             key={mentor.id}
+             initial={{ opacity: 0, y: 20 }}
+             animate={{ opacity: 1, y: 0 }}
+             transition={{ delay: i * 0.1 }}
+             className="bg-white rounded-3xl p-5 sm:p-6 shadow-sm border border-gray-100 flex flex-col items-center text-center hover:shadow-md transition-shadow cursor-pointer"
+             onClick={() => navigate(`/mentorship/mentor/${mentor.slug}`)}
+           >
+             <div className="relative mb-4">
+               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden border-4 border-gray-50 shadow-sm">
+                 <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
+               </div>
+               <div className="absolute -bottom-2 -right-2 bg-green-100 text-green-700 text-[10px] sm:text-xs font-bold px-2 py-1 rounded-full border-2 border-white flex items-center gap-1">
+                 <ShieldCheck className="w-3 h-3" /> {mentor.match}%
+               </div>
+             </div>
+             
+             <h3 className="font-bold font-serif text-lg sm:text-xl mb-1 text-gray-900">{mentor.name}</h3>
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Onboarding.tsx b/src/pages/Onboarding.tsx
+index 50f338ce74947f465d6871d0bb106932c35b2f6e..57652d431340c68fd845e90a30cb9a0b5fe8c74c 100644
+--- a/src/pages/Onboarding.tsx
++++ b/src/pages/Onboarding.tsx
+@@ -1,46 +1,46 @@
+ import React, { useState, useEffect } from '\''react'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { useNavigate } from '\''react-router-dom'\'';
+ import { 
+   ChevronRight, 
+   Camera, 
+   Target, 
+   Brain, 
+   BookOpen, 
+   CheckCircle2, 
+   Sparkles, 
+   MessageSquare, 
+   PlayCircle, 
+   Mic, 
+   Globe, 
+   Award,
+   ArrowRight
+ } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ export default function Onboarding() {
+   const navigate = useNavigate();
+   const [step, setStep] = useState(0);
+   const [direction, setDirection] = useState(1);
+   
+   // Form State
+   const [profile, setProfile] = useState({ name: '\'''\'', country: '\'''\'', cohort: '\''Cohort 4'\'' });
+   const [goals, setGoals] = useState<string[]>([]);
+   const [skillLevel, setSkillLevel] = useState('\'''\'');
+   
+   // Interactive State
+   const [aiQuery, setAiQuery] = useState('\'''\'');
+   const [aiResponse, setAiResponse] = useState('\'''\'');
+   const [isAiLoading, setIsAiLoading] = useState(false);
+   const [commitments, setCommitments] = useState({ attendance: false, download: false, forum: false });
+   const [masteryStep, setMasteryStep] = useState(0);
+ 
+   const nextStep = () => {
+     setDirection(1);
+     setStep((prev) => prev + 1);
+   };
+ 
+   const prevStep = () => {
+     setDirection(-1);
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Opportunities.tsx b/src/pages/Opportunities.tsx
+index 59905b18f79e24e31fd6f388b351701fd7d7ef91..a28b4ac07031beb9538cb5a431f44a2e51ef01e8 100644
+--- a/src/pages/Opportunities.tsx
++++ b/src/pages/Opportunities.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { useNavigate, Routes, Route } from '\''react-router-dom'\'';
+ import { Briefcase, GraduationCap, DollarSign, Mic, Sparkles, ExternalLink, Search, Filter } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_OPPORTUNITIES = [];
+ 
+ 
+ function OpportunitiesMain() {
+   const navigate = useNavigate();
+   const [activeTab, setActiveTab] = useState('\''all'\'');
+   const [searchQuery, setSearchQuery] = useState('\'''\'');
+   const [aiRecommendation, setAiRecommendation] = useState('\'''\'');
+   const [isAnalyzing, setIsAnalyzing] = useState(false);
+ 
+   const handleGetRecommendations = async () => {
+     setIsAnalyzing(true);
+     try {
+       const prompt = `Act as an AI career advisor for an African leadership fellowship. 
+       Based on a fellow'\''s interest in "Policy, Governance, and Tech Entrepreneurship", 
+       recommend 2 specific types of opportunities they should pursue and why. 
+       Keep it brief, encouraging, and actionable.`;
+ 
+       const response = await ai.models.generateContent({
+         model: '\''gemini-3-flash-preview'\'',
+         contents: prompt
+       });
+       setAiRecommendation(response.text || '\''Recommendation generation failed.'\'');
+     } catch (error) {
+@@ -60,51 +60,51 @@ function OpportunitiesMain() {
+       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+         <div>
+           <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2 text-[#022c22]">Opportunity Marketplace</h1>
+           <p className="text-gray-600 text-sm sm:text-base">Discover scholarships, grants, internships, and speaking engagements.</p>
+         </div>
+         <button 
+           onClick={handleGetRecommendations}
+           disabled={isAnalyzing}
+           className="flex items-center justify-center gap-2 bg-[#022c22] text-white px-5 py-2.5 rounded-full shadow-md hover:bg-[#064e3b] transition-colors disabled:opacity-70 w-full md:w-auto"
+         >
+           {isAnalyzing ? <Sparkles className="w-4 h-4 animate-pulse" /> : <Sparkles className="w-4 h-4 text-[#d4af37]" />}
+           <span className="text-sm font-bold">AI Matchmaker</span>
+         </button>
+       </div>
+ 
+       {aiRecommendation && (
+         <motion.div 
+           initial={{ opacity: 0, y: -10 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 shadow-sm"
+         >
+           <div className="flex items-center gap-2 text-emerald-800 font-bold mb-3">
+             <Sparkles className="w-5 h-5" /> AI Career Insights
+           </div>
+           <div className="prose prose-sm prose-emerald max-w-none text-emerald-900">
+-            <div dangerouslySetInnerHTML={{ __html: aiRecommendation.replace(/\n/g, '\''<br/>'\'') }} />
++            <div className="whitespace-pre-wrap">{aiRecommendation}</div>
+           </div>
+         </motion.div>
+       )}
+ 
+       <div className="flex flex-col md:flex-row gap-4 mb-6">
+         <div className="relative flex-1">
+           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+           <input 
+             type="text" 
+             placeholder="Search opportunities..." 
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+             className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#022c22]"
+           />
+         </div>
+         <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+           {['\''all'\'', '\''scholarship'\'', '\''grant'\'', '\''internship'\'', '\''speaking'\'', '\''startup'\''].map(tab => (
+             <button
+               key={tab}
+               onClick={() => setActiveTab(tab)}
+               className={`px-4 py-2 rounded-xl text-sm font-bold capitalize whitespace-nowrap transition-colors ${
+                 activeTab === tab ? '\''bg-[#022c22] text-white'\'' : '\''bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'\''
+               }`}
+             >
+               {tab}
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Opportunities.tsx b/src/pages/Opportunities.tsx
+index 59905b18f79e24e31fd6f388b351701fd7d7ef91..a28b4ac07031beb9538cb5a431f44a2e51ef01e8 100644
+--- a/src/pages/Opportunities.tsx
++++ b/src/pages/Opportunities.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { useNavigate, Routes, Route } from '\''react-router-dom'\'';
+ import { Briefcase, GraduationCap, DollarSign, Mic, Sparkles, ExternalLink, Search, Filter } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_OPPORTUNITIES = [];
+ 
+ 
+ function OpportunitiesMain() {
+   const navigate = useNavigate();
+   const [activeTab, setActiveTab] = useState('\''all'\'');
+   const [searchQuery, setSearchQuery] = useState('\'''\'');
+   const [aiRecommendation, setAiRecommendation] = useState('\'''\'');
+   const [isAnalyzing, setIsAnalyzing] = useState(false);
+ 
+   const handleGetRecommendations = async () => {
+     setIsAnalyzing(true);
+     try {
+       const prompt = `Act as an AI career advisor for an African leadership fellowship. 
+       Based on a fellow'\''s interest in "Policy, Governance, and Tech Entrepreneurship", 
+       recommend 2 specific types of opportunities they should pursue and why. 
+       Keep it brief, encouraging, and actionable.`;
+ 
+       const response = await ai.models.generateContent({
+         model: '\''gemini-3-flash-preview'\'',
+         contents: prompt
+       });
+       setAiRecommendation(response.text || '\''Recommendation generation failed.'\'');
+     } catch (error) {
+@@ -60,51 +60,51 @@ function OpportunitiesMain() {
+       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+         <div>
+           <h1 className="text-3xl md:text-4xl font-bold font-serif mb-2 text-[#022c22]">Opportunity Marketplace</h1>
+           <p className="text-gray-600 text-sm sm:text-base">Discover scholarships, grants, internships, and speaking engagements.</p>
+         </div>
+         <button 
+           onClick={handleGetRecommendations}
+           disabled={isAnalyzing}
+           className="flex items-center justify-center gap-2 bg-[#022c22] text-white px-5 py-2.5 rounded-full shadow-md hover:bg-[#064e3b] transition-colors disabled:opacity-70 w-full md:w-auto"
+         >
+           {isAnalyzing ? <Sparkles className="w-4 h-4 animate-pulse" /> : <Sparkles className="w-4 h-4 text-[#d4af37]" />}
+           <span className="text-sm font-bold">AI Matchmaker</span>
+         </button>
+       </div>
+ 
+       {aiRecommendation && (
+         <motion.div 
+           initial={{ opacity: 0, y: -10 }}
+           animate={{ opacity: 1, y: 0 }}
+           className="bg-emerald-50 border border-emerald-100 rounded-2xl p-6 shadow-sm"
+         >
+           <div className="flex items-center gap-2 text-emerald-800 font-bold mb-3">
+             <Sparkles className="w-5 h-5" /> AI Career Insights
+           </div>
+           <div className="prose prose-sm prose-emerald max-w-none text-emerald-900">
+-            <div dangerouslySetInnerHTML={{ __html: aiRecommendation.replace(/\n/g, '\''<br/>'\'') }} />
++            <div className="whitespace-pre-wrap">{aiRecommendation}</div>
+           </div>
+         </motion.div>
+       )}
+ 
+       <div className="flex flex-col md:flex-row gap-4 mb-6">
+         <div className="relative flex-1">
+           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+           <input 
+             type="text" 
+             placeholder="Search opportunities..." 
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+             className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#022c22]"
+           />
+         </div>
+         <div className="flex gap-2 overflow-x-auto hide-scrollbar">
+           {['\''all'\'', '\''scholarship'\'', '\''grant'\'', '\''internship'\'', '\''speaking'\'', '\''startup'\''].map(tab => (
+             <button
+               key={tab}
+               onClick={() => setActiveTab(tab)}
+               className={`px-4 py-2 rounded-xl text-sm font-bold capitalize whitespace-nowrap transition-colors ${
+                 activeTab === tab ? '\''bg-[#022c22] text-white'\'' : '\''bg-white border border-gray-200 text-gray-600 hover:bg-gray-50'\''
+               }`}
+             >
+               {tab}
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Portfolio.tsx b/src/pages/Portfolio.tsx
+index 59cdc395f5b7c478e268d9a42675cfc7f1e9115c..126e558a985000292a99899acc56861036e64ecb 100644
+--- a/src/pages/Portfolio.tsx
++++ b/src/pages/Portfolio.tsx
+@@ -1,36 +1,36 @@
+ import React, { useState, useEffect } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Briefcase, FileText, Award, Download, Share2, Globe, ExternalLink, Edit3, CheckCircle2, Sparkles, X } from '\''lucide-react'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { Routes, Route, useNavigate, useLocation, useSearchParams } from '\''react-router-dom'\'';
+ import { jsPDF } from '\''jspdf'\'';
+ import { toast } from '\''sonner'\'';
+ import Markdown from '\''react-markdown'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ function PortfolioOverview() {
+   const navigate = useNavigate();
+   return (
+     <div className="space-y-8">
+       <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-gray-100 text-center">
+         <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6">
+           <Award className="w-8 h-8 sm:w-10 sm:h-10 text-emerald-600" />
+         </div>
+         <h2 className="text-2xl sm:text-3xl font-bold font-serif mb-4 text-[#022c22]">Your Leadership Portfolio</h2>
+         <p className="text-gray-600 max-w-2xl mx-auto mb-8 text-sm sm:text-base">
+           The Showcase Your Brilliance system allows you to curate and present your most impactful work. 
+           Submit projects, policy briefs, and achievements to build a comprehensive record of your leadership journey.
+         </p>
+         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-8 text-left">
+           <div className="p-4 sm:p-6 bg-gray-50 rounded-2xl">
+             <h3 className="font-bold text-gray-900 mb-2">1. Curate</h3>
+             <p className="text-sm text-gray-600">Select your best work from simulations, debates, and independent research.</p>
+           </div>
+           <div className="p-4 sm:p-6 bg-gray-50 rounded-2xl">
+             <h3 className="font-bold text-gray-900 mb-2">2. Submit</h3>
+             <p className="text-sm text-gray-600">Send your curated items for peer and faculty review to earn verified credentials.</p>
+           </div>
+           <div className="p-4 sm:p-6 bg-gray-50 rounded-2xl">
+             <h3 className="font-bold text-gray-900 mb-2">3. Showcase</h3>
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Schedule.tsx b/src/pages/Schedule.tsx
+index 9a987b4c9647c7b6a2f99a71a17dd65f7b1a15fb..d1a3f5cfc090d275d8254fb56d041a2f4061aad4 100644
+--- a/src/pages/Schedule.tsx
++++ b/src/pages/Schedule.tsx
+@@ -1,33 +1,33 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { Routes, Route, useNavigate, useLocation } from '\''react-router-dom'\'';
+ import { Calendar as CalendarIcon, Clock, MapPin, Users, Video, Sparkles, ChevronLeft, ChevronRight, Plus, ArrowLeft } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import LabSession from '\''./LabSession'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const MOCK_EVENTS = [];
+ 
+ 
+ export default function Schedule() {
+   const navigate = useNavigate();
+   const location = useLocation();
+   const [currentDate, setCurrentDate] = useState(new Date(2026, 2, 30)); // March 30, 2026
+   const [aiSuggestion, setAiSuggestion] = useState<string | null>(null);
+   const [isGenerating, setIsGenerating] = useState(false);
+ 
+   const getDaysInMonth = (year: number, month: number) => new Date(year, month + 1, 0).getDate();
+   const getFirstDayOfMonth = (year: number, month: number) => new Date(year, month, 1).getDay();
+ 
+   const daysInMonth = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+   const firstDay = getFirstDayOfMonth(currentDate.getFullYear(), currentDate.getMonth());
+ 
+   const prevMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));
+   const nextMonth = () => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 1));
+ 
+   const handleAISchedule = async () => {
+     setIsGenerating(true);
+     try {
+       const response = await ai.models.generateContent({
+         model: '\''gemini-3-flash-preview'\'',
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/supabase/README.md b/supabase/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..815b45e4ccd95c2d74b279aed2357f8cef9d7777
+--- /dev/null
++++ b/supabase/README.md
+@@ -0,0 +1,18 @@
++# Supabase migrations
++
++Apply migrations in filename order with the Supabase CLI (`supabase db push`) or the
++Supabase SQL editor while connected as the database owner. Do **not** execute the
++legacy `supabase_schema.sql` against an existing production project: it is an
++initial schema reference, whereas files in `migrations/` are safe, incremental
++production migrations.
++
++Before applying `20260902_production_hardening.sql`, verify that there are no
++multiple attendance records for the same `(session_id, user_id)`, because the
++migration adds a unique index for that invariant. Configure administrator users
++through Supabase Auth `app_metadata.role = "admin"`; changing `profiles.role`
++alone is intentionally insufficient for privileged database access.
++
++Legacy records that violate the new content or profile checks do not block the
++migration: those checks are added as `NOT VALID`, which protects all new and
++updated records. Review and correct historical data before validating a
++constraint with `ALTER TABLE ... VALIDATE CONSTRAINT ...`.
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/supabase/README.md b/supabase/README.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..815b45e4ccd95c2d74b279aed2357f8cef9d7777
+--- /dev/null
++++ b/supabase/README.md
+@@ -0,0 +1,18 @@
++# Supabase migrations
++
++Apply migrations in filename order with the Supabase CLI (`supabase db push`) or the
++Supabase SQL editor while connected as the database owner. Do **not** execute the
++legacy `supabase_schema.sql` against an existing production project: it is an
++initial schema reference, whereas files in `migrations/` are safe, incremental
++production migrations.
++
++Before applying `20260902_production_hardening.sql`, verify that there are no
++multiple attendance records for the same `(session_id, user_id)`, because the
++migration adds a unique index for that invariant. Configure administrator users
++through Supabase Auth `app_metadata.role = "admin"`; changing `profiles.role`
++alone is intentionally insufficient for privileged database access.
++
++Legacy records that violate the new content or profile checks do not block the
++migration: those checks are added as `NOT VALID`, which protects all new and
++updated records. Review and correct historical data before validating a
++constraint with `ALTER TABLE ... VALIDATE CONSTRAINT ...`.
+' | git apply --3way)
+
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/vite.config.ts b/vite.config.ts
+index 0506f1b683ccb9cb79b1e1b0e485d18e8926845c..3636b899089111aaa0f6a4da6656ae7b68146177 100644
+--- a/vite.config.ts
++++ b/vite.config.ts
+@@ -1,24 +1,20 @@
+ import tailwindcss from '\''@tailwindcss/vite'\'';
+ import react from '\''@vitejs/plugin-react'\'';
+ import path from '\''path'\'';
+-import {defineConfig, loadEnv} from '\''vite'\'';
++import {defineConfig} from '\''vite'\'';
+ 
+-export default defineConfig(({mode}) => {
+-  const env = loadEnv(mode, '\''.'\'', '\'''\'');
++export default defineConfig(() => {
+   return {
+     plugins: [react(), tailwindcss()],
+-    define: {
+-      '\''process.env.GEMINI_API_KEY'\'': JSON.stringify(env.GEMINI_API_KEY),
+-    },
+     resolve: {
+       alias: {
+         '\''@'\'': path.resolve(__dirname, '\''.'\''),
+       },
+     },
+     server: {
+       // HMR is disabled in AI Studio via DISABLE_HMR env var.
+       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
+       hmr: process.env.DISABLE_HMR !== '\''true'\'',
+     },
+   };
+ });
+' | git apply --3way)
