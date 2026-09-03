@@ -1,0 +1,48 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/AINotes.tsx b/src/pages/AINotes.tsx
+index 40277a716892abaf911fd7f45c75fd911355668f..d27c6e26fc89f9625c756988ee6b2bf7ddb3d5fa 100644
+--- a/src/pages/AINotes.tsx
++++ b/src/pages/AINotes.tsx
+@@ -1,41 +1,41 @@
+ import React, { useState, useEffect, useRef } from '\''react'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { 
+   Sparkles, Send, Bot, User, HelpCircle, Globe, MapPin, 
+   Brain, FileImage, Image as ImageIcon, Video, Mic, Square, 
+   Play, Volume2, VideoOff, Layers, Trash2, Clock, Upload, 
+   Settings, Loader2, Download, Copy, Check, ChevronRight, AlertTriangle, RefreshCw
+ } from '\''lucide-react'\'';
+ import { GoogleGenAI, Type, Modality, ThinkingLevel, LiveServerMessage } from '\''@google/genai'\'';
+ import { supabase } from '\''../lib/supabase'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import { toast } from '\''sonner'\'';
+ import { scanContentAI, reportModerationViolation } from '\''../lib/moderation'\'';
+ 
+ // Initialize live gemini client
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ interface ChatMessage {
+   id: string;
+   sender: '\''user'\'' | '\''model'\'';
+   text: string;
+   timestamp: string;
+   modelUsed?: string;
+   thinking?: string;
+   searchGroundingSources?: { uri: string; title: string }[];
+   mapsGroundingSources?: { title: string; uri: string }[];
+ }
+ 
+ export default function AINotes() {
+   const { user } = useAuth();
+   const [activeTab, setActiveTab] = useState<'\''chat'\'' | '\''imagen'\'' | '\''audio'\'' | '\''media'\''>('\''chat'\'');
+   
+   // Custom Saved Note states (retaining existing database logic)
+   const [savedNotes, setSavedNotes] = useState<any[]>([]);
+   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+   const [isSaving, setIsSaving] = useState(false);
+   const [noteToSave, setNoteToSave] = useState('\'''\'');
+ 
+   // Web Speech API Vocal Dictation States
+   const [isDictating, setIsDictating] = useState(false);
+   const [dictatedText, setDictatedText] = useState('\'''\'');
+' | git apply --3way)
