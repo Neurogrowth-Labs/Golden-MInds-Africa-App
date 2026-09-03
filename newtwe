@@ -1,0 +1,169 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Certifications.tsx b/src/pages/Certifications.tsx
+index 69efec6f250b1aafdfbd7d36e87258c4f3835458..1ff059dede281bf210bde074db65f1021ec09723 100644
+--- a/src/pages/Certifications.tsx
++++ b/src/pages/Certifications.tsx
+@@ -1,46 +1,46 @@
+ import React, { useState, useRef } from '\''react'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { Routes, Route, useNavigate, useParams } from '\''react-router-dom'\'';
+ import { 
+   Award, Share2, Download, CheckCircle2, ShieldCheck, 
+   ExternalLink, Sparkles, Crown, QrCode as QrCodeIcon, FileText, 
+   Briefcase, Linkedin, Mail, BarChart3, FileBadge, 
+   GraduationCap, Loader2, RefreshCw, HelpCircle, X, Twitter
+ } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { 
+   Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, ResponsiveContainer 
+ } from '\''recharts'\'';
+ import QRCode from '\''react-qr-code'\'';
+ import html2canvas from '\''html2canvas'\'';
+ import jsPDF from '\''jspdf'\'';
+ import { toast } from '\''sonner'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import appLogo from '\''../assets/images/logo.png'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ // Mock Data for the Fellow'\''s Performance & Credentials
+ const MOCK_DATA = {
+   id: "CERT-2026-X1Y2Z3",
+   track: "Public Policy & Tech Governance",
+   duration: "Jan 2026 - Dec 2026",
+   issueDate: "December 15, 2026",
+   classification: "Distinction",
+   percentile: "Top 5%",
+   scores: {
+     overall: 92,
+     academic: 90,
+     portfolio: 95,
+     engagement: 91,
+     projects: 95,
+     simulations: 88,
+     participation: 94,
+     assessments: 91
+   },
+   detailedScores: [],
+   modules: [
+     { title: "Geopolitics", score: 90, name: "Advanced Geopolitics", code: "GEO401", grade: "A" },
+     { title: "Policy Labs", score: 95, name: "Public Policy Formulation", code: "POL302", grade: "A+" }
+   ],
+   radarData: [
+@@ -418,54 +418,53 @@ function CertificationsMain() {
+                     animate={{ opacity: 1, height: '\''auto'\'' }}
+                     exit={{ opacity: 0, height: 0 }}
+                     className="bg-white dark:bg-[#1a1a1a] rounded-2xl p-6 border border-[#C9A646]/30 shadow-lg relative overflow-hidden"
+                   >
+                     <div className="absolute top-0 left-0 w-1 h-full bg-[#C9A646]" />
+                     <button 
+                       onClick={() => setShowExplanation(false)}
+                       className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                     >
+                       <X className="w-5 h-5" />
+                     </button>
+                     
+                     <div className="flex items-center gap-3 mb-4">
+                       <div className="p-2 bg-[#C9A646]/10 rounded-lg">
+                         <Sparkles className="w-5 h-5 text-[#C9A646]" />
+                       </div>
+                       <h3 className="text-lg font-bold font-serif text-gray-900 dark:text-white">AI Evaluation Insights</h3>
+                     </div>
+                     
+                     {isGeneratingExplanation ? (
+                       <div className="flex items-center gap-3 text-gray-500 py-4">
+                         <Loader2 className="w-5 h-5 animate-spin text-[#C9A646]" />
+                         <p>Analyzing performance metrics...</p>
+                       </div>
+                     ) : (
+-                      <div 
+-                        className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300"
+-                        dangerouslySetInnerHTML={{ __html: aiExplanation || '\'''\'' }}
+-                      />
++                      <div className="prose prose-sm dark:prose-invert max-w-none text-gray-600 dark:text-gray-300 whitespace-pre-wrap">
++                        {aiExplanation}
++                      </div>
+                     )}
+                   </motion.div>
+                 )}
+               </AnimatePresence>
+ 
+               {/* Breakdown Grid */}
+               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                 
+                 {/* Radar Chart */}
+                 <div className="bg-white dark:bg-[#141414] rounded-2xl p-6 border border-gray-200 dark:border-gray-800 shadow-sm flex flex-col">
+                   <h3 className="text-lg font-bold font-serif mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                     <BarChart3 className="w-5 h-5 text-[#C9A646]" /> Performance Radar
+                   </h3>
+                   <p className="text-sm text-gray-500 mb-6">Visual breakdown of your core competencies.</p>
+                   <div className="flex-1 min-h-[300px] w-full">
+                     <ResponsiveContainer width="100%" height="100%" minHeight={300}>
+                       <RadarChart cx="50%" cy="50%" outerRadius="70%" data={FELLOW_DATA.radarData}>
+                         <PolarGrid stroke="#e5e7eb" />
+                         <PolarAngleAxis dataKey="subject" tick={{ fill: '\''#6b7280'\'', fontSize: 12, fontWeight: 600 }} />
+                         <PolarRadiusAxis angle={30} domain={[0, 100]} tick={{ fill: '\''#9ca3af'\'', fontSize: 10 }} />
+                         <Radar
+                           name="Fellow"
+                           dataKey="A"
+                           stroke="#0A1F44"
+                           fill="#0A1F44"
+@@ -612,54 +611,53 @@ function CertificationsMain() {
+                     </button>
+                   </div>
+                   
+                   {/* The Letter Document */}
+                   <div className="bg-white p-8 md:p-16 shadow-xl rounded-sm border border-gray-200">
+                     {/* Letterhead */}
+                     <div className="border-b-2 border-[#0A1F44] pb-8 mb-8 flex justify-between items-start">
+                       <div className="flex items-center gap-4">
+                         <div className="w-16 h-16">
+                           <img src={appLogo} alt="Logo" className="w-full h-full object-contain" />
+                         </div>
+                         <div>
+                           <h1 className="text-2xl font-serif font-bold text-[#0A1F44] uppercase tracking-wider">Golden Minds Africa</h1>
+                           <p className="text-sm text-gray-500 font-serif italic">Office of the Academic Dean</p>
+                         </div>
+                       </div>
+                       <div className="text-right text-sm text-gray-500 font-serif">
+                         <p>120 Innovation Drive</p>
+                         <p>Kigali, Rwanda</p>
+                         <p>dean@gmaf.org</p>
+                         <p className="mt-4">{FELLOW_DATA.issueDate}</p>
+                       </div>
+                     </div>
+                     
+                     {/* Letter Content */}
+-                    <div 
+-                      className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed text-gray-800"
+-                      dangerouslySetInnerHTML={{ __html: recommendationLetter || '\'''\'' }}
+-                    />
++                    <div className="prose prose-lg prose-gray max-w-none font-serif leading-relaxed text-gray-800 whitespace-pre-wrap">
++                      {recommendationLetter}
++                    </div>
+                     
+                     {/* Signoff */}
+                     <div className="mt-16 pt-8">
+                       <p className="font-serif text-gray-800 mb-4">Sincerely,</p>
+                       <img src="https://upload.wikimedia.org/wikipedia/commons/f/f8/Stylized_signature_sample.svg" alt="Signature" className="h-16 opacity-80 mb-2" style={{ transform: '\''scaleX(-1)'\'' }} />
+                       <p className="font-serif font-bold text-gray-900">Prof. Kwame Osei</p>
+                       <p className="font-serif text-gray-600">Academic Dean, Golden Minds Africa Fellowship</p>
+                       <p className="font-serif text-gray-600">Former Minister of Technology & Innovation</p>
+                     </div>
+                   </div>
+                 </div>
+               )}
+             </motion.div>
+           )}
+ 
+         </AnimatePresence>
+       </div>
+     </div>
+   );
+ }
+ 
+ export default function Certifications() {
+   return (
+     <Routes>
+       <Route path="/" element={<CertificationsMain />} />
+' | git apply --3way)
