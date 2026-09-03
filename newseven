@@ -1,0 +1,39 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/components/simulations/CrisisSimulator.tsx b/src/components/simulations/CrisisSimulator.tsx
+index 90b01996225521ee2fc11e0e51cd2551e1ed7329..124151978256ab44438f4bfa5946d55bb14b8bc6 100644
+--- a/src/components/simulations/CrisisSimulator.tsx
++++ b/src/components/simulations/CrisisSimulator.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState } from '\''react'\'';
+ import { motion } from '\''motion/react'\'';
+ import { ShieldAlert, Activity, TrendingDown, CheckCircle2, BrainCircuit, ArrowRight, Target } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import Markdown from '\''react-markdown'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ const scenarios = [
+   {
+     id: '\''pandemic'\'',
+     title: '\''Unusual cluster of severe respiratory cases'\'',
+     icon: Activity,
+     color: '\''blue'\'',
+     metrics: [
+       { label: '\''Trust'\'', value: 70 },
+       { label: '\''Containment'\'', value: 50 },
+       { label: '\''Capacity'\'', value: 80 },
+     ],
+     description: "Your health ministry reports 47 hospitalizations in two cities over 72 hours — an unusual cluster of a severe, fast-progressing respiratory illness. Laboratory results are 72 hours away. Social media speculation is spreading. You have limited information and must act.",
+     question: "Your immediate priority as crisis leader:",
+     options: [
+       "Convene a small expert group. Get facts before any public statement.",
+       "Issue a calm public statement: '\''We are monitoring the situation.'\''",
+       "Declare a national health emergency immediately to show decisiveness.",
+       "Wait 24 hours for lab results — no action without data."
+     ],
+     idealContext: "The pandemic simulation runs you through the core tension in public health leadership: acting on incomplete information versus waiting for certainty, and balancing epidemiological logic with political sustainability. The models here draw from South Korea, Taiwan, and New Zealand'\''s 2020 responses."
+   },
+   {
+     id: '\''economic'\'',
+     title: '\''National currency loses 22% in 48 hours'\'',
+' | git apply --3way)
