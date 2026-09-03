@@ -1,0 +1,92 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/components/simulations/CrisisXEngine.tsx b/src/components/simulations/CrisisXEngine.tsx
+index 8a7e7f103412346a7d47320c647154f605b40f0d..603e6ece5481efd8debf72b960fec47c196e847c 100644
+--- a/src/components/simulations/CrisisXEngine.tsx
++++ b/src/components/simulations/CrisisXEngine.tsx
+@@ -1,32 +1,32 @@
+ import React, { useState, useEffect, useRef } from '\''react'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { ShieldAlert, Activity, TrendingDown, Globe, Clock, Radio, Users, AlertTriangle, Play, ChevronRight, Terminal, Zap, FileText, Send, BrainCircuit } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import Markdown from '\''react-markdown'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ interface Metrics {
+   gdp: number;
+   trust: number;
+   security: number;
+   diplomacy: number;
+ }
+ 
+ interface FeedItem {
+   time: string;
+   source: string;
+   headline: string;
+   type: '\''news'\'' | '\''social'\'' | '\''intelligence'\'' | '\''critical'\'' | '\''command'\'';
+ }
+ 
+ export default function CrisisXEngine() {
+   const [phase, setPhase] = useState<'\''briefing'\'' | '\''live'\'' | '\''debrief'\''>('\''briefing'\'');
+   const [metrics, setMetrics] = useState<Metrics>({ gdp: 65, trust: 50, security: 70, diplomacy: 60 });
+   const [timePassed, setTimePassed] = useState(0); // minutes
+   const [feed, setFeed] = useState<FeedItem[]>([
+     { time: '\''DAY 1 - 00:00 HRS'\'', source: '\''CRISIS-X SYSTEM'\'', headline: '\''ENGINE ONLINE. CONNECTING TO GLOBAL FEED...'\'', type: '\''critical'\'' },
+     { time: '\''DAY 1 - 00:05 HRS'\'', source: '\''MINISTRY OF HEALTH'\'', headline: '\''Unknown pathogen cluster detected in 3 major border transit hubs.'\'', type: '\''intelligence'\'' },
+     { time: '\''DAY 1 - 00:15 HRS'\'', source: '\''SOCIAL MEDIA'\'', headline: '\''"Hospitals are turning people away! What is going on??" #Outbreak'\'', type: '\''social'\'' }
+   ]);
+   const [sitRep, setSitRep] = useState("A highly contagious respiratory variant is spreading rapidly. Markets are panicking, and border security is overwhelmed by fleeing citizens. You have the command.");
+@@ -164,51 +164,51 @@ export default function CrisisXEngine() {
+ 
+           <button 
+             onClick={() => setPhase('\''live'\'')}
+             className="px-10 py-4 bg-cyan-900/50 hover:bg-cyan-700/50 border border-cyan-500/50 text-cyan-300 rounded-lg font-bold uppercase tracking-widest transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)]"
+           >
+             Initiate Command Sequence
+           </button>
+         </motion.div>
+       </div>
+     );
+   }
+ 
+   if (phase === '\''debrief'\'') {
+     return (
+       <div className="bg-[#050505] min-h-[800px] text-gray-300 p-8 overflow-y-auto">
+         <div className="max-w-4xl mx-auto space-y-8">
+            <div className="flex items-center gap-4 border-b border-white/10 pb-6">
+              <BrainCircuit className="w-10 h-10 text-cyan-500" />
+              <div>
+                <h1 className="text-3xl font-bold text-white uppercase tracking-widest">Leadership Analytics</h1>
+                <p className="text-cyan-500/80 font-mono">Session Terminated. Performance Data Compiled.</p>
+              </div>
+            </div>
+ 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+-             {Object.entries(metrics).map(([key, val]) => (
++             {(Object.entries(metrics) as Array<[keyof Metrics, number]>).map(([key, val]) => (
+                 <div key={key} className="bg-white/5 border border-white/10 p-4 rounded-xl text-center">
+                   <div className="text-xs text-gray-400 uppercase tracking-widest mb-1">{key}</div>
+                   <div className={`text-3xl font-mono ${val > 50 ? '\''text-green-400'\'' : '\''text-red-400'\''}`}>{Math.round(val)}%</div>
+                 </div>
+              ))}
+            </div>
+ 
+            <div className="bg-white/5 border border-white/10 rounded-xl p-6 font-mono text-sm leading-relaxed prose prose-invert prose-cyan max-w-none">
+              {debriefNotes ? <Markdown>{debriefNotes}</Markdown> : <span className="animate-pulse">Synthesizing debrief data...</span>}
+            </div>
+ 
+            <div className="text-center pt-8">
+              <button onClick={() => window.location.reload()} className="text-cyan-500 hover:text-cyan-300 uppercase tracking-widest text-sm font-bold flex items-center justify-center gap-2 mx-auto">
+                <Radio className="w-4 h-4" /> End Transmission
+              </button>
+            </div>
+         </div>
+       </div>
+     )
+   }
+ 
+   return (
+     <div className="flex flex-col h-[85vh] min-h-[700px] bg-[#050505] text-gray-300 font-sans overflow-hidden">
+       {/* Top HUD */}
+       <div className="h-16 border-b border-white/10 bg-black/50 flex items-center justify-between px-6 shrink-0 z-10 backdrop-blur-md">
+' | git apply --3way)
