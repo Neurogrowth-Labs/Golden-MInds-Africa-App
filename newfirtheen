@@ -1,0 +1,166 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/pages/Admin.tsx b/src/pages/Admin.tsx
+index 3c581431c31003de5fcf1661f04ed55c58dcda44..0cd329365a3a1099502b056335f9f435da64c70b 100644
+--- a/src/pages/Admin.tsx
++++ b/src/pages/Admin.tsx
+@@ -1,149 +1,134 @@
+ import React, { useState, useEffect } from '\''react'\'';
+ import { useSearchParams, useNavigate } from '\''react-router-dom'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { 
+   ShieldAlert, Users, Calendar, Image as ImageIcon, Loader2, Download, 
+   BarChart3, BookOpen, MessageSquare, Settings, BrainCircuit, 
+   TrendingUp, AlertTriangle, FileText, Plus, Search, MoreVertical, Video,
+   CheckCircle2, Clock, GraduationCap, Award, Mail, Trophy, Activity, Filter,
+   Layers, Upload, Shuffle, Check, X as CloseIcon, ShieldCheck, Eye, EyeOff,
+   Cpu, Terminal, RefreshCw, LogIn, Lock, Trash2, Send, Bookmark, Info, HelpCircle,
+   Crown, Edit2, CheckSquare, EyeOff as EyeOffIcon, AlertCircle, Share2, Globe
+ } from '\''lucide-react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { supabase } from '\''../lib/supabase'\'';
+ import { toast } from '\''sonner'\'';
+ import { useAuth } from '\''../contexts/AuthContext'\'';
+ import { useAdminState, Mentor, Publication, FellowContent, AuditLogItem } from '\''../contexts/AdminStateContext'\'';
+ 
+ import {
+   AreaChart, Area, BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend
+ } from '\''recharts'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ export default function Admin() {
+   const [searchParams, setSearchParams] = useSearchParams();
+   const navigate = useNavigate();
+   const activeTab = searchParams.get('\''tab'\'') || '\''analytics'\'';
+-  const { user, loginSuperAdmin, logoutSuperAdmin } = useAuth();
++  const { user } = useAuth();
+   
+   // Connect to the Admin global state manager context
+   const {
+     siteConfig,
+     updateSiteConfig,
+     mentors,
+     addMentor,
+     updateMentor,
+     deleteMentor,
+     publications,
+     addPublication,
+     updatePublication,
+     deletePublication,
+     fellowContents,
+     moderateFellowContent,
+     deleteFellowContent,
+     auditLogs,
+     logAdminAction,
+     clearAuditLogs,
+     membershipData,
+     growthData,
+     updateEngagementData,
+     updateMembershipCount,
+     reseedMockContent,
+     
+     // Synced collections and actions
+     users,
+     updateUser,
+     banUser,
+     deleteUser,
+     incidentReports,
+     updateReportStatus,
+     virtualRooms,
+     addRoomTranscript,
+     updateRoomTopic,
+     toggleParticipantMedia
+   } = useAdminState();
+ 
+   const setActiveTab = (tabId: string) => {
+     setSearchParams({ tab: tabId });
+   };
+ 
+-  // Super Admin Local Authentication State & Handlers
+-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+-    return sessionStorage.getItem('\''gma-super-admin-authenticated'\'') === '\''true'\'' || 
+-           (user && user.email === '\''simao@neurogrowthlabs.co.za'\'');
+-  });
++  const [isAuthenticated, setIsAuthenticated] = useState(true);
+ 
+   useEffect(() => {
+-    if (user && user.email === '\''simao@neurogrowthlabs.co.za'\'') {
+-      setIsAuthenticated(true);
+-    } else if (!user && sessionStorage.getItem('\''gma-super-admin-authenticated'\'') !== '\''true'\'') {
+-      setIsAuthenticated(false);
+-    }
++    setIsAuthenticated(Boolean(user));
+   }, [user]);
+ 
+   const [loginEmail, setLoginEmail] = useState('\'''\'');
+   const [loginPassword, setLoginPassword] = useState('\'''\'');
+   const [showPassword, setShowPassword] = useState(false);
+   const [isSubmitting, setIsSubmitting] = useState(false);
+   const [authErrorAlert, setAuthErrorAlert] = useState('\'''\'');
+ 
+-  const handleLoginSubmit = (e: React.FormEvent) => {
++  const handleLoginSubmit = async (e: React.FormEvent) => {
+     e.preventDefault();
+     setAuthErrorAlert('\'''\'');
+     setIsSubmitting(true);
+ 
+-    // Secure authentication matching for Super Admin
+-    setTimeout(() => {
+-      if (loginEmail === '\''simao@neurogrowthlabs.co.za'\'' && loginPassword === '\''GoldenMindsAfrica'\'') {
+-        sessionStorage.setItem('\''gma-super-admin-authenticated'\'', '\''true'\'');
++    try {
++      const { error } = await supabase.auth.signInWithPassword({ email: loginEmail, password: loginPassword });
++      if (!error) {
+         setIsAuthenticated(true);
+-        if (loginSuperAdmin) {
+-          loginSuperAdmin();
+-        }
+         toast.success('\''Access Granted. Super Admin command deck online.'\'', {
+           id: '\''admin-login-success'\''
+         });
+         logAdminAction('\''Authenticated super admin panel credentials'\'', '\''simao@neurogrowthlabs.co.za'\'', '\''Security'\'');
+       } else {
+         setAuthErrorAlert('\''Invalid terminal handshake. Access Denied.'\'');
+         toast.error('\''Authentication Failed. Access credentials mismatch.'\'');
+       }
++    } finally {
+       setIsSubmitting(false);
+-    }, 600);
++    }
+   };
+ 
+   const handleLogout = () => {
+-    sessionStorage.removeItem('\''gma-super-admin-authenticated'\'');
+-    sessionStorage.removeItem('\''gma-super-admin-redirected'\'');
+     setIsAuthenticated(false);
+-    if (logoutSuperAdmin) {
+-      logoutSuperAdmin();
+-    }
++    void supabase.auth.signOut();
+     setLoginPassword('\'''\'');
+     toast.info('\''Super Admin environment disconnected safely.'\'');
+     navigate('\''/'\'', { replace: true });
+   };
+ 
+   // UI state variables
+   const [userQuery, setUserQuery] = useState('\'''\'');
+   const [fellowContentFilter, setFellowContentFilter] = useState<'\''All'\'' | '\''Forum Post'\'' | '\''Shared Document'\'' | '\''Assignment Submission'\'' | '\''Portfolio Showcase'\'' | '\''AI Note'\''>('\''All'\'');
+   const [pubSearch, setPubSearch] = useState('\'''\'');
+   const [pubTypeFilter, setPubTypeFilter] = useState('\''All'\'');
+   const [mentorSearch, setMentorSearch] = useState('\'''\'');
+ 
+   // Form State for Mentors CRUD
+   const [isMentorModalOpen, setIsMentorModalOpen] = useState(false);
+   const [editingMentorId, setEditingMentorId] = useState<string | null>(null);
+   const [mentorForm, setMentorForm] = useState({
+     name: '\'''\'',
+     role: '\'''\'',
+     industry: '\''Digital Governance'\'',
+     match: 95,
+     avatar: '\'''\'',
+     bio: '\'''\'',
+     email: '\'''\''
+   });
+ 
+' | git apply --3way)
