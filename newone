@@ -1,0 +1,38 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/components/DiplomaticAIAssistant.tsx b/src/components/DiplomaticAIAssistant.tsx
+index 194f022d6d24671d4a0c80bbfb1aaa80ef355667..0cf62fbd6f4de7a9b26f1f8d3e079b6fc74b66e4 100644
+--- a/src/components/DiplomaticAIAssistant.tsx
++++ b/src/components/DiplomaticAIAssistant.tsx
+@@ -1,31 +1,31 @@
+ import React, { useState, useRef, useEffect } from '\''react'\'';
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { motion, AnimatePresence } from '\''motion/react'\'';
+ import { Bot, Send, X, Sparkles, User, Globe, ChevronRight, ShieldCheck, Award } from '\''lucide-react'\'';
+ 
+-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
++const ai = new GoogleGenAI({ apiKey: undefined });
+ 
+ interface Message {
+   role: '\''user'\'' | '\''assistant'\'';
+   content: string;
+ }
+ 
+ export default function DiplomaticAIAssistant() {
+   const [isOpen, setIsOpen] = useState(false);
+   const [messages, setMessages] = useState<Message[]>([
+     {
+       role: '\''assistant'\'',
+       content: '\''Welcome to Golden Minds Africa. I am your Diplomatic AI Advisor. How may I assist you with our Pan-African governance programs, research briefs, leadership summits, or partnership opportunities today?'\''
+     }
+   ]);
+   const [input, setInput] = useState('\'''\'');
+   const [isLoading, setIsLoading] = useState(false);
+   const messagesEndRef = useRef<HTMLDivElement>(null);
+ 
+   const scrollToBottom = () => {
+     messagesEndRef.current?.scrollIntoView({ behavior: '\''smooth'\'' });
+   };
+ 
+   useEffect(() => {
+     if (isOpen) {
+       scrollToBottom();
+' | git apply --3way)
