@@ -1,0 +1,58 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/hooks/useSupabasePresence.ts b/src/hooks/useSupabasePresence.ts
+index 03fac9ec8562f6d2e45097c08ee25523c9e63a4e..1f3bae58e7488201eb15d819e4170062c6fbdbcb 100644
+--- a/src/hooks/useSupabasePresence.ts
++++ b/src/hooks/useSupabasePresence.ts
+@@ -13,51 +13,51 @@ export interface PresenceUser {
+   isHandRaised?: boolean;
+ }
+ 
+ export function useSupabasePresence(roomId: string) {
+   const { user, profile } = useAuth();
+   const [activeFellows, setActiveFellows] = useState<Record<string, PresenceUser>>({});
+ 
+   useEffect(() => {
+     if (!user || !roomId) return;
+ 
+     // Join a Realtime Channel with Presence and Broadcast capability
+     const channel = supabase.channel(`presence-room-${roomId}`, {
+       config: {
+         presence: {
+           key: user.id,
+         },
+       },
+     });
+ 
+     // Track state of other fellows
+     const handleSync = () => {
+       const state = channel.presenceState();
+       const fellows: Record<string, PresenceUser> = {};
+       
+       Object.keys(state).forEach((key) => {
+-        const userPresences = state[key] as any[];
++        const userPresences = state[key] as unknown as PresenceUser[];
+         if (userPresences && userPresences.length > 0) {
+           const mainPresence = userPresences[userPresences.length - 1];
+           fellows[key] = {
+             userId: key,
+             name: mainPresence.name || '\''Anonymous Fellow'\'',
+             email: mainPresence.email || '\'''\'',
+             x: mainPresence.x || 0,
+             y: mainPresence.y || 0,
+             isMuted: mainPresence.isMuted ?? false,
+             isVideoOff: mainPresence.isVideoOff ?? false,
+             isHandRaised: mainPresence.isHandRaised ?? false,
+           };
+         }
+       });
+       setActiveFellows(fellows);
+     };
+ 
+     // Listen to changes
+     channel
+       .on('\''presence'\'', { event: '\''sync'\'' }, handleSync)
+       .subscribe(async (status) => {
+         if (status === '\''SUBSCRIBED'\'') {
+           // Untrack yourself on mount to guarantee fresh info, then track yourself
+           await channel.track({
+             userId: user.id,
+' | git apply --3way)
