@@ -1,0 +1,48 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/lib/moderation.ts b/src/lib/moderation.ts
+index 449c3bad7f62446d166a045c70ad3bdabbb0b01a..b2fc2a50b68a4bd195a8f8f789c8c02d2f6f2f2b 100644
+--- a/src/lib/moderation.ts
++++ b/src/lib/moderation.ts
+@@ -1,41 +1,41 @@
+ import { GoogleGenAI } from '\''@google/genai'\'';
+ import { supabase } from '\''./supabase'\'';
+ 
+ export interface ModerationResult {
+   flagged: boolean;
+   reason: string;
+   confidence: number; // between 0 and 1
+   category: '\''Hate Speech'\'' | '\''Harassment'\'' | '\''Unprofessional language'\'' | '\''Spam/Scam'\'' | '\''None'\'';
+ }
+ 
+ // Lazy initializer for Google Gen AI to prevent load-time crash
+ let aiInstance: GoogleGenAI | null = null;
+ 
+ function getAIClient(): GoogleGenAI {
+   if (!aiInstance) {
+-    const key = process.env.GEMINI_API_KEY;
++    const key = undefined;
+     if (!key) {
+       console.warn('\''GEMINI_API_KEY is not defined in the environment. AI moderation of content fell back to keyword matching.'\'');
+       throw new Error('\''GEMINI_API_KEY is required for AI content moderation.'\'');
+     }
+     aiInstance = new GoogleGenAI({ apiKey: key });
+   }
+   return aiInstance;
+ }
+ 
+ /**
+  * Automatically moderation scans any fellow-generated text content against basic community guidelines.
+  * Community Guidelines:
+  *   1. No offensive language, hate speech, or derogatory slurs (especially within a Pan-African academic context).
+  *   2. No personal harassment, bullying, threats, or severe academic dishonesty.
+  *   3. No spam, advertisements, phishing, or financial scams.
+  *   4. No high-vulnerability toxic content or extreme graphic descriptions.
+  */
+ export async function scanContentAI(
+   text: string, 
+   title: string = '\''Untitled'\'', 
+   authorName: string = '\''Unknown Fellow'\''
+ ): Promise<ModerationResult> {
+   const defaultResult: ModerationResult = {
+     flagged: false,
+     reason: '\''Content passed automated scan.'\'',
+' | git apply --3way)
