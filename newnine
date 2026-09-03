@@ -1,0 +1,60 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/contexts/AdminStateContext.tsx b/src/contexts/AdminStateContext.tsx
+index 65809258583a7b4ae39dfe5b50e1c0d75527ce17..0c26f1889555daf5b184e1f312e65b1f3852d947 100644
+--- a/src/contexts/AdminStateContext.tsx
++++ b/src/contexts/AdminStateContext.tsx
+@@ -487,52 +487,52 @@ export const AdminStateProvider: React.FC<{ children: React.ReactNode }> = ({ ch
+   });
+ 
+   // Real-time synced collections states
+   const [users, setUsers] = useState<UserItem[]>(() => {
+     const saved = localStorage.getItem('\''gma_admin_users'\'');
+     return saved ? JSON.parse(saved) : DEFAULT_USERS;
+   });
+ 
+   const [debates, setDebates] = useState<DebateMessage[]>(() => {
+     const saved = localStorage.getItem('\''gma_admin_debates'\'');
+     return saved ? JSON.parse(saved) : DEFAULT_DEBATES;
+   });
+ 
+   const [virtualRooms, setVirtualRooms] = useState<VirtualRoom[]>(() => {
+     const saved = localStorage.getItem('\''gma_admin_virtual_rooms'\'');
+     return saved ? JSON.parse(saved) : DEFAULT_VIRTUAL_ROOMS;
+   });
+ 
+   const [incidentReports, setIncidentReports] = useState<IncidentReport[]>(() => {
+     const saved = localStorage.getItem('\''gma_admin_incident_reports'\'');
+     return saved ? JSON.parse(saved) : DEFAULT_INCIDENT_REPORTS;
+   });
+ 
+   // Helper to persist to Supabase
+   const saveToSupabase = async (key: string, value: any) => {
+-    const isSuperAdmin = sessionStorage.getItem('\''gma-super-admin-authenticated'\'') === '\''true'\'';
+-    if (!isSuperAdmin) return;
++    const { data: { session } } = await supabase.auth.getSession();
++    if (!session) return;
+ 
+     try {
+       const deterministicIds: Record<string, string> = {
+         site_config: '\''a0000000-0000-0000-0000-000000000001'\'',
+         mentors: '\''a0000000-0000-0000-0000-000000000002'\'',
+         publications: '\''a0000000-0000-0000-0000-000000000003'\'',
+         fellow_contents: '\''a0000000-0000-0000-0000-000000000004'\'',
+         audit_logs: '\''a0000000-0000-0000-0000-000000000005'\'',
+         membership_data: '\''a0000000-0000-0000-0000-000000000006'\'',
+         growth_data: '\''a0000000-0000-0000-0000-000000000007'\'',
+         users: '\''a0000000-0000-0000-0000-000000000008'\'',
+         debates: '\''a0000000-0000-0000-0000-000000000009'\'',
+         virtual_rooms: '\''a0000000-0000-0000-0000-000000000010'\'',
+         incident_reports: '\''a0000000-0000-0000-0000-000000000011'\'',
+       };
+ 
+       const id = deterministicIds[key];
+       if (!id) return;
+ 
+       await supabase
+         .from('\''posts'\'')
+         .upsert({
+           id,
+           author_id: '\''e0000000-0000-0000-0000-000000000000'\'',
+           title: key,
+' | git apply --3way)
