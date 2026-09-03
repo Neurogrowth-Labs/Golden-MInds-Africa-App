@@ -1,0 +1,64 @@
+ (cd "$(git rev-parse --show-toplevel)" && printf '%s' 'diff --git a/src/App.tsx b/src/App.tsx
+index 53fd189318a403f9665fc226e9776d89c787192b..b72ccf6c7cbf7133587c4e0bf75fb58e3c3095f8 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -11,52 +11,58 @@ import Forum from '\''./pages/Forum'\'';
+ import Debates from '\''./pages/Debates'\'';
+ import Ecosystem from '\''./pages/Ecosystem'\'';
+ import AINotes from '\''./pages/AINotes'\'';
+ import Admin from '\''./pages/Admin'\'';
+ import VirtualRooms from '\''./pages/VirtualRooms'\'';
+ import LectureRoom from '\''./pages/LectureRoom'\'';
+ import Onboarding from '\''./pages/Onboarding'\'';
+ import Network from '\''./pages/Network'\'';
+ import Projects from '\''./pages/Projects'\'';
+ import Simulations from '\''./pages/Simulations'\'';
+ import Achievements from '\''./pages/Achievements'\'';
+ import CollaborationRooms from '\''./pages/CollaborationRooms'\'';
+ import Certifications from '\''./pages/Certifications'\'';
+ import KnowledgeVault from '\''./pages/KnowledgeVault'\'';
+ import Opportunities from '\''./pages/Opportunities'\'';
+ import Portfolio from '\''./pages/Portfolio'\'';
+ import Mentors from '\''./pages/Mentors'\'';
+ import Verify from '\''./pages/Verify'\'';
+ import Showcase from '\''./pages/Showcase'\'';
+ import Profile from '\''./pages/Profile'\'';
+ import Settings from '\''./pages/Settings'\'';
+ import ProtectedRoute from '\''./components/ProtectedRoute'\'';
+ import { AdminStateProvider } from '\''./contexts/AdminStateContext'\'';
+ import ErrorBoundary from '\''./components/ErrorBoundary'\'';
+ import { ThemeProvider } from '\''./contexts/ThemeContext'\'';
++import { isSupabaseConfigured } from '\''./lib/supabase'\'';
++import ConfigurationError from '\''./components/ConfigurationError'\'';
+ 
+ export default function App() {
++  if (!isSupabaseConfigured) {
++    return <ConfigurationError />;
++  }
++
+   return (
+     <ErrorBoundary>
+       <ThemeProvider>
+         <AuthProvider>
+           <AdminStateProvider>
+             <Toaster position="top-right" richColors />
+             <BrowserRouter>
+               <Routes>
+                 <Route path="/onboarding" element={<Onboarding />} />
+                 <Route path="/verify/:id" element={<Verify />} />
+                 <Route path="/verify" element={<Verify />} />
+                 <Route path="/admin" element={
+                   <ProtectedRoute>
+                     <Admin />
+                   </ProtectedRoute>
+                 } />
+               <Route path="/" element={<Layout />}>
+                 <Route index element={<Dashboard />} />
+                 
+                 {/* 1. AI Mentor Matching */}
+                 <Route path="mentorship/*" element={<Mentors />} />
+                 
+                 {/* 2. Projects & Portfolio */}
+                 <Route path="projects/*" element={<Projects />} />
+                 
+' | git apply --3way)
