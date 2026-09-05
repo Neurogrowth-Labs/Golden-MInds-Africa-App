@@ -18,7 +18,8 @@ export function useSupabasePresence(roomId: string) {
   const [activeFellows, setActiveFellows] = useState<Record<string, PresenceUser>>({});
 
   useEffect(() => {
-    if (!user || !roomId) return;
+    // Check that supabase client exists along with user and roomId
+    if (!supabase || !user || !roomId) return;
 
     // Join a Realtime Channel with Presence and Broadcast capability
     const channel = supabase.channel(`presence-room-${roomId}`, {
