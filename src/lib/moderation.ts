@@ -11,12 +11,12 @@ export interface ModerationResult {
 // Lazy initializer for Google Gen AI to prevent load-time crash
 let aiInstance: GoogleGenAI | null = null;
 
-function getAIClient(): GoogleGenAI {
+function getAIClient(): GoogleGenAI | null {
   if (!aiInstance) {
-    const key = undefined;
+    const key = import.meta.env.VITE_GEMINI_API_KEY;
     if (!key) {
-      console.warn('GEMINI_API_KEY is not defined in the environment. AI moderation of content fell back to keyword matching.');
-      throw new Error('GEMINI_API_KEY is required for AI content moderation.');
+      console.warn('VITE_GEMINI_API_KEY is not defined. Falling back to keyword moderation.');
+      return null;
     }
     aiInstance = new GoogleGenAI({ apiKey: key });
   }
@@ -63,6 +63,12 @@ export async function scanContentAI(
 
   try {
     const ai = getAIClient();
+    
+    // Fall back to regex scan results if the Gemini SDK client is not configured
+    if (!ai) {
+      return defaultResult;
+    }
+
     const systemPrompt = `You are a compliance scanning agent for Golden Minds Africa, a premium, high-integrity Pan-African leadership fellowship circle.
 Your goal is to scan fellow-generated forum posts, notes, and chat messages against community guidelines.
 Identify any violations of:
