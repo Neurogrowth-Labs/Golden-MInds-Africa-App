@@ -8,7 +8,7 @@ import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
 import Markdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 function PortfolioOverview() {
   const navigate = useNavigate();

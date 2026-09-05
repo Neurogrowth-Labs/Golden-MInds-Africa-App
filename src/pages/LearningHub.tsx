@@ -7,7 +7,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 // Utility to parse YouTube IDs from general URLs or direct IDs
 const getYouTubeId = (url: string): string => {

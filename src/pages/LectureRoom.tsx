@@ -15,7 +15,7 @@ import { useAdminState } from '../contexts/AdminStateContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useSupabasePresence, type PresenceUser } from '../hooks/useSupabasePresence';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const LANGUAGES = [
   { code: 'en', name: 'English' },

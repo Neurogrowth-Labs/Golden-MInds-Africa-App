@@ -68,7 +68,7 @@ Estimated cost, Funding sources, ROI / economic impact
 KPIs (measurable), Data collection methods, Review timeline
 `;
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function Assignments() {
   const [activeTab, setActiveTab] = useState<'pending' | 'submitted' | 'reviewed'>('pending');

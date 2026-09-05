@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { MessageCircle, X, Send, Loader2 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function QuickAIHelper() {
   const [isOpen, setIsOpen] = useState(false);

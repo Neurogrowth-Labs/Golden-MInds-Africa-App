@@ -4,7 +4,7 @@ import { MessageSquare, FileText, PenTool, Users, Plus, Hash, Sparkles, Search, 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const MOCK_ROOMS = [];
 

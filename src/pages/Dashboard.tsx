@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 import Markdown from 'react-markdown';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function Dashboard() {
   const { profile } = useAuth();

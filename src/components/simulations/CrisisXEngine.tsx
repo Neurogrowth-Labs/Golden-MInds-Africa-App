@@ -4,7 +4,7 @@ import { ShieldAlert, Activity, TrendingDown, Globe, Clock, Radio, Users, AlertT
 import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 interface Metrics {
   gdp: number;

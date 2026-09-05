@@ -4,7 +4,7 @@ import { useNavigate, Routes, Route } from 'react-router-dom';
 import { Briefcase, GraduationCap, DollarSign, Mic, Sparkles, ExternalLink, Search, Filter } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const MOCK_OPPORTUNITIES = [];
 

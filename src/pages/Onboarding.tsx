@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export default function Onboarding() {
   const navigate = useNavigate();

@@ -5,7 +5,7 @@ import { GoogleGenAI } from '@google/genai';
 import { useAuth } from '../contexts/AuthContext';
 import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const MOCK_MENTORS = [];
 

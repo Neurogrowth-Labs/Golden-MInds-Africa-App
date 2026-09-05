@@ -3,7 +3,7 @@ import { motion } from 'motion/react';
 import { Send, Bot, User, ShieldAlert, Trophy, Loader2 } from 'lucide-react';
 import { GoogleGenAI, ThinkingLevel } from '@google/genai';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 interface Message {
   id: string;

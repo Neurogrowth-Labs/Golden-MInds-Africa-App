@@ -6,7 +6,7 @@ import { GoogleGenAI } from '@google/genai';
 import Markdown from 'react-markdown';
 import KnowledgeGraph from './KnowledgeGraph';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 const MOCK_RESOURCES = [];
 

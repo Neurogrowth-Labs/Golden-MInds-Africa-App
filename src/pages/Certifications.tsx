@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 import { useAuth } from '../contexts/AuthContext';
 import appLogo from '../assets/images/logo.png';
 
-const ai = new GoogleGenAI({ apiKey: undefined });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 // Mock Data for the Fellow's Performance & Credentials
 const MOCK_DATA = {
